@@ -1,0 +1,19 @@
+# Arquivos de Cache e Bytecode do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pasta do Ambiente Virtual
+venv/
+
+# Arquivo do Banco de Dados SQLite
+db.sqlite3
+*.sqlite3
+
+# Arquivos de configuração de IDEs (opcional, mas recomendado)
+.idea/
+.vscode/
+
+# Arquivos de segredos (boa prática para o futuro)
+.env
