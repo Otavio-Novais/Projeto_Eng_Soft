@@ -7,3 +7,57 @@ A ideia é desenvolver um planejador de viagens entre amigos.
 3. Kaylan Ribeiro, RA: 170346
 4. Breno Fernandes, RA: 168510
 5. Iago Ayres, RA: 168774
+
+## Stack de Tecnologia
+
+* **Linguagem de Programação:** Python
+* **Framework Back-end:** Django 5.2.6
+* **Banco de Dados:** SQLite (Desenvolvimento) e PostgreSQL (Produção)
+* **Front-end:**
+    * **Estrutura:** Templates Django com HTML
+    * **Estilização:** Bootstrap ou Tailwind CSS
+    * **Interatividade:** JavaScript com HTMX
+* **Dependências Principais:**
+    * `asgiref==3.9.1`
+    * `Django==5.2.6`
+    * `sqlparse==0.5.3`
+    * `tzdata==2025.2`
+* **Componentes Planejados:**
+    * Servidor de Aplicação (WSGI)
+    * Servidor Web (Reverse Proxy)
+    * Tarefas em Background: Celery + Redis
+    * Hospedagem/Deployment: Render
+
+## Arquitetura do Projeto
+
+O projeto segue o padrão **Model-View-Template (MVT)**, a arquitetura padrão do Django. Esta arquitetura divide a aplicação em três componentes principais, ajudando a manter o código organizado e facilitando a colaboração da equipe.
+
+1.  **Model (Modelo):** Representa a estrutura dos dados da aplicação.
+2.  **View (Visão):** Manipula a lógica de negócio e interage com os modelos para buscar ou salvar dados.
+3.  **Template (Gabarito):** A camada de apresentação que renderiza os dados para o usuário.
+
+## Estrutura de Diretórios
+
+A estrutura de diretórios principal do projeto é a seguinte:
+
+.
+├── .github/workflows/   # Arquivos de CI/CD
+│   ├── ci.yml
+│   └── deploy.yml
+├── planner/             # Aplicação principal do planner
+│   ├── migrations/
+│   ├── init.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── tripsync_project/    # Configurações do projeto Django
+│   ├── init.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── .gitignore           # Arquivos a serem ignorados pelo Git
+├── manage.py            # Utilitário de linha de comando do Django
+└── requirements.txt     # Dependências do projeto
