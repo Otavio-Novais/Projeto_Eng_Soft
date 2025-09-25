@@ -1,50 +1,68 @@
-# Projeto
-A ideia é desenvolver um planejador de viagens entre amigos.
+<p align="center">
+  <h1 align="center">TripSync ✈️</h1>
+</p>
 
-## Integrantes
-1. Otávio Novias, RA: 163962
-2. Lucas Henrique, RA: 156695
-3. Kaylan Ribeiro, RA: 170346
-4. Breno Fernandes, RA: 168510
-5. Iago Ayres, RA: 168774
+<p align="center">
+  Uma aplicação web inteligente para planejar suas viagens em grupo de forma simples e organizada.
+</p>
 
-## Stack de Tecnologia
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white" alt="Python Version">
+  <img src="https://img.shields.io/badge/Django-5.2-green?logo=django&logoColor=white" alt="Django Version">
+  <img src="https://github.com/otavio-novais/projeto_eng_soft/actions/workflows/ci.yml/badge.svg" alt="CI Status">
+  </p>
 
-* **Linguagem de Programação:** Python
+---
+
+## 📋 Tabela de Conteúdos
+
+* [Visão Geral](#-visão-geral)
+* [✨ Features](#-features)
+* [🚀 Tecnologias Utilizadas](#-tecnologias-utilizadas)
+* [🏛️ Arquitetura](#️-arquitetura)
+* [📂 Estrutura de Diretórios](#-estrutura-de-diretórios)
+* [▶️ Como Executar o Projeto](#️-como-executar-o-projeto)
+
+---
+
+## 🖼️ Visão Geral
+
+> **TripSync** simplifica o planejamento de viagens, permitindo que você e seus amigos organizem roteiros, controlem despesas e colaborem em tempo real. Chega de planilhas complicadas e conversas perdidas!
+
+---
+
+## ✨ Features
+
+* **Planejamento Colaborativo:** Crie viagens e convide seus amigos.
+* **Roteiros Detalhados:** Organize o dia a dia da sua viagem com atividades e locais.
+* **Controle de Despesas:** Registre os gastos e veja quem pagou o quê.
+* **Autenticação de Usuários:** Cadastro e login seguros.
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+* **Linguagem:** Python
 * **Framework Back-end:** Django 5.2.6
-* **Banco de Dados:** SQLite (Desenvolvimento) e PostgreSQL (Produção)
-* **Front-end:**
-    * **Estrutura:** Templates Django com HTML
-    * **Estilização:** Bootstrap ou Tailwind CSS
-    * **Interatividade:** JavaScript com HTMX
-* **Dependências Principais:**
-    * `asgiref==3.9.1`
-    * `Django==5.2.6`
-    * `sqlparse==0.5.3`
-    * `tzdata==2025.2`
-* **Componentes Planejados:**
-    * Servidor de Aplicação (WSGI)
-    * Servidor Web (Reverse Proxy)
-    * Tarefas em Background: Celery + Redis
-    * Hospedagem/Deployment: Render
+* **Banco de Dados:** SQLite (Desenvolvimento) | PostgreSQL (Produção)
+* **Front-end:** Templates Django, HTML, CSS (Bootstrap/Tailwind) e JavaScript (HTMX)
+* **Deployment:** Configurado para Render com CI/CD via GitHub Actions.
 
-## Arquitetura do Projeto
+---
 
-O projeto segue o padrão **Model-View-Template (MVT)**, a arquitetura padrão do Django. Esta arquitetura divide a aplicação em três componentes principais, ajudando a manter o código organizado e facilitando a colaboração da equipe.
+## 🏛️ Arquitetura
 
-1.  **Model (Modelo):** Representa a estrutura dos dados da aplicação.
-2.  **View (Visão):** Manipula a lógica de negócio e interage com os modelos para buscar ou salvar dados.
-3.  **Template (Gabarito):** A camada de apresentação que renderiza os dados para o usuário.
+O projeto segue o padrão **Model-View-Template (MVT)**, nativo do Django, que garante uma excelente organização do código e separação de responsabilidades.
 
-## Estrutura de Diretórios
+---
 
-A estrutura de diretórios principal do projeto é a seguinte:
+## 📂 Estrutura de Diretórios
 
 .
-├── .github/workflows/   # Arquivos de CI/CD
+├── .github/workflows/   # 🤖 Pipelines de CI/CD
 │   ├── ci.yml
 │   └── deploy.yml
-├── planner/             # Aplicação principal do planner
+├── planner/             # ✈️ Aplicação principal do planner
 │   ├── migrations/
 │   ├── init.py
 │   ├── admin.py
@@ -52,7 +70,7 @@ A estrutura de diretórios principal do projeto é a seguinte:
 │   ├── models.py
 │   ├── tests.py
 │   └── views.py
-├── tripsync_project/    # Configurações do projeto Django
+├── tripsync_project/    # ⚙️ Configurações do projeto
 │   ├── init.py
 │   ├── asgi.py
 │   ├── settings.py
