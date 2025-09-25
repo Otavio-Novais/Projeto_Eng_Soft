@@ -58,7 +58,7 @@ O projeto segue o padrão **Model-View-Template (MVT)**, nativo do Django, que g
 
 ## 📂 Estrutura de Diretórios
 
-<```
+```
 .
 ├── .github/workflows/   # 🤖 Pipelines de CI/CD
 │   ├── ci.yml
