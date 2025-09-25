@@ -58,20 +58,21 @@ O projeto segue o padrão **Model-View-Template (MVT)**, nativo do Django, que g
 
 ## 📂 Estrutura de Diretórios
 
+<```
 .
 ├── .github/workflows/   # 🤖 Pipelines de CI/CD
 │   ├── ci.yml
 │   └── deploy.yml
 ├── planner/             # ✈️ Aplicação principal do planner
 │   ├── migrations/
-│   ├── init.py
+│   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
 │   ├── models.py
 │   ├── tests.py
 │   └── views.py
 ├── tripsync_project/    # ⚙️ Configurações do projeto
-│   ├── init.py
+│   ├── __init__.py
 │   ├── asgi.py
 │   ├── settings.py
 │   ├── urls.py
@@ -79,3 +80,4 @@ O projeto segue o padrão **Model-View-Template (MVT)**, nativo do Django, que g
 ├── .gitignore           # Arquivos a serem ignorados pelo Git
 ├── manage.py            # Utilitário de linha de comando do Django
 └── requirements.txt     # Dependências do projeto
+```
