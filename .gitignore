@@ -1,19 +1,12 @@
-# Arquivos de Cache e Bytecode do Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Node.js
+node_modules/
+dist/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Pasta do Ambiente Virtual
-venv/
-
-# Arquivo do Banco de Dados SQLite
-db.sqlite3
-*.sqlite3
-
-# Arquivos de configuração de IDEs (opcional, mas recomendado)
-.idea/
+# Arquivos de IDEs
 .vscode/
-
-# Arquivos de segredos (boa prática para o futuro)
-.env
+.idea/
