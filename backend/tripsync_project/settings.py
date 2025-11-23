@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'accounts',
     'planner',
+    
 ]
 
 MIDDLEWARE = [
@@ -55,10 +57,10 @@ MIDDLEWARE = [
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:3000",      # <--- Porta do Create React App
     "http://127.0.0.1:3000",
+    "http://localhost:5173",      # Pode manter essa por segurança
 ]
-
 # REST Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -102,20 +104,16 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
+    # Validações padrões do Django (opcionais, mas recomendadas)
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
+    # Nossa validação personalizada
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'accounts.validators.ComplexPasswordValidator',
     },
 ]
-
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
