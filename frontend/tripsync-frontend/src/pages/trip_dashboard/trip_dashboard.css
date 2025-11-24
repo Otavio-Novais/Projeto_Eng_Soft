@@ -1,0 +1,356 @@
+/* trip_dashboard.css */
+
+/* --- Layout Global & Tipografia --- */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f3f5f9; /* Fundo cinza claro da página */
+  font-family: "Inter", sans-serif;
+  color: #1f2937;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+/* --- Sidebar (Mantida igual, só garantindo z-index) --- */
+.sidebar {
+  width: 260px;
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 10; /* Garante que a sidebar fique sobre o conteúdo se necessário */
+}
+
+/* ... (O restante do CSS da Sidebar permanece igual ao anterior) ... */
+.logo-container {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: #4b5563;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.nav-item:hover,
+.nav-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+.nav-footer {
+  margin-top: auto; 
+  padding-top: 1rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+/* --- Main Content Area --- */
+.main-content {
+  flex: 1;
+  /* Removemos o padding do topo para o header encostar */
+  padding: 0 0 2.5rem 0;
+  overflow-y: auto;
+}
+
+/* O NOVO HEADER BRANCO */
+.content-header {
+  background-color: white; /* Fundo branco */
+  padding: 1.5rem 3rem; /* Espaçamento interno */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-left h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.date-tag {
+  background: #e5e7eb;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+.btn-warning {
+  background: #fbbf24;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Container para o conteúdo abaixo do header */
+.content-body {
+  padding: 0 3rem; /* Padding lateral do conteúdo principal */
+}
+
+.section-title {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+/* --- NOVA CLASSE: Containers Brancos de Seção --- */
+/* É isso que cria os retângulos brancos grandes ao redor dos grupos */
+.white-section-container {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  /* Sombra suave opcional, remova se quiser totalmente flat */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+/* --- Stats Cards (Os retângulos azuis internos) --- */
+.stats-grid {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.stat-card {
+  flex: 1;
+  background-color: #f5f9ff; /* AZUL CLARO */
+  padding: 1.5rem;
+  border-radius: 12px;
+  /* Sem borda ou sombra individual agora, pois estão dentro do container branco */
+}
+
+.stat-card small {
+  color: #6b7280;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.stat-card h3 {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+  color: #111827;
+}
+.sub-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* --- Grid Layout (Colunas) --- */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+/* As colunas agora só organizam o espaço, os containers brancos vão dentro delas */
+.grid-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Itens de Lista (Sugestões, Atividades, Despesas) --- */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item-card {
+  background-color: #f5f9ff; /* AZUL CLARO */
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Removemos bordas individuais para ficar mais limpo */
+}
+
+.item-card.big-padding {
+  padding: 1.25rem;
+}
+
+/* Ícones */
+.item-icon {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  font-size: 1.2rem;
+}
+.item-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+} /* Ícone azul sobre fundo azul claro */
+
+.item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.item-info strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+.item-info small {
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* Botões e Rodapés */
+.add-suggestion-box {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+.btn-primary {
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background-color: #0052cc;
+}
+
+/* --- Seção Financeira --- */
+.finance-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.badge {
+  background: #f5f9ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+.badge-outline {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+.finance-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* --- Membros (Retângulos Azuis) --- */
+.member-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.member-row {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #f5f9ff; /* AZUL CLARO */
+  border-radius: 12px;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-right: 1rem;
+}
+.member-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.member-details strong {
+  font-weight: 600;
+}
+.member-details small {
+  color: #6b7280;
+}
+.status-tag {
+  color: #059669;
+  background: #d1fae5;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.members-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.btn-outline {
+  border: 1px solid #e5e7eb;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
