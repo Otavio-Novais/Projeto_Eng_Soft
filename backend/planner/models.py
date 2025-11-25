@@ -1,9 +1,7 @@
+from django.db import models	
 # planner/models.py
 
-
-from django.db import models	
-
-
+# Create your models here.
 class Viagem(models.Model):
 
     nome = models.CharField(max_length=200, help_text="O nome ou título da viagem.")
