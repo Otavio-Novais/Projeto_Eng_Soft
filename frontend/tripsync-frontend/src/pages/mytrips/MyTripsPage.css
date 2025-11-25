@@ -212,3 +212,275 @@ body {
     gap: 5px;
     font-weight: 500;
 }
+.profile-menu-container {
+    position: relative;
+}
+
+.profile-trigger {
+    cursor: pointer;
+    background-color: #eef4ff; /* Azul claro */
+    color: #0066ff;
+    font-weight: bold;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 120%; /* Fica logo abaixo do botão */
+    right: 0;   /* Alinhado à direita */
+    background: white;
+    border: 1px solid #eaedf2;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 200px;
+    padding: 8px 0;
+    z-index: 100; /* Garante que fique por cima de tudo */
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    color: #8898aa;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.dropdown-item {
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-item:hover {
+    background-color: #f8fbff;
+    color: #0066ff;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #eaedf2;
+    margin: 6px 0;
+}
+
+.logout-item {
+    color: #dc3545; /* Vermelho para sair */
+}
+
+.logout-item:hover {
+    background-color: #fff5f5;
+    color: #c53030;
+}
+.profile-container {
+    position: relative; /* OBRIGATÓRIO: Segura o menu no lugar */
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    background: white;
+    border: 1px solid #eaedf2;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 200px;
+    z-index: 1000; /* Garante que fica por cima de tudo */
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f7fa;
+    color: #0066ff;
+}
+
+.dropdown-item.danger {
+    color: #dc3545;
+    border-top: 1px solid #eee;
+}
+
+.dropdown-item.danger:hover {
+    background-color: #fff5f5;
+}/* Estilos da Página de Configurações */
+.subtitle-text {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.settings-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    max-width: 600px;
+    border: 1px solid #eaedf2;
+}
+
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+}
+
+.setting-title {
+    display: block;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.setting-desc {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.toggle-switch {
+    transform: scale(1.5);
+    cursor: pointer;
+}
+/* --- RESPONSIVIDADE (Mobile & Tablet) --- */
+@media (max-width: 768px) {
+
+    /* 1. Navbar Empilhada */
+    .dash-navbar {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap; /* Permite que botões desçam se faltar espaço */
+        gap: 10px;
+    }
+
+    .brand {
+        margin-bottom: 5px;
+    }
+
+    /* Botões da Navbar ocupam mais espaço para toque */
+    .btn-nav, .btn-primary {
+        flex: 1; /* Divide o espaço igualmente */
+        justify-content: center;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    /* Oculta o texto "Minhas Viagens" no botão para economizar espaço se precisar */
+    /* .nav-actions .btn-nav:first-child { display: none; } */ 
+
+    /* 2. Conteúdo Principal */
+    .dash-content {
+        padding: 1.5rem 1rem; /* Reduz padding lateral */
+    }
+
+    .dash-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .dash-header .btn-primary {
+        width: 100%; /* Botão "Criar" largura total */
+    }
+
+    /* 3. Filtros e Contagem */
+    .filters-bar {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .filter-group {
+        width: 100%;
+        overflow-x: auto; /* Permite rolar os filtros lateralmente se não couberem */
+        padding-bottom: 5px;
+    }
+
+    .filter-btn {
+        flex-shrink: 0; /* Impede botões de amassar */
+    }
+
+    /* 4. Grid de Viagens */
+    .trips-grid {
+        justify-content: center;
+    }
+
+    .trip-card {
+        width: 100%; /* Card ocupa a tela toda no celular */
+    }
+
+    /* 5. Ajustes da Tela de Perfil */
+    .profile-card {
+        padding: 1.5rem;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .row-2-cols {
+        flex-direction: column; /* Cidade e Data ficam um embaixo do outro */
+        gap: 0;
+    }
+
+    .btn-save {
+        width: 100%; /* Botão Salvar grande */
+        margin-top: 1rem;
+    }
+
+    /* 6. Ajustes da Tela de Configurações */
+    .settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .settings-item .switch, 
+    .settings-item button, 
+    .settings-item select {
+        align-self: flex-end; /* Joga os controles para a direita */
+    }
+    
+    /* Menu Dropdown não sair da tela */
+    .dropdown-menu {
+        right: 50%;
+        transform: translateX(50%); /* Centraliza em relação ao botão no mobile */
+        width: 250px;
+    }
+}

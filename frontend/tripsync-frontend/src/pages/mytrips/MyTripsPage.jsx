@@ -1,49 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MyTripsPage.css';
+import api from '../../services/api';
 
-const DashboardPage = () => {
+const MyTripsPage = () => {
   const navigate = useNavigate();
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // ESTADO DO MENU
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
-  // Dados falsos para simular a imagem enquanto não conectamos o backend
-  const mockTrips = [
-    {
-        id: 1,
-        title: "Fim de Semana em Paraty",
-        status: "Em planejamento",
-        date: "12-14 Jul",
-        members: 5,
-        image: "https://images.unsplash.com/photo-1595240292864-750535c5c067?auto=format&fit=crop&w=500&q=60",
-        type: "Roteiro"
-    },
-    {
-        id: 2,
-        title: "Lisboa com Amigos",
-        status: "Próxima",
-        date: "02-10 Set",
-        members: 4,
-        image: "https://images.unsplash.com/photo-1555881400-74d7acaacd81?auto=format&fit=crop&w=500&q=60",
-        type: "Finanças"
-    },
-    {
-        id: 3,
-        title: "Trilha na Patagônia",
-        status: "Concluída",
-        date: "Mar 2024",
-        members: 3,
-        image: "https://images.unsplash.com/photo-1518182170546-0766ce6fec93?auto=format&fit=crop&w=500&q=60",
-        type: "Álbum"
-    },
-    {
-        id: 4,
-        title: "Reveillon no Rio",
-        status: "Em planejamento",
-        date: "28 Dez - 02 Jan",
-        members: 8,
-        image: "https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?auto=format&fit=crop&w=500&q=60",
-        type: "Sugestões"
-    }
-  ];
+  useEffect(() => {
+    const fetchTrips = async () => {
+        try {
+            const response = await api.get('/trips/');
+            setTrips(response.data); 
+        } catch (error) {
+            console.error("Erro:", error);
+            if (error.response && error.response.status === 401) {
+                localStorage.clear();
+                navigate('/');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchTrips();
+
+    // FECHAR AO CLICAR FORA
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setShowDropdown(false);
+        }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [navigate]);
 
   const handleLogout = () => {
       localStorage.clear();
@@ -53,22 +47,43 @@ const DashboardPage = () => {
   return (
     <div className="dashboard-container">
         
-        {/* NAVBAR */}
         <nav className="dash-navbar">
             <div className="brand" style={{display:'flex', alignItems:'center', gap:'8px', fontWeight:'800', fontSize:'1.2rem'}}>
                 <span>🗺️</span> Tripsync
             </div>
+            
             <div className="nav-actions">
-                <button className="btn-nav">📅 Minhas Viagens</button>
+                <button className="btn-nav" onClick={() => navigate('/mytrips')}>📅 Minhas Viagens</button>
                 <button className="btn-primary">+ Criar Nova Viagem</button>
-                <button className="btn-nav" onClick={handleLogout}>👤 Perfil / Sair</button>
+                
+                {/* --- PERFIL COM DROPDOWN --- */}
+                <div className="profile-container" ref={dropdownRef}>
+                    <button 
+                        className="btn-nav" 
+                        onClick={() => setShowDropdown(!showDropdown)} // <--- O CLIQUE ESTÁ AQUI
+                    >
+                        👤 Perfil ▼
+                    </button>
+
+                    {/* MENU SÓ APARECE SE showDropdown FOR TRUE */}
+                    {showDropdown && (
+                        <div className="dropdown-menu">
+                            <button className="dropdown-item" onClick={() => navigate('/profile')}>
+                                ✏️ Editar Dados
+                            </button>
+                            <button className="dropdown-item" onClick={() => navigate('/settings')}>
+                                ⚙️ Configurações
+                            </button>
+                            <button className="dropdown-item danger" onClick={handleLogout}>
+                                🚪 Sair
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </nav>
 
-        {/* CONTEÚDO */}
         <main className="dash-content">
-            
-            {/* CABEÇALHO DA SEÇÃO */}
             <div className="dash-header">
                 <div>
                     <h1>Dashboard Pessoal</h1>
@@ -77,55 +92,49 @@ const DashboardPage = () => {
                 <button className="btn-primary">+ Criar Nova Viagem</button>
             </div>
 
-            {/* BARRA DE FILTROS */}
             <div className="filters-bar">
                 <div className="filter-group">
-                    <button className="filter-btn active">📅 Próximas</button>
-                    <button className="filter-btn">🕒 Em planejamento</button>
-                    <button className="filter-btn">✅ Concluídas</button>
+                    <button className="filter-btn">📅 Próximas</button>
+                    <button className="filter-btn active">🕒 Em planejamento</button>
+                    <button className="filter-btn">📦 Concluídas</button>
                 </div>
-                <span className="trip-count">6 viagens</span>
+                <span className="trip-count">{trips.length} viagens</span>
             </div>
 
-            {/* GRID DE CARDS */}
-            <div className="trips-grid">
-                {mockTrips.map(trip => (
-                    <div key={trip.id} className="trip-card">
-                        
-                        <div className="card-header">
-                            <span className="status-badge status-planning">{trip.status}</span>
-                            <button className="btn-open">→ Abrir</button>
-                        </div>
-
-                        <img src={trip.image} alt={trip.title} className="card-image" />
-
-                        <div className="trip-info">
-                            <h3>{trip.title}</h3>
-                            <div className="trip-meta">
-                                <span>📅 {trip.date}</span>
-                                <span>👥 {trip.members} membros</span>
+            {loading ? (
+                <p style={{textAlign: 'center', marginTop: '2rem', color: '#666'}}>Carregando...</p>
+            ) : trips.length === 0 ? (
+                <div style={{textAlign: 'center', padding: '4rem', color: '#8898aa'}}>
+                    <h3>Nenhuma viagem encontrada 😢</h3>
+                    <p>Clique em "Criar Nova Viagem" para começar!</p>
+                </div>
+            ) : (
+                <div className="trips-grid">
+                    {trips.map(trip => (
+                        <div key={trip.id} className="trip-card">
+                            <div className="card-header">
+                                <span className="status-badge status-planning">{trip.status_display || trip.status}</span>
+                                <button className="btn-open">→ Abrir</button>
+                            </div>
+                            <img 
+                                src={trip.cover_image || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=500&q=60"} 
+                                alt={trip.title} 
+                                className="card-image" 
+                            />
+                            <div className="trip-info">
+                                <h3>{trip.title}</h3>
+                                <div className="trip-meta">
+                                    <span>📍 {trip.destination}</span>
+                                    <span>📅 {trip.start_date}</span>
+                                </div>
                             </div>
                         </div>
-
-                        <div className="card-footer">
-                            <div className="members-avatars">
-                                {/* Avatares Falsos só pra visual */}
-                                <img src="https://i.pravatar.cc/100?img=1" className="avatar-circle" alt="User" />
-                                <img src="https://i.pravatar.cc/100?img=2" className="avatar-circle" alt="User" />
-                                <img src="https://i.pravatar.cc/100?img=3" className="avatar-circle" alt="User" />
-                            </div>
-                            <div className="trip-type">
-                                📂 {trip.type}
-                            </div>
-                        </div>
-
-                    </div>
-                ))}
-            </div>
-
+                    ))}
+                </div>
+            )}
         </main>
     </div>
   );
 };
 
-export default DashboardPage;
+export default MyTripsPage;

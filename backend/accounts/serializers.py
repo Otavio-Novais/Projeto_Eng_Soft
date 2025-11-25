@@ -41,3 +41,33 @@ class SetNewPasswordSerializer(serializers.Serializer):
         # Isso roda todas as regras do settings.py (incluindo sua ComplexPasswordValidator)
         validate_password(value)
         return value
+# --- ADICIONE ISTO NO FINAL DO ARQUIVO ---
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(max_length=None, use_url=True, allow_null=True, required=False)
+
+    class Meta:
+        model = CustomUser
+        # AQUI ESTÁ O SEGREDO: Listar TUDO que o perfil usa
+        fields = [
+            'email', 
+            'full_name', 
+            'city', 
+            'birth_date', 
+            'phone', 
+            'avatar', 
+            'bio',            # <--- Faltava confirmar
+            'travel_style',   # <--- Faltava confirmar
+            'email_notifications', 
+            'currency'
+        ]
+        read_only_fields = ['email']
+
+# 2. Crie este NOVO Serializer no final do arquivo
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value) # Valida força da senha
+        return value

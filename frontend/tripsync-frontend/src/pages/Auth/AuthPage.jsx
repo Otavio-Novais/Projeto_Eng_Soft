@@ -1,35 +1,43 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
 import './AuthPage.css';
+import api from '../../services/api';
 
-// Configuração do Axios (Direto aqui para evitar erros de importação)
-const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
-});
+// --- 1. NOVOS IMPORTS DO CALENDÁRIO ---
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale } from "react-datepicker";
+import ptBR from 'date-fns/locale/pt-BR'; // Para deixar em português
+
+// Registra o idioma português no calendário
+registerLocale('pt-BR', ptBR);
 
 const AuthPage = () => {
   const navigate = useNavigate();
-
   const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false); // <--- NOVO
-  // --- ESTADOS DOS CAMPOS ---
+  const [loading, setLoading] = useState(false);
+
   const [email, setEmail] = useState('');
-  const [confirmEmail, setConfirmEmail] = useState(''); // Confirmação de Email
-
+  const [confirmEmail, setConfirmEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // Confirmação de Senha
-
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [city, setCity] = useState('');
-  const [birthDate, setBirthDate] = useState('');
 
-  // --- ESTADOS DE ERRO ---
+  // --- 2. MUDANÇA NO ESTADO DA DATA ---
+  // O DatePicker prefere trabalhar com objetos Date ou null (não string vazia)
+  const [birthDate, setBirthDate] = useState(null);
+
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState('');
 
-  // --- VALIDAÇÃO DE FORÇA DA SENHA (Visual) ---
+  // --- 3. LÓGICA DE LIMITE DE DATA (1900 a Hoje-5 anos) ---
+  const hoje = new Date();
+  const maxDate = new Date(hoje.getFullYear() - 5, hoje.getMonth(), hoje.getDate());
+  const minDate = new Date("1900-01-01");
+
   const passwordStatus = {
     length: password.length >= 8,
     upper: /[A-Z]/.test(password),
@@ -37,7 +45,6 @@ const AuthPage = () => {
     special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
   };
 
-  // --- LOGIN COM GOOGLE ---
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const response = await api.post('/auth/google/', {
@@ -48,106 +55,88 @@ const AuthPage = () => {
       alert("Login com Google realizado! 🚀");
       navigate('/mytrips');
     } catch (error) {
-      console.error("Erro Google:", error);
       setLoginError("Falha na autenticação com Google.");
     }
   };
 
-  // --- VALIDAÇÃO DO FORMULÁRIO (Frontend) ---
   const validateForm = () => {
     const newErrors = {};
-
-    // Campos obrigatórios comuns
     if (!email) newErrors.email = ["O e-mail é obrigatório."];
     if (!password) newErrors.password = ["A senha é obrigatória."];
 
-    // Validações exclusivas de CADASTRO
     if (!isLogin) {
       if (!fullName) newErrors.full_name = ["O nome é obrigatório."];
-      if (!birthDate) newErrors.birth_date = ["A data é obrigatória."];
 
-      // 1. Confirmação de Email
-      if (email !== confirmEmail) {
-        newErrors.confirmEmail = ["Os e-mails não coincidem."];
+      // Validação da Data (Objeto Date)
+      if (!birthDate) {
+        newErrors.birth_date = ["A data é obrigatória."];
       }
 
-      // 2. Confirmação de Senha
-      if (password !== confirmPassword) {
-        newErrors.confirmPassword = ["As senhas não coincidem."];
-      }
+      if (email !== confirmEmail) newErrors.confirmEmail = ["Os e-mails não coincidem."];
+      if (password !== confirmPassword) newErrors.confirmPassword = ["As senhas não coincidem."];
 
-      // 3. Validação Rígida da Senha
-      const isPasswordStrong =
-        passwordStatus.length &&
-        passwordStatus.upper &&
-        passwordStatus.number &&
-        passwordStatus.special;
-
-      if (!isPasswordStrong) {
-        newErrors.password = ["Sua senha não atende aos requisitos de segurança."];
-      }
+      const isPasswordStrong = passwordStatus.length && passwordStatus.upper && passwordStatus.number && passwordStatus.special;
+      if (!isPasswordStrong) newErrors.password = ["Sua senha não atende aos requisitos de segurança."];
     }
-
     return newErrors;
   };
 
-  // --- ENVIO DOS DADOS ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({});      // Limpa erros de validação anteriores
-    setLoginError('');  // Limpa erros de login anteriores
+    setErrors({});
+    setLoginError('');
 
-    // 1. Validação do Frontend (impede envio se tiver campos vazios ou senhas diferentes)
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      return; // Para aqui e não chama o servidor
+      return;
     }
 
-    // 2. Ativa o modo "Carregando" (Trava o botão)
     setLoading(true);
 
     try {
       if (isLogin) {
-        // --- LOGIN ---
         const response = await api.post('/auth/login/', { email, password });
         localStorage.setItem('token', response.data.access);
-        localStorage.setItem('refreshToken', response.data.refresh);
-        alert("Login realizado! 🚀");
         navigate('/mytrips');
       } else {
-        // --- CADASTRO ---
+        // --- CONVERTER DATA PARA FORMATO DO BACKEND (YYYY-MM-DD) ---
+        // O DatePicker nos dá um objeto Date, mas o Django quer string "2000-01-01"
+        let formattedDate = "";
+        if (birthDate) {
+          // Truque para pegar YYYY-MM-DD localmente sem mudar fuso
+          const offset = birthDate.getTimezoneOffset();
+          const localDate = new Date(birthDate.getTime() - (offset * 60 * 1000));
+          formattedDate = localDate.toISOString().split('T')[0];
+        }
+
         await api.post('/auth/register/', {
           email,
           password,
           full_name: fullName,
           city,
-          birth_date: birthDate
+          birth_date: formattedDate // Envia a string formatada
         });
         alert("Cadastro realizado! Agora faça login.");
-        setIsLogin(true); // Muda para a aba de login automaticamente
+        setIsLogin(true);
       }
     } catch (error) {
-      console.error("Erro na requisição:", error);
-
       if (isLogin) {
-        // Tratamento especial para Login (Erro 401 = Senha errada)
         if (error.response && error.response.status === 401) {
           setLoginError("E-mail ou senha incorretos.");
         } else {
-          setLoginError("Erro de conexão. Tente novamente.");
+          setLoginError("Erro de conexão.");
         }
-      }
-      else if (error.response && error.response.data) {
-        // Tratamento para erros de Cadastro (ex: Email já existe) vindo do Django
-        setErrors(error.response.data);
+      } else if (error.response && error.response.data) {
+        const backendErrors = error.response.data;
+        if (backendErrors.email) backendErrors.email = ["Este e-mail já possui cadastro."];
+        setErrors(backendErrors);
       }
     } finally {
-      // 3. Desativa o modo "Carregando" (Sempre roda, dando certo ou errado)
       setLoading(false);
     }
   };
-  // Função para limpar os campos ao trocar entre Entrar/Cadastrar
+
   const switchTab = (loginState) => {
     setIsLogin(loginState);
     setErrors({});
@@ -158,30 +147,25 @@ const AuthPage = () => {
 
   return (
     <div className="auth-container">
-
-      {/* NAVBAR */}
       <div className="navbar">
         <div className="brand">
           <span className="logo-icon">🗺️</span>
           <span className="logo-text">Tripsync</span>
         </div>
-        <button className="btn-dashboard-pill">🎛 Dashboard</button>
+        {/* Botão Dashboard foi removido daqui */}
       </div>
 
       <div className="content-body">
-        {/* LADO ESQUERDO */}
         <div className="left-section">
           <div className="hero-content">
             <h1>Planeje viagens em grupo sem stress</h1>
             <p className="hero-subtitle">Centralize decisões, faça votações e controle despesas.</p>
-
             <div className="features-grid">
               <div className="feature-card"><div className="icon-wrapper">👥</div><strong>Tudo em um lugar</strong><p>Sugestões, roteiro e finanças.</p></div>
-              <div className="feature-card"><div className="icon-wrapper">🎛</div><strong>Decisões rápidas</strong><p>Votações claras para o grupo.</p></div>
-              <div className="feature-card"><div className="icon-wrapper">💳</div><strong>Gastos sob controle</strong><p>Acompanhe saldos.</p></div>
+              <div className="feature-card"><div className="icon-wrapper">🎛</div><strong>Decisões rápidas</strong><p>Votações claras.</p></div>
+              <div className="feature-card"><div className="icon-wrapper">💳</div><strong>Gastos sob controle</strong><p>Saldos automáticos.</p></div>
             </div>
           </div>
-
           <div className="promo-box">
             <p className="promo-title">Novo: Dashboard Pessoal</p>
             <small className="promo-desc">Veja todas as suas viagens e crie uma nova com um clique.</small>
@@ -189,7 +173,6 @@ const AuthPage = () => {
           </div>
         </div>
 
-        {/* LADO DIREITO */}
         <div className="right-section">
           <div className="login-card">
             <div className="toggle-container">
@@ -208,23 +191,39 @@ const AuthPage = () => {
                     <div style={{ flex: 1 }}>
                       <label>Cidade</label>
                       <input className={`input-field ${errors.city ? 'input-error' : ''}`} placeholder="Ex: SP" value={city} onChange={e => setCity(e.target.value)} />
-                      {errors.city && <span className="error-msg">{errors.city[0]}</span>}
                     </div>
+
+                    {/* --- 4. O NOVO COMPONENTE DE DATA --- */}
                     <div style={{ flex: 1 }}>
                       <label>Nascimento</label>
-                      <input className={`input-field ${errors.birth_date ? 'input-error' : ''}`} type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} />
+                      <div className="custom-datepicker-wrapper">
+                        <DatePicker
+                          selected={birthDate}
+                          onChange={(date) => setBirthDate(date)}
+                          dateFormat="dd/MM/yyyy"
+                          maxDate={maxDate} // Limite Superior (Hoje - 5 anos)
+                          minDate={minDate} // Limite Inferior (1900)
+                          showYearDropdown
+                          scrollableYearDropdown
+                          yearDropdownItemNumber={100}
+                          placeholderText="dd/mm/aaaa"
+                          locale="pt-BR"
+                          className={`input-field ${errors.birth_date ? 'input-error' : ''}`}
+                          onKeyDown={(e) => e.preventDefault()} // Impede digitar texto maluco
+                        />
+                      </div>
                       {errors.birth_date && <span className="error-msg">{errors.birth_date[0]}</span>}
                     </div>
+                    {/* ------------------------------------ */}
                   </div>
                 </>
               )}
 
-              {/* EMAIL */}
+              {/* ... Resto do formulário (email, senha...) MANTENHA IGUAL ... */}
               <label>E-mail</label>
               <input className={`input-field ${errors.email ? 'input-error' : ''}`} type="email" placeholder="nome@exemplo.com" value={email} onChange={e => setEmail(e.target.value)} />
               {errors.email && <span className="error-msg">{errors.email[0]}</span>}
 
-              {/* CONFIRMAÇÃO DE EMAIL */}
               {!isLogin && (
                 <>
                   <label>Confirmar E-mail</label>
@@ -233,65 +232,43 @@ const AuthPage = () => {
                 </>
               )}
 
-              {/* SENHA */}
               <label>Senha</label>
-              <input className={`input-field ${errors.password ? 'input-error' : ''}`} type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
-              {/* Erro de senha geral (ex: backend recusou) */}
+              <input className={`input-field ${errors.password ? 'input-error' : ''}`} type={showPassword ? 'text' : 'password'} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
               {errors.password && <span className="error-msg">{errors.password[0]}</span>}
 
-              {/* CONFIRMAÇÃO DE SENHA */}
               {!isLogin && (
                 <>
                   <label>Confirmar Senha</label>
-                  <input className={`input-field ${errors.confirmPassword ? 'input-error' : ''}`} type="password" placeholder="Repita a senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                  <input className={`input-field ${errors.confirmPassword ? 'input-error' : ''}`} type={showPassword ? 'text' : 'password'} placeholder="Repita a senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
                   {errors.confirmPassword && <span className="error-msg">{errors.confirmPassword[0]}</span>}
                 </>
               )}
 
-              {/* CHECKLIST DE REQUISITOS (Posicionado APÓS confirmar senha) */}
+              <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', gap: '8px' }}>
+                <input type="checkbox" id="showPass" checked={showPassword} onChange={(e) => setShowPassword(e.target.checked)} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                <label htmlFor="showPass" style={{ margin: 0, cursor: 'pointer', fontSize: '0.9rem', color: '#555' }}>Mostrar senha</label>
+              </div>
+
               {!isLogin && (
                 <div className="password-requirements-box">
                   <p className="req-title">Sua senha deve ter:</p>
-                  <div className={`req-item ${passwordStatus.length ? 'met' : ''}`}>
-                    {passwordStatus.length ? '✓' : '○'} Mínimo 8 caracteres
-                  </div>
-                  <div className={`req-item ${passwordStatus.upper ? 'met' : ''}`}>
-                    {passwordStatus.upper ? '✓' : '○'} Uma letra Maiúscula
-                  </div>
-                  <div className={`req-item ${passwordStatus.number ? 'met' : ''}`}>
-                    {passwordStatus.number ? '✓' : '○'} Um número
-                  </div>
-                  <div className={`req-item ${passwordStatus.special ? 'met' : ''}`}>
-                    {passwordStatus.special ? '✓' : '○'} Um caractere especial (!@#...)
-                  </div>
+                  <div className={`req-item ${passwordStatus.length ? 'met' : ''}`}>{passwordStatus.length ? '✓' : '○'} Mínimo 8 caracteres</div>
+                  <div className={`req-item ${passwordStatus.upper ? 'met' : ''}`}>{passwordStatus.upper ? '✓' : '○'} Uma letra Maiúscula</div>
+                  <div className={`req-item ${passwordStatus.number ? 'met' : ''}`}>{passwordStatus.number ? '✓' : '○'} Um número</div>
+                  <div className={`req-item ${passwordStatus.special ? 'met' : ''}`}>{passwordStatus.special ? '✓' : '○'} Um caractere especial (!@#...)</div>
                 </div>
               )}
 
-              <span
-                className="forgot-password"
-                onClick={() => navigate('/forgot-password')} // <--- ADICIONE ISSO
-              >
-                Esqueci minha senha
-              </span>
+              {isLogin && <span className="forgot-password" onClick={() => navigate('/forgot-password')}>🕐 Esqueci minha senha</span>}
 
-              <button
-                type="submit"
-                className="btn-submit"
-                disabled={loading} // Desabilita o clique enquanto carrega
-                style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}
-              >
+              <button type="submit" className="btn-submit" disabled={loading} style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
                 {loading ? 'Carregando...' : (isLogin ? '→ Entrar' : 'Cadastrar')}
               </button>
-              {/* ALERTA DE ERRO DE LOGIN */}
-              {isLogin && loginError && (
-                <div className="login-error-alert">
-                  ⚠️ {loginError}
-                </div>
-              )}
+
+              {isLogin && loginError && <div className="login-error-alert">⚠️ {loginError}</div>}
             </form>
 
             <div className="divider">ou</div>
-
             <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
               <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => console.log('Login Failed')} shape="pill" width="300" />
             </div>

@@ -3,13 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 class ComplexPasswordValidator:
-    """
-    Valida se a senha tem:
-    - Pelo menos 8 caracteres
-    - Pelo menos 1 letra maiúscula
-    - Pelo menos 1 número
-    - Pelo menos 1 caractere especial
-    """
+
     def validate(self, password, user=None):
         if len(password) < 8:
             raise ValidationError(_('A senha deve ter pelo menos 8 caracteres.'))
