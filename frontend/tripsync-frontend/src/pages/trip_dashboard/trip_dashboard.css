@@ -4,18 +4,24 @@
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f3f5f9; /* Fundo cinza claro da página */
+  background-color: #f3f5f9;
   font-family: "Inter", sans-serif;
   color: #1f2937;
+  position: relative; /* Necessário para o menu mobile funcionar */
+  overflow-x: hidden; /* Evita scroll horizontal indesejado */
 }
 
-h1,
-h2,
-h3 {
-  margin: 0;
+h1, h2, h3 { margin: 0; }
+
+/* --- Sidebar Padrão (Desktop) --- */
+.sidebar-wrapper {
+  display: flex;
+  height: 100vh;
+  position: sticky; /* Sidebar fixa no desktop */
+  top: 0;
+  z-index: 50;
 }
 
-/* --- Sidebar (Mantida igual, só garantindo z-index) --- */
 .sidebar {
   width: 260px;
   background-color: white;
@@ -23,334 +29,217 @@ h3 {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
-  z-index: 10; /* Garante que a sidebar fique sobre o conteúdo se necessário */
+  height: 100%;
 }
 
-/* ... (O restante do CSS da Sidebar permanece igual ao anterior) ... */
-.logo-container {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin-bottom: 3rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.nav-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  text-decoration: none;
-  color: #4b5563;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-.nav-item:hover,
-.nav-item.active {
-  background-color: #eff6ff;
-  color: #2563eb;
-}
-.nav-footer {
-  margin-top: auto; 
-  padding-top: 1rem;
-  border-top: 1px solid #E5E7EB;
-}
+/* O resto do estilo da sidebar interna mantém-se */
+.logo-container { font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; display: flex; align-items: center; gap: 0.5rem; }
+.nav-menu { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; text-decoration: none; color: #4b5563; font-weight: 500; border-radius: 8px; transition: background 0.2s; }
+.nav-item:hover, .nav-item.active { background-color: #eff6ff; color: #2563eb; }
+.nav-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid #E5E7EB; }
 
 /* --- Main Content Area --- */
 .main-content {
   flex: 1;
-  /* Removemos o padding do topo para o header encostar */
   padding: 0 0 2.5rem 0;
   overflow-y: auto;
+  width: 100%; /* Garante que não estoure no mobile */
 }
 
-/* O NOVO HEADER BRANCO */
+/* HEADER */
 .content-header {
-  background-color: white; /* Fundo branco */
-  padding: 1.5rem 3rem; /* Espaçamento interno */
+  background-color: white;
+  padding: 1.5rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
   border-bottom: 1px solid #e5e7eb;
+  flex-wrap: wrap; /* Permite quebrar linha em telas muito pequenas */
+  gap: 1rem;
 }
 
-.header-left h1 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-.date-tag {
-  background: #e5e7eb;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #4b5563;
-}
-.btn-warning {
-  background: #fbbf24;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-/* Container para o conteúdo abaixo do header */
-.content-body {
-  padding: 0 3rem; /* Padding lateral do conteúdo principal */
+/* Botão Menu Mobile (Oculto no Desktop) */
+.btn-mobile-menu {
+    display: none; /* Padrão: não aparece */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #1F2937;
 }
 
-.section-title {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-}
+.header-titles h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.date-tag { background: #e5e7eb; padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; color: #4b5563; }
+.btn-warning { background: #fbbf24; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
-/* --- NOVA CLASSE: Containers Brancos de Seção --- */
-/* É isso que cria os retângulos brancos grandes ao redor dos grupos */
+/* Corpo do Conteúdo */
+.content-body { padding: 0 3rem; }
+.section-title { font-size: 1.25rem; margin-bottom: 1rem; font-weight: 700; }
+
+/* Containers Brancos */
 .white-section-container {
   background-color: white;
   padding: 1.5rem;
   border-radius: 16px;
   margin-bottom: 2rem;
-  /* Sombra suave opcional, remova se quiser totalmente flat */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
 }
 
-/* --- Stats Cards (Os retângulos azuis internos) --- */
-.stats-grid {
-  display: flex;
-  gap: 1.5rem;
-}
+/* Stats Cards */
+.stats-grid { display: flex; gap: 1.5rem; }
+.stat-card { flex: 1; background-color: #f5f9ff; padding: 1.5rem; border-radius: 12px; min-width: 200px; }
+.stat-card h3 { font-size: 1.5rem; margin: 0.5rem 0; color: #111827; }
+.stat-card small { color: #6b7280; text-transform: uppercase; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; }
+.sub-text { font-size: 0.875rem; color: #6b7280; }
 
-.stat-card {
-  flex: 1;
-  background-color: #f5f9ff; /* AZUL CLARO */
-  padding: 1.5rem;
-  border-radius: 12px;
-  /* Sem borda ou sombra individual agora, pois estão dentro do container branco */
-}
-
-.stat-card small {
-  color: #6b7280;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-.stat-card h3 {
-  font-size: 1.5rem;
-  margin: 0.5rem 0;
-  color: #111827;
-}
-.sub-text {
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-/* --- Grid Layout (Colunas) --- */
+/* Grid Layout */
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr; /* 2 colunas no desktop */
   gap: 2rem;
 }
+.grid-column { display: flex; flex-direction: column; }
 
-/* As colunas agora só organizam o espaço, os containers brancos vão dentro delas */
-.grid-column {
-  display: flex;
-  flex-direction: column;
-}
+/* Itens e Cards */
+.card-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.item-card { background-color: #f5f9ff; padding: 1rem; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; }
+.item-card.big-padding { padding: 1.25rem; }
+.item-icon { width: 40px; height: 40px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 1.2rem; flex-shrink: 0;}
+.item-icon.blue { background: #dbeafe; color: #2563eb; }
+.item-info { flex: 1; display: flex; flex-direction: column; }
+.item-info strong { font-weight: 600; color: #1f2937; }
+.item-info small { color: #6b7280; margin-top: 2px; }
+.btn-text { background: none; border: none; color: #2563eb; font-weight: 600; cursor: pointer; font-size: 0.9rem; white-space: nowrap;}
+.add-suggestion-box { margin-top: 1rem; display: flex; justify-content: space-between; align-items: center; color: #9ca3af; font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
+.btn-primary { background-color: #0066ff; color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; white-space: nowrap;}
+.btn-primary:hover { background-color: #0052cc; }
 
-/* --- Itens de Lista (Sugestões, Atividades, Despesas) --- */
-.card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
+/* Finanças */
+.finance-controls { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;}
+.badge { background: #f5f9ff; padding: 6px 12px; border-radius: 20px; font-size: 0.875rem; font-weight: 600; color: #374151; }
+.badge-outline { background: transparent; border: 1px solid #e5e7eb; padding: 6px 12px; border-radius: 20px; font-size: 0.875rem; color: #6b7280; }
+.finance-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; color: #6b7280; font-size: 0.9rem; flex-wrap: wrap; gap: 10px;}
 
-.item-card {
-  background-color: #f5f9ff; /* AZUL CLARO */
-  padding: 1rem;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /* Removemos bordas individuais para ficar mais limpo */
-}
+/* Membros */
+.member-list { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.member-row { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: #f5f9ff; border-radius: 12px; }
+.avatar { width: 36px; height: 36px; background: #dbeafe; color: #1e40af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 1rem; }
+.member-details { flex: 1; display: flex; flex-direction: column; }
+.member-details strong { font-weight: 600; }
+.member-details small { color: #6b7280; }
+.status-tag { color: #059669; background: #d1fae5; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.members-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; color: #6b7280; font-size: 0.9rem; }
+.btn-outline { border: 1px solid #e5e7eb; background: white; padding: 8px 16px; border-radius: 20px; color: #374151; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-.item-card.big-padding {
-  padding: 1.25rem;
-}
+/* --- MOBILE & TABLET MEDIA QUERIES --- */
 
-/* Ícones */
-.item-icon {
-  width: 40px;
-  height: 40px;
-  background: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  font-size: 1.2rem;
+/* Overlay Escuro para Mobile */
+.mobile-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 40;
+    display: none; /* Padrão escondido */
+    opacity: 0;
+    transition: opacity 0.3s;
 }
-.item-icon.blue {
-  background: #dbeafe;
-  color: #2563eb;
-} /* Ícone azul sobre fundo azul claro */
-
-.item-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-.item-info strong {
-  font-weight: 600;
-  color: #1f2937;
-}
-.item-info small {
-  color: #6b7280;
-  margin-top: 2px;
+.mobile-overlay.open {
+    display: block;
+    opacity: 1;
 }
 
-.btn-text {
-  background: none;
-  border: none;
-  color: #2563eb;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 0.9rem;
+/* Tablet e Menores (< 1024px) */
+@media (max-width: 1024px) {
+  .stats-grid {
+    flex-wrap: wrap; /* Permite que os cards de stats quebrem linha */
+  }
+  .stat-card {
+    min-width: 45%; /* Em tablets, 2 cards por linha */
+  }
 }
 
-/* Botões e Rodapés */
-.add-suggestion-box {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #9ca3af;
-  font-size: 0.9rem;
-}
-.btn-primary {
-  background-color: #0066ff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.2s;
-}
-.btn-primary:hover {
-  background-color: #0052cc;
-}
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+    /* Layout */
+    .dashboard-layout {
+        flex-direction: column;
+    }
 
-/* --- Seção Financeira --- */
-.finance-controls {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-.badge {
-  background: #f5f9ff;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-}
-.badge-outline {
-  background: transparent;
-  border: 1px solid #e5e7eb;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-.finance-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  color: #6b7280;
-  font-size: 0.9rem;
-}
+    /* Sidebar vira gaveta */
+    .sidebar-wrapper {
+        position: fixed;
+        left: -280px; /* Escondido fora da tela */
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+        z-index: 50;
+        transition: left 0.3s ease-in-out;
+        width: 260px;
+    }
 
-/* --- Membros (Retângulos Azuis) --- */
-.member-list {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.member-row {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background-color: #f5f9ff; /* AZUL CLARO */
-  border-radius: 12px;
-}
-.avatar {
-  width: 36px;
-  height: 36px;
-  background: #dbeafe;
-  color: #1e40af;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  margin-right: 1rem;
-}
-.member-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-.member-details strong {
-  font-weight: 600;
-}
-.member-details small {
-  color: #6b7280;
-}
-.status-tag {
-  color: #059669;
-  background: #d1fae5;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.members-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-.btn-outline {
-  border: 1px solid #e5e7eb;
-  background: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  color: #374151;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+    .sidebar-wrapper.open {
+        left: 0; /* Desliza para dentro */
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    }
+
+    /* Header */
+    .btn-mobile-menu {
+        display: block; /* Aparece o hambúrguer */
+    }
+    .content-header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .header-left-group {
+        width: 100%;
+    }
+    .header-titles {
+        flex: 1;
+    }
+    .btn-warning {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Corpo */
+    .content-body {
+        padding: 0 1rem; /* Padding menor no mobile */
+    }
+
+    /* Grids */
+    .content-grid {
+        grid-template-columns: 1fr; /* 1 coluna só */
+        gap: 1rem;
+    }
+
+    .stats-grid {
+        flex-direction: column; /* Stats um embaixo do outro */
+    }
+    .stat-card {
+        width: 100%;
+    }
+
+    /* Ajustes Gerais */
+    .add-suggestion-box, .finance-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+    .white-section-container {
+        padding: 1rem;
+    }
 }

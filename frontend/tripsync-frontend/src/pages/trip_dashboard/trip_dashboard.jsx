@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import "./trip_dashboard.css";
 
 const TripDashboard = () => {
-  // --- MOCK DATA (Mantido igual) ---
+  // Estado para controlar o Menu Mobile
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // --- MOCK DATA ---
   const tripData = {
     title: "Europa 2025",
     dateRange: "12 - 20 Jun",
@@ -24,25 +27,45 @@ const TripDashboard = () => {
 
   return (
     <div className="dashboard-layout">
-      <Sidebar />
+      
+      {/* Overlay Escuro (Só aparece quando menu abre no mobile) */}
+      <div 
+        className={`mobile-overlay ${isMobileMenuOpen ? 'open' : ''}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+
+      {/* Wrapper da Sidebar para controlar a animação no mobile */}
+      <div className={`sidebar-wrapper ${isMobileMenuOpen ? 'open' : ''}`}>
+        <Sidebar />
+      </div>
 
       <main className="main-content">
         
-        {/* --- HEADER BRANCO NO TOPO --- */}
+        {/* --- HEADER --- */}
         <header className="content-header">
-          <div className="header-left">
-            <h1>{tripData.title}</h1>
-            <span className="date-tag">{tripData.dateRange}</span>
+          <div className="header-left-group">
+            {/* Botão Menu Hambúrguer (Só visível no Mobile) */}
+            <button 
+                className="btn-mobile-menu"
+                onClick={() => setIsMobileMenuOpen(true)}
+            >
+                ☰
+            </button>
+
+            <div className="header-titles">
+                <h1>{tripData.title}</h1>
+                <span className="date-tag">{tripData.dateRange}</span>
+            </div>
           </div>
           <button className="btn-warning">Trip Dashboard</button>
         </header>
 
-        {/* --- CORPO DO CONTEÚDO (Com padding lateral) --- */}
+        {/* --- CORPO --- */}
         <div className="content-body">
 
             <h2 className="section-title">Visão geral da viagem</h2>
 
-            {/* --- CONTAINER BRANCO: Stats --- */}
+            {/* Stats */}
             <section className="white-section-container">
             <div className="stats-grid">
                 <div className="stat-card">
@@ -68,7 +91,6 @@ const TripDashboard = () => {
                 
                 {/* Coluna Esquerda */}
                 <div className="grid-column">
-                    {/* --- CONTAINER BRANCO: Sugestões --- */}
                     <section className="white-section-container">
                         <h3 className="section-title" style={{fontSize: '1.1rem'}}>Sugestões recentes</h3>
                         
@@ -101,7 +123,6 @@ const TripDashboard = () => {
                 {/* Coluna Direita */}
                 <div className="grid-column">
                     
-                    {/* --- CONTAINER BRANCO: Roteiro --- */}
                     <section className="white-section-container">
                         <h3 className="section-title" style={{fontSize: '1.1rem'}}>Próximos no roteiro</h3>
                         <div className="card-list">
@@ -118,7 +139,6 @@ const TripDashboard = () => {
                         </div>
                     </section>
 
-                    {/* --- CONTAINER BRANCO: Finanças --- */}
                     <section className="white-section-container">
                         <h3 className="section-title" style={{fontSize: '1.1rem'}}>Resumo financeiro</h3>
                         <div className="finance-controls">
@@ -147,7 +167,7 @@ const TripDashboard = () => {
                 </div>
             </div>
 
-            {/* --- CONTAINER BRANCO: Membros --- */}
+            {/* Membros */}
             <section className="white-section-container">
                 <h3 className="section-title" style={{fontSize: '1.1rem'}}>Membros</h3>
                 <div className="member-list">
@@ -159,22 +179,7 @@ const TripDashboard = () => {
                         </div>
                         <span className="status-tag">Confirmada</span>
                     </div>
-                    <div className="member-row">
-                        <div className="avatar">B</div>
-                        <div className="member-details">
-                            <strong>Bruno</strong>
-                            <small>Membro</small>
-                        </div>
-                        <span className="status-tag">Confirmado</span>
-                    </div>
-                    <div className="member-row">
-                        <div className="avatar">C</div>
-                        <div className="member-details">
-                            <strong>Carla</strong>
-                            <small>Membro</small>
-                        </div>
-                        <span className="status-tag">Confirmada</span>
-                    </div>
+                    {/* ... outros membros ... */}
                 </div>
                 <div className="members-footer">
                     <small>Gerencie convites e cargos.</small>
@@ -183,7 +188,7 @@ const TripDashboard = () => {
                     </button>
                 </div>
             </section>
-        </div> {/* Fim do content-body */}
+        </div>
 
       </main>
     </div>
