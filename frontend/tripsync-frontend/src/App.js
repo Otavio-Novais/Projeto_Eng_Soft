@@ -1,6 +1,7 @@
 import React from 'react';
-import './App.css'; 
+import './App.css'; // Descomente no seu projeto real
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+
 import { GoogleOAuthProvider } from '@react-oauth/google'; 
 
 
@@ -12,7 +13,7 @@ import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import SettingsPage from './pages/Settings/SettingsPage.jsx';
 
 
-// Componente da Página Inicial (Extraído do seu código original para organizar)
+// --- COMPONENTE LANDING PAGE (Página Inicial) ---
 const LandingPage = () => {
   const features = [
     {
@@ -39,7 +40,7 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page" style={{ fontFamily: 'sans-serif' }}>
-      {/* Navbar */}
+      {/* Navbar Corrigida (Sem duplicatas) */}
       <nav style={{
         backgroundColor: 'white',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -52,6 +53,7 @@ const LandingPage = () => {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
+          {/* Logo Section */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ fontSize: '2rem' }}>✈️</span>
             <span style={{
@@ -62,8 +64,9 @@ const LandingPage = () => {
               WebkitTextFillColor: 'transparent'
             }}>TripSync</span>
           </div>
+
+          {/* Buttons Section - Corrigido para usar Links */}
           <div style={{ display: 'flex', gap: '1rem' }}>
-            {/* Link para Login */}
             <Link to="/login">
                 <button style={{
                 textDecoration: 'none',
@@ -215,15 +218,12 @@ const LandingPage = () => {
   );
 };
 
-// Componente Principal
+// --- COMPONENTE PRINCIPAL (APP) ---
 function App() {
   const CLIENT_ID = "274939966706-78vmihp1pqp7j82o403btjuljk2bl4bs.apps.googleusercontent.com";
 
-  // Componente de Rota Privada
   const PrivateRoute = ({ children }) => {
-    // Simulação simples: se houver token, permite acesso
     const token = localStorage.getItem('token');
-    // Em produção, adicione uma verificação mais robusta
     return token ? children : <Navigate to="/login" />;
   };
 
@@ -232,9 +232,9 @@ function App() {
       <GoogleOAuthProvider clientId={CLIENT_ID}>
         <Router>
           <Routes>
-            {/* Rota da Página Inicial (Landing Page) */}
+            {/* Rota Pública - Landing Page */}
             <Route path="/" element={<LandingPage />} />
-
+            
             {/* Rotas de Autenticação */}
             <Route path="/login" element={<AuthPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -249,8 +249,7 @@ function App() {
                 </PrivateRoute>
               } 
             />
-            
-            <Route 
+             <Route 
               path="/profile" 
               element={
                 <PrivateRoute>
@@ -258,7 +257,6 @@ function App() {
                 </PrivateRoute>
               } 
             />
-
             <Route 
               path="/settings" 
               element={
