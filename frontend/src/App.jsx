@@ -7,43 +7,38 @@ import './App.css';
 
 function App() {
   const [suggestions, setSuggestions] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Estado do Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Busca dados ao carregar
   useEffect(() => {
-    // Busca dados do backend
     api.get('suggestions/')
       .then(res => setSuggestions(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error("Erro ao carregar:", err);
+        // Se der erro, não trava a tela, só mostra no console
+      });
   }, []);
 
-const handleVote = (id) => {
-    api.post('votes/', { user: 1, suggestion: id, is_approved: true })
-      .then(() => {
-        // EM VEZ DE ALERT, ATUALIZAMOS O ESTADO:
-        // Percorre as sugestões e marca a que foi clicada com "voted = true"
-        setSuggestions(currentSuggestions => 
-            currentSuggestions.map(suggestion => 
-                suggestion.id === id 
-                    ? { ...suggestion, voted: true } // Marca como votado
-                    : suggestion
-            )
-        );
+  const handleVote = (id) => {
+    // Chama a rota inteligente que Vota ou Remove
+    api.post(`suggestions/${id}/toggle_vote/`, { user: 1 })
+      .then(res => {
+        // Atualiza a lista na tela com o novo status (voted: true/false)
+        setSuggestions(current => current.map(s => 
+            s.id === id ? { ...s, voted: res.data.voted } : s
+        ));
       })
-      .catch(() => alert("⚠️ Você já votou nesta opção!"));
+      .catch(err => alert("Erro ao processar voto. Backend rodando?"));
   };
-  // Função chamada quando uma sugestão é criada com sucesso
+
   const handleSuccess = (newSuggestion) => {
     setSuggestions([...suggestions, newSuggestion]);
   };
 
   return (
     <div className="app-container">
-      {/* Sidebar */}
       <aside className="sidebar">
-        <div className="logo">
-          <Map /> Tripsync
-        </div>
-
+        <div className="logo"><Map /> Tripsync</div>
         <div className="menu-section">Navegação</div>
         <nav>
             <a href="#" className="nav-item"><LayoutGrid size={20}/> Tela Principal</a>
@@ -54,7 +49,6 @@ const handleVote = (id) => {
         </nav>
       </aside>
 
-      {/* Conteúdo */}
       <main className="main-content">
         <div className="header-top">
             <span style={{display:'flex', alignItems:'center', gap:'5px'}}>
@@ -64,14 +58,11 @@ const handleVote = (id) => {
 
         <div className="page-header">
           <h2 className="page-title">Banco de Sugestões</h2>
-          
           <div className="filters-bar">
             <button className="filter-pill" style={{background:'#EFF6FF'}}>Todas</button>
             <button className="filter-pill" style={{background:'white', color:'#666'}}>Atividades</button>
-            <button className="filter-pill" style={{background:'white', color:'#666'}}>Hospedagem</button>
-            <div style={{width:'20px'}}></div> {/* Espaço */}
+            <div style={{width:'20px'}}></div> 
             
-            {/* --- CORREÇÃO AQUI EMBAIXO: Adicionei o onClick --- */}
             <button className="btn-add" onClick={() => setIsModalOpen(true)}>
                 <Plus size={18} /> Adicionar
             </button>
@@ -89,14 +80,12 @@ const handleVote = (id) => {
         </div>
       </main>
 
-      {/* Renderiza o Modal se o estado for true */}
       {isModalOpen && (
         <CreateModal 
             onClose={() => setIsModalOpen(false)} 
             onSuccess={handleSuccess} 
         />
       )}
-      
     </div>
   );
 }

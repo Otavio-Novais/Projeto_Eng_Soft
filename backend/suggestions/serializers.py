@@ -1,35 +1,38 @@
 from rest_framework import serializers
 from .models import Trip, Suggestion, Option, Vote
 
-# 1. Serializer da Viagem
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
-        fields = '__all__' # Pega todos os campos (id, name, dates...)
+        fields = '__all__'
 
-# 2. Serializer das Opções (Opção A, Opção B...)
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
         fields = ['id', 'name', 'price']
 
-# 3. Serializer da Sugestão
 class SuggestionSerializer(serializers.ModelSerializer):
-    # Aqui fazemos uma mágica: Incluímos as opções DENTRO da sugestão
     options = OptionSerializer(many=True, read_only=True)
-    
-    # Trazemos o nome legível da categoria (ex: "Atividade") em vez do código ("ACTIVITY")
     category_display = serializers.CharField(source='get_category_display', read_only=True)
+    proposed_by_name = serializers.ReadOnlyField(source='proposed_by.username')
+    
+    # Campo calculado: Diz ao Frontend se o botão deve nascer cinza (votado) ou verde
+    voted = serializers.SerializerMethodField()
 
     class Meta:
         model = Suggestion
         fields = [
             'id', 'trip', 'title', 'description', 
             'category', 'category_display', 
-            'proposed_by', 'budget', 'options'
+            'proposed_by', 'proposed_by_name', 
+            'budget', 'options', 'voted' # <--- Não esqueça de incluir 'voted' aqui
         ]
 
-# 4. Serializer do Voto
+    def get_voted(self, obj):
+        # Verifica se o Usuário ID 1 tem um voto "Sim" nesta sugestão
+        # Se tiver, retorna True. Se não, False.
+        return obj.vote_set.filter(user_id=1, is_approved=True).exists()
+
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote
