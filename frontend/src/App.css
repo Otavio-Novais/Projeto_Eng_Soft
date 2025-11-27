@@ -12,3 +12,37 @@
 .filter-pill { padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
 .btn-add { background-color: var(--primary-blue); color: white; padding: 10px 24px; border-radius: 30px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 32px; }
+
+/* Barra de Filtros */
+.filters-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  overflow-x: auto; /* Permite rolar se a tela for pequena */
+  padding-bottom: 5px; /* Espaço para a rolagem não cortar a sombra */
+}
+
+/* Botão do Filtro (Pílula) */
+.filter-pill {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  color: #6B7280; /* Cinza */
+  padding: 8px 20px;
+  border-radius: 30px; /* Borda bem redonda */
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap; /* Não quebra linha */
+}
+
+.filter-pill:hover {
+  background-color: #F9FAFB;
+  border-color: #D1D5DB;
+}
+
+/* Quando o botão está ATIVO (Selecionado) */
+.filter-pill.active {
+  background-color: #EFF6FF; /* Azul bem claro */
+  color: #0066FF;            /* Azul forte */
+  border-color: #BFDBFE;
+}
