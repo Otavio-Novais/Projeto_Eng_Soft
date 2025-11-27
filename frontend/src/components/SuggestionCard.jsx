@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ThumbsUp, User, X } from 'lucide-react'; // Importações limpas
+import { ThumbsUp, User, Check, X } from 'lucide-react';
 import './SuggestionCard.css';
 
 const SuggestionCard = ({ suggestion, onVote }) => {
@@ -11,6 +11,7 @@ const SuggestionCard = ({ suggestion, onVote }) => {
 
   return (
     <div className="card">
+      {/* --- PARTE DE CIMA (Título, Descrição, Opções) --- */}
       <div>
         <div className="card-header">
           <h3 className="card-title">{suggestion.title}</h3>
@@ -29,7 +30,11 @@ const SuggestionCard = ({ suggestion, onVote }) => {
             {suggestion.options.map((opt) => {
               const isSelected = selectedOptionId === opt.id;
               return (
-                <div key={opt.id} className={`option-item ${isSelected ? 'selected' : ''}`} onClick={() => handleOptionClick(opt.id)}>
+                <div 
+                  key={opt.id} 
+                  className={`option-item ${isSelected ? 'selected' : ''}`} 
+                  onClick={() => handleOptionClick(opt.id)}
+                >
                   <div style={{display:'flex', alignItems:'center'}}>
                      <div className="radio-circle"></div>
                      <span style={{fontSize:'0.9rem', fontWeight:500}}>{opt.name}</span>
@@ -44,9 +49,11 @@ const SuggestionCard = ({ suggestion, onVote }) => {
         )}
       </div>
 
+      {/* --- PARTE DE BAIXO (Rodapé e Ações) --- */}
       <div>
         <div className="card-footer">
-          {/* LÓGICA DO BOTÃO: Remove se já votou, Vota se não votou */}
+          
+          {/* BOTÃO DE VOTO */}
           {suggestion.voted ? (
              <button className="btn-vote remove" onClick={() => onVote(suggestion.id)}>
                 <X size={18} /> Remover Voto
@@ -57,7 +64,17 @@ const SuggestionCard = ({ suggestion, onVote }) => {
              </button>
           )}
           
-          <span className="vote-count">3 votos</span>
+          {/* ÁREA DOS VOTOS (AVATARES + CONTADOR) */}
+          <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+             <div style={{display:'flex', marginLeft:'-10px'}}>
+                <div style={{width:'30px', height:'30px', borderRadius:'50%', background:'#ddd', border:'2px solid white'}}></div>
+             </div>
+             
+             {/* AQUI ESTÁ A SUA MUDANÇA: O número vem do Backend */}
+             <span className="vote-count">
+                {suggestion.votes_count || 0} votos
+             </span>
+          </div>
         </div>
 
         <div className="card-actions">

@@ -16,30 +16,41 @@ class SuggestionViewSet(viewsets.ModelViewSet):
     serializer_class = SuggestionSerializer
 
     # Ação personalizada para Votar/Remover Voto
+# backend/suggestions/views.py
+
+    # ... dentro de SuggestionViewSet ...
+
     @action(detail=True, methods=['post'])
     def toggle_vote(self, request, pk=None):
         suggestion = self.get_object()
         
-        # 1. Pega o usuário ID 1 (Admin) fixo para teste
+        # Pega usuário 1 (Fixo para teste)
         try:
             user = User.objects.get(id=1)
         except User.DoesNotExist:
-            return Response(
-                {'error': 'Usuário ID 1 não existe. Crie um superusuário!'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'Erro: Sem usuário'}, status=400)
 
-        # 2. Verifica se já existe voto desse usuário nessa sugestão
         vote = Vote.objects.filter(user=user, suggestion=suggestion).first()
 
+        voted_status = False
+
         if vote:
-            # CENÁRIO A: Já votou -> Remove o voto (Delete)
             vote.delete()
-            return Response({'voted': False, 'message': 'Voto removido'})
+            voted_status = False
         else:
-            # CENÁRIO B: Não votou -> Cria o voto (Create)
             Vote.objects.create(user=user, suggestion=suggestion, is_approved=True)
-            return Response({'voted': True, 'message': 'Voto registrado'})
+            voted_status = True
+        
+        # NOVO: Recalcula o total de votos após a ação
+        new_total = suggestion.vote_set.filter(is_approved=True).count()
+
+        return Response({
+            'voted': voted_status, 
+            'votes_count': new_total,  # <--- Enviamos o novo total pro React
+            'message': 'Sucesso'
+        })
+
+            
 
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()

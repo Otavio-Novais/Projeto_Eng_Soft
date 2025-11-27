@@ -19,16 +19,20 @@ function App() {
       });
   }, []);
 
-  const handleVote = (id) => {
-    // Chama a rota inteligente que Vota ou Remove
+ const handleVote = (id) => {
     api.post(`suggestions/${id}/toggle_vote/`, { user: 1 })
       .then(res => {
-        // Atualiza a lista na tela com o novo status (voted: true/false)
+        // O backend agora devolve { voted: true/false, votes_count: 5 }
+        const { voted, votes_count } = res.data;
+
+        // Atualizamos o estado com as DUAS informações novas
         setSuggestions(current => current.map(s => 
-            s.id === id ? { ...s, voted: res.data.voted } : s
+            s.id === id 
+                ? { ...s, voted: voted, votes_count: votes_count } // Atualiza cor e número
+                : s
         ));
       })
-      .catch(err => alert("Erro ao processar voto. Backend rodando?"));
+      .catch(err => alert("Erro ao votar."));
   };
 
   const handleSuccess = (newSuggestion) => {
