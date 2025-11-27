@@ -42,7 +42,7 @@ class SuggestionSerializer(serializers.ModelSerializer):
             Option.objects.create(suggestion=suggestion, **option_data)
         return suggestion
 
-# --- ESTA É A PARTE QUE ESTAVA FALTANDO ---
+
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote

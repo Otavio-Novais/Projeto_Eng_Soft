@@ -7,6 +7,18 @@ import CreateModal from '../components/CreateModal';
 const SuggestionsPage = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // 1. RECUPERANDO O ESTADO DO FILTRO
+  const [activeFilter, setActiveFilter] = useState('ALL');
+
+  // 2. RECUPERANDO AS CATEGORIAS
+  const categories = [
+    { label: 'Todas', value: 'ALL' },
+    { label: 'Atividades', value: 'ACTIVITY' },
+    { label: 'Hospedagem', value: 'LODGING' },
+    { label: 'Comida', value: 'FOOD' },
+    { label: 'Transporte', value: 'TRANSPORT' }
+  ];
 
   useEffect(() => {
     api.get('suggestions/')
@@ -28,6 +40,12 @@ const SuggestionsPage = () => {
     setSuggestions([...suggestions, newSuggestion]);
   };
 
+  // 3. RECUPERANDO A LÓGICA DE FILTRAGEM
+  const filteredSuggestions = suggestions.filter(suggestion => {
+    if (activeFilter === 'ALL') return true;
+    return suggestion.category === activeFilter;
+  });
+
   return (
     <>
       <div className="header-top">
@@ -38,10 +56,21 @@ const SuggestionsPage = () => {
 
       <div className="page-header">
         <h2 className="page-title">Banco de Sugestões</h2>
+        
         <div className="filters-bar">
-          <button className="filter-pill" style={{background:'#EFF6FF'}}>Todas</button>
-          <button className="filter-pill" style={{background:'white', color:'#666'}}>Atividades</button>
+          {/* 4. RECUPERANDO OS BOTÕES DINÂMICOS */}
+          {categories.map(cat => (
+              <button 
+                key={cat.value}
+                className={`filter-pill ${activeFilter === cat.value ? 'active' : ''}`}
+                onClick={() => setActiveFilter(cat.value)}
+              >
+                {cat.label}
+              </button>
+          ))}
+
           <div style={{width:'20px'}}></div> 
+          
           <button className="btn-add" onClick={() => setIsModalOpen(true)}>
               <Plus size={18} /> Adicionar
           </button>
@@ -49,13 +78,18 @@ const SuggestionsPage = () => {
       </div>
 
       <div className="cards-grid">
-        {suggestions.map(suggestion => (
-          <SuggestionCard 
-              key={suggestion.id} 
-              suggestion={suggestion} 
-              onVote={handleVote} 
-          />
-        ))}
+        {/* 5. USANDO A LISTA FILTRADA */}
+        {filteredSuggestions.length > 0 ? (
+            filteredSuggestions.map(suggestion => (
+              <SuggestionCard 
+                  key={suggestion.id} 
+                  suggestion={suggestion} 
+                  onVote={handleVote} 
+              />
+            ))
+        ) : (
+            <p style={{color:'#999', gridColumn:'1/-1', textAlign:'center'}}>Nenhuma sugestão nesta categoria.</p>
+        )}
       </div>
 
       {isModalOpen && (
