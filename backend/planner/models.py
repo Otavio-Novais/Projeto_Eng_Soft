@@ -3,11 +3,14 @@ from django.contrib.auth.models import User
 
 class Trip(models.Model):
     title = models.CharField(max_length=200) 
+    description = models.TextField(blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
-    budget = models.DecimalField(max_digits=10, decimal_places=2) 
     
-    # ManyToMany pois a viagem pode possuir vários membros
+    #manter?
+    budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True) 
+    
+    # ManyToMany pois a viagem pode possuir vários membros -> manter?
     participants = models.ManyToManyField(User, related_name='trips')
 
     def __str__(self):
@@ -25,3 +28,4 @@ class Expense(models.Model):
     payer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=200) 
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    #não teria que ter o budget?

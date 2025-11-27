@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './CreateTripModal.css';
+import axios from 'axios';
 
 const CreateTripModal = ({ isOpen, onClose }) => {
   // Estado para guardar os dados do formulário
@@ -22,12 +23,33 @@ const CreateTripModal = ({ isOpen, onClose }) => {
     }));
   };
 
-  // Lógica de envio (Por enquanto apenas log, depois será Backend)
-  const handleSubmit = (e) => {
+  // Lógica de envio 
+const handleSubmit = async (e) => { // Note o 'async' aqui
     e.preventDefault();
-    console.log("Dados da Nova Viagem:", formData);
-    alert("Viagem criada com sucesso! (Simulação)");
-    onClose(); // Fecha o modal após salvar
+    
+    // O Django espera snake_case (start_date), mas seu state está camelCase (startDate).
+    // Vamos fazer o mapeamento aqui.
+    const payload = {
+        title: formData.title,
+        description: formData.description || "",
+        start_date: formData.startDate, // Mapeando para o Python
+        end_date: formData.endDate      // Mapeando para o Python
+    };
+
+    try {
+        const response = await axios.post('http://127.0.0.1:8000/api/trips/create/', payload);
+        
+        console.log("Viagem criada:", response.data);
+        alert("Viagem criada com sucesso!");
+        
+        // futuramente redirecionar o usuário para a página da viagem criada:
+        // navigate(`/trip/${response.data.id}`);
+        
+        onClose();
+    } catch (error) {
+        console.error("Erro ao criar viagem:", error);
+        alert("Erro ao criar viagem. Verifique os dados.");
+    }
   };
 
   return (

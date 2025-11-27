@@ -27,3 +27,19 @@ class TripDashboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
         fields = ['id', 'title', 'start_date', 'end_date', 'budget', 'participants', 'activities', 'expenses']
+
+class TripSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
+        # campos que o frontend irá receber e enviar
+        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'budget']
+        extra_kwargs = {
+            'budget': {'required': False, 'allow_null': True},
+            'description': {'required': False}
+        }
+
+        def validate(self, data):
+
+            if data['start_date'] > data['end_date']:
+                    raise serializers.ValidationError("A data final deve ser posterior à data de início.")
+            return data
