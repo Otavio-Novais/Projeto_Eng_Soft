@@ -22,17 +22,20 @@
   padding-bottom: 5px; /* Espaço para a rolagem não cortar a sombra */
 }
 
-/* Botão do Filtro (Pílula) */
 .filter-pill {
+  /* MUDANÇAS AQUI: */
+  padding: 4px 10px;    /* Mais fino */
+  font-size: 0.75rem;   /* Letra menor */
+  border-radius: 8px;   /* Borda menos redonda */
+  
+  /* O resto continua igual */
+  border: 1px solid transparent;
   background-color: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  color: #6B7280; /* Cinza */
-  padding: 8px 20px;
-  border-radius: 30px; /* Borda bem redonda */
-  font-size: 0.9rem;
+  color: #6B7280;
   font-weight: 600;
   transition: all 0.2s;
-  white-space: nowrap; /* Não quebra linha */
+  cursor: pointer;
+  white-space: nowrap; /* Não deixa quebrar linha */
 }
 
 .filter-pill:hover {
