@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // <--- IMPORTANTE: Navegação
+import { useParams, Link, useNavigate} from 'react-router-dom'; // <--- IMPORTANTE: Navegação
 import { 
     Wallet, PlusCircle, ArrowRightLeft, Search, Coffee, Home, Plane, 
     Map, Grid, Users, Settings, User, Calendar, Plus, Minus, Menu, Eye, CheckCircle, ArrowLeft
