@@ -1,4 +1,5 @@
-from django.db import models	
+from django.db import models
+
 # planner/models.py
 from django.conf import settings
 # Create your models here.

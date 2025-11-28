@@ -39,10 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'accounts',
     'planner',
-    
-    
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -58,10 +56,10 @@ MIDDLEWARE = [
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",      # <--- Porta do Create React App
+    "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:5173",      # Pode manter essa por segurança
 ]
+
 # REST Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -75,6 +73,7 @@ ROOT_URLCONF = 'tripsync_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -105,17 +104,23 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    # Validações padrões do Django (opcionais, mas recomendadas)
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-    # Nossa validação personalizada
     {
-        
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    { 
         'NAME': 'accounts.validators.ComplexPasswordValidator',
     },
 ]
-AUTH_USER_MODEL = 'accounts.CustomUser'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -123,7 +128,6 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
-
 
 USE_I18N = True
 
@@ -140,5 +144,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuração de E-mail para Desenvolvimento (Imprime no Console)
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@tripsync.com'
+AUTH_USER_MODEL = 'accounts.CustomUser'
