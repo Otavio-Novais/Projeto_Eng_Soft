@@ -1,20 +1,19 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import './App.css';
+import { Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-// Importações das Páginas
+
 import AuthPage from './pages/Auth/AuthPage.jsx';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/Auth/ResetPasswordPage.jsx';
-import MyTripsPage from './pages/mytrips/MyTripsPage.jsx'; 
+import MyTripsPage from './pages/mytrips/MyTripsPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import SettingsPage from './pages/Settings/SettingsPage.jsx';
-
-// IMPORTANTE: Se o arquivo for 'index.jsx' dentro da pasta Finance, o import é assim:
-import FinancePage from './pages/Finance/FinancePage.jsx'; 
+import FinancePage from './pages/Finance/FinancePage.jsx';
 
 function App() {
   const CLIENT_ID = "274939966706-78vmihp1pqp7j82o403btjuljk2bl4bs.apps.googleusercontent.com";
@@ -23,7 +22,6 @@ function App() {
     const token = localStorage.getItem('token');
     return token ? children : <Navigate to="/" />;
   };
-
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
       <Router>
@@ -34,45 +32,45 @@ function App() {
           <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
 
           {/* --- ROTAS PROTEGIDAS --- */}
-          
+
           {/* 1. Tela de Listagem (Minhas Viagens) */}
-          <Route 
-            path="/mytrips" 
+          <Route
+            path="/mytrips"
             element={
               <PrivateRoute>
                 <MyTripsPage />
               </PrivateRoute>
-            } 
+            }
           />
 
           {/* 2. Telas Globais (Perfil e Configurações) */}
-          <Route 
-            path="/profile" 
+          <Route
+            path="/profile"
             element={
               <PrivateRoute>
                 <ProfilePage />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/settings" 
+          <Route
+            path="/settings"
             element={
               <PrivateRoute>
                 <SettingsPage />
               </PrivateRoute>
-            } 
+            }
           />
 
           {/* 3. MÓDULO DA VIAGEM (Financeiro e outros) */}
-          
+
           {/* Rota Principal de Finanças */}
-          <Route 
-            path="/viagem/:tripId/financas" 
+          <Route
+            path="/viagem/:tripId/financas"
             element={
               <PrivateRoute>
                 <FinancePage />
               </PrivateRoute>
-            } 
+            }
           />
 
           {/* Placeholders para os links da Sidebar não quebrarem a tela */}
@@ -84,8 +82,7 @@ function App() {
         </Routes>
       </Router>
     </GoogleOAuthProvider>
-
-
-
+  );
+}
 
 export default App;
