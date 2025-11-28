@@ -1,5 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import Dashboard from './pages/Dashboard';
+import './App.css';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Importações das Páginas
@@ -76,11 +79,13 @@ function App() {
           {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
           <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
           <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
-
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Router>
     </GoogleOAuthProvider>
-  );
-}
+
+
+
 
 export default App;
