@@ -57,37 +57,26 @@ MIDDLEWARE = [
 ]
 
 # CORS Settings
+
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
     "http://localhost:3000",      # <--- Porta do Create React App
     "http://127.0.0.1:3000",
     "http://localhost:5173",      # Pode manter essa por segurança
 ]
+
 # REST Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ]
-}
-
-
-ROOT_URLCONF = 'tripsync_project.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'tripsync_project.wsgi.application'
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 
 # Database
@@ -100,9 +89,9 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     # Validações padrões do Django (opcionais, mas recomendadas)
@@ -111,10 +100,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     # Nossa validação personalizada
     {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
         
         'NAME': 'accounts.validators.ComplexPasswordValidator',
     },
 ]
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Internationalization
