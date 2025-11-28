@@ -24,9 +24,9 @@ function App() {
   };
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
-      <Router>
-        <Routes>
-          {/* --- ROTAS PÚBLICAS --- */}
+    <Router>
+      <Routes>
+        {/* --- ROTAS PÚBLICAS --- */}
           <Route path="/" element={<AuthPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
@@ -77,10 +77,10 @@ function App() {
           {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
           <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
           <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </Router>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
     </GoogleOAuthProvider>
   );
 }

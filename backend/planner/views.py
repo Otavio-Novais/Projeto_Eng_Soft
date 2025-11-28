@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -17,8 +18,6 @@ from django.db import transaction
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from datetime import date
-
-User = get_user_model()
 
 @api_view(['GET'])
 def home_data(request):
@@ -56,6 +55,8 @@ def home_data(request):
         }
     }
     return Response(data)
+
+User = get_user_model()
 
 @csrf_exempt
 @require_http_methods(["GET"])

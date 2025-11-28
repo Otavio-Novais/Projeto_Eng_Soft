@@ -1,8 +1,9 @@
 from django.db import models
 
-# planner/models.py
-from django.conf import settings
 # Create your models here.
+
+from django.conf import settings
+
 class Viagem(models.Model):
     titulo = models.CharField(max_length=100)
     participantes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='viagens')

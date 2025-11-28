@@ -1,7 +1,7 @@
-# planner/admin.py
-
-
 from django.contrib import admin
+
+# Register your models here.
+
 from .models import Viagem # Importa o nosso modelo Viagem
 
 # Register your models here.

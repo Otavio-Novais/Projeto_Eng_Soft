@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
-    { 
+    {
         'NAME': 'accounts.validators.ComplexPasswordValidator',
     },
 ]
@@ -143,7 +143,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# Configuração de E-mail para Desenvolvimento (Imprime no Console)
+
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
