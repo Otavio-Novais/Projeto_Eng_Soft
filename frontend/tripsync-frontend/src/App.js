@@ -7,8 +7,11 @@ import AuthPage from './pages/Auth/AuthPage.jsx';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/Auth/ResetPasswordPage.jsx';
 import MyTripsPage from './pages/mytrips/MyTripsPage.jsx'; 
-import ProfilePage from './pages/Profile/ProfilePage.jsx';   // <--- Importado
-import SettingsPage from './pages/Settings/SettingsPage.jsx'; // <--- Importado
+import ProfilePage from './pages/Profile/ProfilePage.jsx';
+import SettingsPage from './pages/Settings/SettingsPage.jsx';
+
+// IMPORTANTE: Se o arquivo for 'index.jsx' dentro da pasta Finance, o import é assim:
+import FinancePage from './pages/Finance/FinancePage.jsx'; 
 
 function App() {
   const CLIENT_ID = "274939966706-78vmihp1pqp7j82o403btjuljk2bl4bs.apps.googleusercontent.com";
@@ -27,7 +30,9 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
 
-          {/* --- ROTAS PROTEGIDAS (Precisa estar logado) --- */}
+          {/* --- ROTAS PROTEGIDAS --- */}
+          
+          {/* 1. Tela de Listagem (Minhas Viagens) */}
           <Route 
             path="/mytrips" 
             element={
@@ -37,7 +42,7 @@ function App() {
             } 
           />
 
-          {/* FALTAVAM ESSAS DUAS AQUI EMBAIXO: */}
+          {/* 2. Telas Globais (Perfil e Configurações) */}
           <Route 
             path="/profile" 
             element={
@@ -46,7 +51,6 @@ function App() {
               </PrivateRoute>
             } 
           />
-
           <Route 
             path="/settings" 
             element={
@@ -55,6 +59,23 @@ function App() {
               </PrivateRoute>
             } 
           />
+
+          {/* 3. MÓDULO DA VIAGEM (Financeiro e outros) */}
+          
+          {/* Rota Principal de Finanças */}
+          <Route 
+            path="/viagem/:tripId/financas" 
+            element={
+              <PrivateRoute>
+                <FinancePage />
+              </PrivateRoute>
+            } 
+          />
+
+          {/* Placeholders para os links da Sidebar não quebrarem a tela */}
+          {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
+          <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
+          <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
 
         </Routes>
       </Router>

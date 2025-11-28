@@ -1,137 +1,151 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Map, Plus, User, Calendar, Users, ArrowRight, LayoutGrid, Clock, CheckCircle, Wallet } from 'lucide-react';
 import './MyTripsPage.css';
-import api from '../../services/api';
 
 const MyTripsPage = () => {
   const navigate = useNavigate();
-  const [trips, setTrips] = useState([]);
+  const [viagens, setViagens] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // ESTADO DO MENU
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef(null);
+  // Estado do Filtro: 'TODAS', 'PLANEJAMENTO', 'CONCLUIDA'
+  const [filtro, setFiltro] = useState('TODAS'); 
 
   useEffect(() => {
-    const fetchTrips = async () => {
-        try {
-            const response = await api.get('/trips/');
-            setTrips(response.data); 
-        } catch (error) {
-            console.error("Erro:", error);
-            if (error.response && error.response.status === 401) {
-                localStorage.clear();
-                navigate('/');
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-    fetchTrips();
+    fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+        setViagens(data);
+        setLoading(false);
+    })
+    .catch(err => {
+        console.error(err);
+        setLoading(false);
+    });
+  }, []);
 
-    // FECHAR AO CLICAR FORA
-    const handleClickOutside = (event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-            setShowDropdown(false);
-        }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [navigate]);
-
-  const handleLogout = () => {
-      localStorage.clear();
-      navigate('/');
+  const handleCardClick = (id) => {
+    navigate(`/viagem/${id}/financas`);
   };
 
+  // --- LÓGICA DE FILTRAGEM (AQUI ESTÁ A CORREÇÃO) ---
+  const viagensFiltradas = viagens.filter(v => {
+    if (filtro === 'TODAS') return true;
+    return v.status === filtro; // Compara com 'PLANEJAMENTO' ou 'CONCLUIDA' que vem do backend
+  });
+
+  if (loading) return <div style={{padding:60, textAlign:'center'}}>Carregando suas viagens...</div>;
+
   return (
-    <div className="dashboard-container">
+    <div className="mytrips-container">
         
-        <nav className="dash-navbar">
-            <div className="brand" style={{display:'flex', alignItems:'center', gap:'8px', fontWeight:'800', fontSize:'1.2rem'}}>
-                <span>🗺️</span> Tripsync
+        {/* HEADER */}
+        <header className="global-header">
+            <div className="logo-area-simple">
+                <Map size={24} color="#0066FF" strokeWidth={2.5}/> <span>Tripsync</span>
             </div>
-            
             <div className="nav-actions">
-                <button className="btn-nav" onClick={() => navigate('/mytrips')}>📅 Minhas Viagens</button>
-                <button className="btn-primary">+ Criar Nova Viagem</button>
-                
-                {/* --- PERFIL COM DROPDOWN --- */}
-                <div className="profile-container" ref={dropdownRef}>
-                    <button 
-                        className="btn-nav" 
-                        onClick={() => setShowDropdown(!showDropdown)} // <--- O CLIQUE ESTÁ AQUI
-                    >
-                        👤 Perfil ▼
-                    </button>
-
-                    {/* MENU SÓ APARECE SE showDropdown FOR TRUE */}
-                    {showDropdown && (
-                        <div className="dropdown-menu">
-                            <button className="dropdown-item" onClick={() => navigate('/profile')}>
-                                ✏️ Editar Dados
-                            </button>
-                            <button className="dropdown-item" onClick={() => navigate('/settings')}>
-                                ⚙️ Configurações
-                            </button>
-                            <button className="dropdown-item danger" onClick={handleLogout}>
-                                🚪 Sair
-                            </button>
-                        </div>
-                    )}
-                </div>
+                <Link to="/profile" className="btn-nav-ghost">
+                    <User size={16}/> Perfil
+                </Link>
             </div>
-        </nav>
+        </header>
 
-        <main className="dash-content">
-            <div className="dash-header">
-                <div>
+        {/* CONTEÚDO */}
+        <main className="mytrips-content">
+            
+            <div className="dashboard-header">
+                <div className="dash-title">
                     <h1>Dashboard Pessoal</h1>
                     <p>Veja e gerencie todas as suas viagens.</p>
                 </div>
-                <button className="btn-primary">+ Criar Nova Viagem</button>
+                <button className="btn-nav-primary">
+                    <Plus size={16}/> Criar Nova Viagem
+                </button>
             </div>
 
+            {/* ABAS DE FILTRO FUNCIONAIS */}
             <div className="filters-bar">
-                <div className="filter-group">
-                    <button className="filter-btn">📅 Próximas</button>
-                    <button className="filter-btn active">🕒 Em planejamento</button>
-                    <button className="filter-btn">📦 Concluídas</button>
-                </div>
-                <span className="trip-count">{trips.length} viagens</span>
+                <button 
+                    className={`filter-tab ${filtro==='TODAS'?'active':''}`} 
+                    onClick={()=>setFiltro('TODAS')}
+                >
+                    <LayoutGrid size={16}/> Todas
+                </button>
+                <button 
+                    className={`filter-tab ${filtro==='PLANEJAMENTO'?'active':''}`} 
+                    onClick={()=>setFiltro('PLANEJAMENTO')}
+                >
+                    <Clock size={16}/> Em planejamento
+                </button>
+                <button 
+                    className={`filter-tab ${filtro==='CONCLUIDA'?'active':''}`} 
+                    onClick={()=>setFiltro('CONCLUIDA')}
+                >
+                    <CheckCircle size={16}/> Concluídas
+                </button>
+                
+                <span style={{marginLeft:'auto', fontSize:13, color:'#94A3B8', alignSelf:'center'}}>
+                    {viagensFiltradas.length} viagens
+                </span>
             </div>
 
-            {loading ? (
-                <p style={{textAlign: 'center', marginTop: '2rem', color: '#666'}}>Carregando...</p>
-            ) : trips.length === 0 ? (
-                <div style={{textAlign: 'center', padding: '4rem', color: '#8898aa'}}>
-                    <h3>Nenhuma viagem encontrada 😢</h3>
-                    <p>Clique em "Criar Nova Viagem" para começar!</p>
+            {/* GRID USANDO A LISTA FILTRADA */}
+            {viagensFiltradas.length === 0 ? (
+                <div className="empty-state">
+                    <span className="empty-icon">😢</span>
+                    <h3>Nenhuma viagem encontrada neste filtro</h3>
+                    <p>Tente mudar a aba ou crie uma nova viagem.</p>
                 </div>
             ) : (
                 <div className="trips-grid">
-                    {trips.map(trip => (
-                        <div key={trip.id} className="trip-card">
-                            <div className="card-header">
-                                <span className="status-badge status-planning">{trip.status_display || trip.status}</span>
-                                <button className="btn-open">→ Abrir</button>
+                    {viagensFiltradas.map(viagem => (
+                        <div key={viagem.id} className="trip-card" onClick={() => handleCardClick(viagem.id)}>
+                            
+                            <div className="card-top">
+                                {/* Badge Dinâmica baseada no Status */}
+                                <span className="status-badge" style={{
+                                    color: viagem.status === 'CONCLUIDA' ? '#10B981' : '#0066FF',
+                                    background: viagem.status === 'CONCLUIDA' ? '#ECFDF5' : '#EFF6FF'
+                                }}>
+                                    {viagem.status_display}
+                                </span>
+                                <span className="btn-open">Abrir <ArrowRight size={14}/></span>
                             </div>
-                            <img 
-                                src={trip.cover_image || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=500&q=60"} 
-                                alt={trip.title} 
-                                className="card-image" 
-                            />
-                            <div className="trip-info">
-                                <h3>{trip.title}</h3>
-                                <div className="trip-meta">
-                                    <span>📍 {trip.destination}</span>
-                                    <span>📅 {trip.start_date}</span>
+
+                            <div className="card-image-box">
+                                <img 
+                                    src={`https://source.unsplash.com/800x600/?travel,${viagem.titulo}`} 
+                                    className="card-img" 
+                                    alt={viagem.titulo}
+                                    onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80'}
+                                />
+                            </div>
+
+                            <div className="card-info">
+                                <h3>{viagem.titulo}</h3>
+                                <div className="meta-row">
+                                    <div className="meta-item"><Calendar size={14}/> {viagem.data || 'Data indefinida'}</div>
+                                    <div className="meta-item"><Users size={14}/> {viagem.participantes_count} membros</div>
                                 </div>
                             </div>
+
+                            <div className="card-footer">
+                                <div className="avatars-row">
+                                    <img src={`https://ui-avatars.com/api/?name=${viagem.titulo}&background=random`} className="mini-avatar"/>
+                                </div>
+                                <div className="footer-icon">
+                                    <Wallet size={14}/> Finanças
+                                </div>
+                            </div>
+
                         </div>
                     ))}
                 </div>
             )}
+
         </main>
     </div>
   );

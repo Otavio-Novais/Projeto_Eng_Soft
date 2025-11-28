@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 import requests
 from rest_framework import generics, permissions
@@ -24,7 +24,21 @@ from .serializers import (
 )
 from .models import CustomUser
 
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated] # Só funciona se estiver logado
 
+    def get(self, request):
+        # Retorna os dados do usuário logado
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        # Atualiza os dados do usuário logado
+        serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
 class RegisterView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]

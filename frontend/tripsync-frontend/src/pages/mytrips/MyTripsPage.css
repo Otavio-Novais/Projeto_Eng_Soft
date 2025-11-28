@@ -1,486 +1,288 @@
-/* src/pages/Dashboard/DashboardPage.css */
-body {
-    background-color: #f8fbff;
-    font-family: 'Inter', sans-serif;
-}
+/* src/pages/mytrips/MyTrips.css */
 
-.dashboard-container {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.mytrips-container {
+    padding: 0;
     min-height: 100vh;
+    background-color: #F8FAFC;
+    /* Fundo cinza bem claro */
+    font-family: 'Inter', sans-serif;
+    color: #1E293B;
 }
 
-/* NAVBAR */
-.dash-navbar {
+/* HEADER SUPERIOR (Global) */
+.global-header {
+    height: 72px;
+    background: white;
+    border-bottom: 1px solid #E2E8F0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 4rem;
-    background: white;
-    border-bottom: 1px solid #eaedf2;
+    padding: 0 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.logo-area-simple {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1E293B;
 }
 
 .nav-actions {
     display: flex;
-    gap: 10px;
-}
-
-.btn-nav {
-    background: #eef4ff;
-    color: #0066ff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 12px;
 }
 
-.btn-primary {
-    background: #0066ff;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px; /* Arredondado igual imagem */
+.btn-nav-ghost {
+    background: #F1F5F9;
+    color: #64748B;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 13px;
     font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* CONTEÚDO */
-.dash-content {
-    padding: 2rem 4rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.dash-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.dash-header h1 {
-    font-size: 1.8rem;
-    color: #111;
-    margin: 0;
-}
-
-.dash-header p {
-    color: #8898aa;
-    margin-top: 5px;
-    font-size: 0.9rem;
-}
-
-/* FILTROS */
-.filters-bar {
-    display: flex;
-    justify-content: space-between;
-    background: white;
-    padding: 10px;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    border: 1px solid #eff2f5;
-}
-
-.filter-group {
-    display: flex;
-    gap: 10px;
-}
-
-.filter-btn {
-    border: none;
-    background: #f0f5fa;
-    color: #667;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-}
-
-.filter-btn.active {
-    background: #e6f2ff;
-    color: #0066ff;
-}
-
-.trip-count {
-    color: #8898aa;
-    font-size: 0.9rem;
-    align-self: center;
-    margin-right: 10px;
-}
-
-/* GRID DE VIAGENS */
-.trips-grid {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.trip-card {
-    background: white;
-    border-radius: 16px;
-    padding: 1rem;
-    width: 320px;
-    border: 1px solid #eaedf2;
-    transition: transform 0.2s;
-}
-
-.trip-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-
-.status-badge {
-    font-size: 0.75rem;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-weight: 600;
-}
-
-/* Cores dos status */
-.status-planning { background: #e6f2ff; color: #0066ff; }
-.status-next { background: #e6f2ff; color: #0066ff; } /* Azul igual imagem */
-.status-completed { background: #e6f2ff; color: #0066ff; }
-
-.btn-open {
-    background: transparent;
-    color: #0066ff;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-.card-image {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 1rem;
-}
-
-.trip-info h3 {
-    margin: 0 0 5px 0;
-    color: #111;
-    font-size: 1.1rem;
-}
-
-.trip-meta {
-    color: #8898aa;
-    font-size: 0.85rem;
-    display: flex;
-    gap: 10px;
-    margin-bottom: 1rem;
-}
-
-.card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.members-avatars {
-    display: flex;
-}
-
-.avatar-circle {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #ddd;
-    border: 2px solid white;
-    margin-right: -8px; /* Sobreposição */
-    object-fit: cover;
-}
-
-.trip-type {
-    color: #333;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 500;
-}
-.profile-menu-container {
-    position: relative;
-}
-
-.profile-trigger {
-    cursor: pointer;
-    background-color: #eef4ff; /* Azul claro */
-    color: #0066ff;
-    font-weight: bold;
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 120%; /* Fica logo abaixo do botão */
-    right: 0;   /* Alinhado à direita */
-    background: white;
-    border: 1px solid #eaedf2;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    width: 200px;
-    padding: 8px 0;
-    z-index: 100; /* Garante que fique por cima de tudo */
-    animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.dropdown-header {
-    padding: 8px 16px;
-    font-size: 0.8rem;
-    color: #8898aa;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.dropdown-item {
-    width: 100%;
-    text-align: left;
-    padding: 10px 16px;
-    background: none;
-    border: none;
-    font-size: 0.9rem;
-    color: #333;
-    cursor: pointer;
-    transition: background 0.2s;
+    text-decoration: none;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.dropdown-item:hover {
-    background-color: #f8fbff;
-    color: #0066ff;
+.btn-nav-ghost:hover {
+    background: #E2E8F0;
+    color: #334155;
 }
 
-.dropdown-divider {
-    height: 1px;
-    background-color: #eaedf2;
-    margin: 6px 0;
-}
-
-.logout-item {
-    color: #dc3545; /* Vermelho para sair */
-}
-
-.logout-item:hover {
-    background-color: #fff5f5;
-    color: #c53030;
-}
-.profile-container {
-    position: relative; /* OBRIGATÓRIO: Segura o menu no lugar */
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 120%;
-    right: 0;
-    background: white;
-    border: 1px solid #eaedf2;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    width: 200px;
-    z-index: 1000; /* Garante que fica por cima de tudo */
-    padding: 8px 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.dropdown-item {
+.btn-nav-primary {
+    background: #0066FF;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 12px 20px;
-    border: none;
-    background: transparent;
-    text-align: left;
-    font-size: 0.9rem;
-    color: #333;
-    cursor: pointer;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
 }
 
-.dropdown-item:hover {
-    background-color: #f5f7fa;
-    color: #0066ff;
+.btn-nav-primary:hover {
+    background: #0052cc;
+    transform: translateY(-1px);
 }
 
-.dropdown-item.danger {
-    color: #dc3545;
-    border-top: 1px solid #eee;
+/* ÁREA DE CONTEÚDO */
+.mytrips-content {
+    margin-top: 72px;
+    /* Compensa header */
+    padding: 40px 60px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.dropdown-item.danger:hover {
-    background-color: #fff5f5;
-}/* Estilos da Página de Configurações */
-.subtitle-text {
-    color: #666;
-    margin-bottom: 2rem;
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
 }
 
-.settings-card {
+.dash-title h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    color: #1E293B;
+}
+
+.dash-title p {
+    margin: 0;
+    color: #64748B;
+    font-size: 14px;
+}
+
+/* Filtros (Abas) */
+.filters-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.filter-tab {
+    padding: 10px 20px;
     background: white;
-    padding: 2rem;
-    border-radius: 16px;
-    max-width: 600px;
-    border: 1px solid #eaedf2;
+    border: 1px solid #E2E8F0;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
 }
 
-.settings-item {
+.filter-tab:hover {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+}
+
+.filter-tab.active {
+    background: #EFF6FF;
+    color: #0066FF;
+    border-color: #BFDBFE;
+}
+
+/* GRID DE CARDS */
+.trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+/* CARD DE VIAGEM */
+.trip-card {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.trip-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08);
+    border-color: #CBD5E1;
+}
+
+/* Header do Card (Badge + Botão Abrir) */
+.card-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid #eee;
+    margin-bottom: 16px;
 }
 
-.settings-item:last-child {
-    border-bottom: none;
+.status-badge {
+    background: #EFF6FF;
+    color: #0066FF;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
-.setting-title {
+.btn-open {
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.trip-card:hover .btn-open {
+    color: #0066FF;
+}
+
+/* Imagem do Card */
+.card-image-box {
+    height: 160px;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background-color: #E2E8F0;
+    /* Fallback se não tiver imagem */
+}
+
+.card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Infos do Card */
+.card-info h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.meta-row {
+    display: flex;
+    gap: 16px;
+    color: #64748B;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Footer do Card (Avatares e Ícone) */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 16px;
+}
+
+.avatars-row {
+    display: flex;
+}
+
+.mini-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-right: -8px;
+    background: #CBD5E1;
+    object-fit: cover;
+}
+
+.footer-icon {
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 0;
+    color: #64748B;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
     display: block;
-    color: #333;
-    margin-bottom: 4px;
-}
-
-.setting-desc {
-    font-size: 0.85rem;
-    color: #888;
-}
-
-.toggle-switch {
-    transform: scale(1.5);
-    cursor: pointer;
-}
-/* --- RESPONSIVIDADE (Mobile & Tablet) --- */
-@media (max-width: 768px) {
-
-    /* 1. Navbar Empilhada */
-    .dash-navbar {
-        flex-direction: column;
-        padding: 1rem;
-        gap: 1rem;
-    }
-
-    .nav-actions {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap; /* Permite que botões desçam se faltar espaço */
-        gap: 10px;
-    }
-
-    .brand {
-        margin-bottom: 5px;
-    }
-
-    /* Botões da Navbar ocupam mais espaço para toque */
-    .btn-nav, .btn-primary {
-        flex: 1; /* Divide o espaço igualmente */
-        justify-content: center;
-        font-size: 0.9rem;
-        white-space: nowrap;
-    }
-
-    /* Oculta o texto "Minhas Viagens" no botão para economizar espaço se precisar */
-    /* .nav-actions .btn-nav:first-child { display: none; } */ 
-
-    /* 2. Conteúdo Principal */
-    .dash-content {
-        padding: 1.5rem 1rem; /* Reduz padding lateral */
-    }
-
-    .dash-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .dash-header .btn-primary {
-        width: 100%; /* Botão "Criar" largura total */
-    }
-
-    /* 3. Filtros e Contagem */
-    .filters-bar {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .filter-group {
-        width: 100%;
-        overflow-x: auto; /* Permite rolar os filtros lateralmente se não couberem */
-        padding-bottom: 5px;
-    }
-
-    .filter-btn {
-        flex-shrink: 0; /* Impede botões de amassar */
-    }
-
-    /* 4. Grid de Viagens */
-    .trips-grid {
-        justify-content: center;
-    }
-
-    .trip-card {
-        width: 100%; /* Card ocupa a tela toda no celular */
-    }
-
-    /* 5. Ajustes da Tela de Perfil */
-    .profile-card {
-        padding: 1.5rem;
-    }
-
-    .profile-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-
-    .row-2-cols {
-        flex-direction: column; /* Cidade e Data ficam um embaixo do outro */
-        gap: 0;
-    }
-
-    .btn-save {
-        width: 100%; /* Botão Salvar grande */
-        margin-top: 1rem;
-    }
-
-    /* 6. Ajustes da Tela de Configurações */
-    .settings-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .settings-item .switch, 
-    .settings-item button, 
-    .settings-item select {
-        align-self: flex-end; /* Joga os controles para a direita */
-    }
-    
-    /* Menu Dropdown não sair da tela */
-    .dropdown-menu {
-        right: 50%;
-        transform: translateX(50%); /* Centraliza em relação ao botão no mobile */
-        width: 250px;
-    }
 }
