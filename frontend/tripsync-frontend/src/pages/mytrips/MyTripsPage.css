@@ -1,0 +1,288 @@
+/* src/pages/mytrips/MyTrips.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.mytrips-container {
+    padding: 0;
+    min-height: 100vh;
+    background-color: #F8FAFC;
+    /* Fundo cinza bem claro */
+    font-family: 'Inter', sans-serif;
+    color: #1E293B;
+}
+
+/* HEADER SUPERIOR (Global) */
+.global-header {
+    height: 72px;
+    background: white;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.logo-area-simple {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1E293B;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-nav-ghost {
+    background: #F1F5F9;
+    color: #64748B;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-nav-ghost:hover {
+    background: #E2E8F0;
+    color: #334155;
+}
+
+.btn-nav-primary {
+    background: #0066FF;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+}
+
+.btn-nav-primary:hover {
+    background: #0052cc;
+    transform: translateY(-1px);
+}
+
+/* ÁREA DE CONTEÚDO */
+.mytrips-content {
+    margin-top: 72px;
+    /* Compensa header */
+    padding: 40px 60px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+}
+
+.dash-title h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    color: #1E293B;
+}
+
+.dash-title p {
+    margin: 0;
+    color: #64748B;
+    font-size: 14px;
+}
+
+/* Filtros (Abas) */
+.filters-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.filter-tab {
+    padding: 10px 20px;
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.filter-tab:hover {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+}
+
+.filter-tab.active {
+    background: #EFF6FF;
+    color: #0066FF;
+    border-color: #BFDBFE;
+}
+
+/* GRID DE CARDS */
+.trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+/* CARD DE VIAGEM */
+.trip-card {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.trip-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08);
+    border-color: #CBD5E1;
+}
+
+/* Header do Card (Badge + Botão Abrir) */
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.status-badge {
+    background: #EFF6FF;
+    color: #0066FF;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.btn-open {
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.trip-card:hover .btn-open {
+    color: #0066FF;
+}
+
+/* Imagem do Card */
+.card-image-box {
+    height: 160px;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background-color: #E2E8F0;
+    /* Fallback se não tiver imagem */
+}
+
+.card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Infos do Card */
+.card-info h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.meta-row {
+    display: flex;
+    gap: 16px;
+    color: #64748B;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Footer do Card (Avatares e Ícone) */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 16px;
+}
+
+.avatars-row {
+    display: flex;
+}
+
+.mini-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-right: -8px;
+    background: #CBD5E1;
+    object-fit: cover;
+}
+
+.footer-icon {
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 0;
+    color: #64748B;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+}
