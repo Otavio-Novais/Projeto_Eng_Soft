@@ -1,0 +1,176 @@
+/* src/pages/Settings/SettingsPage.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.settings-page-wrapper {
+    background-color: #F8FAFC; /* Fundo cinza claro */
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    color: #1E293B;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER FIXO */
+.settings-header-fixed {
+    height: 72px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px; /* Alinhado com o resto do app */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.settings-header-fixed h1 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: #0F172A;
+}
+
+/* Botão Voltar Bonito */
+.btn-back-settings {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 16px 8px 0;
+    transition: color 0.2s;
+}
+.btn-back-settings:hover { color: #0066FF; }
+
+/* ÁREA DE CONTEÚDO (Scroll) */
+.settings-scroll-area {
+    flex: 1;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.settings-content-box {
+    width: 100%;
+    max-width: 600px; /* Largura ideal para leitura */
+}
+
+/* Títulos das Seções */
+.settings-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    margin: 24px 0 12px 4px;
+    letter-spacing: 0.5px;
+}
+
+/* Card Branco Principal */
+.settings-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -2px rgba(0,0,0,0.02);
+}
+
+/* Linhas de Configuração */
+.setting-row {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.2s;
+}
+
+.setting-row.clickable { cursor: pointer; }
+.setting-row.clickable:hover { background: #F8FAFC; }
+
+/* Ícones Redondos */
+.setting-icon-box {
+    width: 40px; height: 40px;
+    background: #F1F5F9;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #475569;
+    flex-shrink: 0;
+}
+.setting-icon-box.danger { background: #FEE2E2; color: #EF4444; }
+
+/* Textos */
+.setting-info { flex: 1; }
+.setting-info label { display: block; font-weight: 600; font-size: 15px; color: #1E293B; margin-bottom: 4px;}
+.setting-info p { margin: 0; font-size: 13px; color: #64748B; line-height: 1.4; }
+
+.text-danger { color: #EF4444 !important; }
+
+/* Select Customizado */
+.setting-select {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid #CBD5E1;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    transition: border 0.2s;
+}
+.setting-select:focus { border-color: #0066FF; }
+
+/* Divisor */
+.setting-divider { height: 1px; background: #F1F5F9; margin: 0 24px; }
+
+/* Botão de Perigo (Excluir) */
+.btn-danger-outline {
+    background: white;
+    border: 1px solid #EF4444;
+    color: #EF4444;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-danger-outline:hover { background: #EF4444; color: white; }
+
+/* Zona de Perigo (Separada) */
+.danger-zone-container {
+    margin-top: 40px;
+    border: 1px solid #FECACA;
+    background: #FEF2F2;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* Badge "Em Breve" */
+.badge-soon {
+    display: inline-block;
+    background-color: #FFF7ED; /* Laranja Claro */
+    color: #C2410C;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    border: 1px solid #FFEDD5;
+    vertical-align: middle;
+}
+
+/* Switch (Toggle) */
+.switch-toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch-toggle input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #CBD5E1; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #0066FF; }
+input:checked + .slider:before { transform: translateX(20px); }
