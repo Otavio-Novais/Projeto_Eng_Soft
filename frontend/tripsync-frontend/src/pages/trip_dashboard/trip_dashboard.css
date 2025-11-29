@@ -1,90 +1,77 @@
 /* trip_dashboard.css */
 
-/* --- 1. Layout Global --- */
+/* --- Layout Global --- */
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f3f5f9; /* Fundo cinza claro da página */
+  background-color: #F9FAFB;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #1f2937;
   width: 100%;
 }
 
 h1, h2, h3 { margin: 0; }
+button { font-family: inherit; }
 
-/* --- 2. Main Content (Onde sua tela acontece) --- */
+/* --- Main Content --- */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  
-  /* Compensa a Sidebar fixa (250px) para não cortar o conteúdo */
   margin-left: 250px; 
   width: calc(100% - 250px);
-  
-  overflow-y: auto;
   min-height: 100vh;
 }
 
-/* --- 3. Header Branco (Topo) --- */
+/* --- Header --- */
 .content-header {
   background-color: white;
-  padding: 1.25rem 3rem; /* Altura ajustada */
+  padding: 1.5rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 2rem;
-  position: sticky; /* Fixa o header no topo ao rolar */
+  position: sticky;
   top: 0;
   z-index: 40;
-}
-
-.header-left-group {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
 }
 
 .header-titles {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Espaço entre o Título e a Data */
+  gap: 1rem;
 }
 
 .header-titles h1 {
-  font-size: 1.25rem; /* Tamanho exato da imagem alvo */
+  font-size: 1.5rem;
   font-weight: 700;
   color: #111827;
 }
 
-/* A pílula de data (12-20 Jun) */
 .date-tag {
   background: #f3f4f6;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
-}
-
-/* Botão Amarelo */
-.btn-warning {
-  background-color: #fbbf24;
-  color: #111827;
-  border: none;
-  padding: 8px 20px;
+  padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  color: #4b5563;
 }
 
-/* --- 4. Corpo e Containers --- */
+.btn-warning {
+  background-color: #FBBF24;
+  color: #111827;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-warning:hover { opacity: 0.9; }
+
+/* --- Corpo e Layout --- */
 .content-body {
-  padding: 0 3rem 3rem 3rem;
+  padding: 2rem 3rem;
   max-width: 1600px;
   width: 100%;
   box-sizing: border-box;
@@ -94,107 +81,160 @@ h1, h2, h3 { margin: 0; }
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
-  margin-bottom: 1rem;
-}
-
-/* O Retângulo Branco (Container Pai) */
-.white-section-container {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 16px; /* Borda bem arredondada */
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); /* Sombra super suave */
-  border: 1px solid #f3f4f6;
 }
 
-/* Títulos dentro dos cards brancos (ex: "Sugestões recentes") */
-.card-header-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 1rem;
-    display: block;
+/* --- Stats Grid --- */
+.stats-section-container {
+    margin-bottom: 2rem;
+    padding: 0.5rem !important;
 }
 
-/* --- 5. Estilização dos Itens AZUIS --- */
-
-/* Stats Grid (Cards do topo) */
 .stats-grid {
   display: flex;
-  gap: 1.5rem;
+  width: 100%;
 }
 
 .stat-card {
   flex: 1;
-  background-color: #F0F9FF; /* O Azul clarinho exato */
-  padding: 1.25rem;
-  border-radius: 12px;
+  background-color: transparent;
+  padding: 1rem 2rem;
   min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #f1f5f9;
+}
+.stat-card:last-child { border-right: none; }
+
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
 }
 
 .stat-card small {
   color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-transform: uppercase;
-  font-size: 0.7rem;
-  font-weight: 700;
   letter-spacing: 0.05em;
-  display: block;
-  margin-bottom: 0.5rem;
 }
 
 .stat-card h3 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: #0f172a;
   margin-bottom: 0.25rem;
+  letter-spacing: -0.03em;
 }
 
 .sub-text {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #64748b;
   font-weight: 500;
 }
 
-/* Itens de Lista (Sugestões, Roteiro, Finanças) */
+/* --- Grid Principal (2 Colunas) --- */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr; 
+  gap: 2rem;
+  /* MUDANÇA IMPORTANTE: stretch faz as duas colunas terem a mesma altura */
+  align-items: stretch; 
+}
+
+.grid-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 0; 
+}
+
+/* --- Containers Brancos --- */
+.white-section-container {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  width: 100%; 
+  box-sizing: border-box;
+}
+
+/* Lógica para o Container de Sugestões (Full Height) */
+.white-section-container.full-height {
+    flex: 1; /* Faz o container crescer para ocupar toda a coluna */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Cabeçalho no topo, Footer no chão */
+}
+
+/* Centraliza os ITENS da lista no meio do espaço disponível */
+.white-section-container.full-height .card-list {
+    flex: 1; /* Ocupa o espaço livre no meio */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza verticalmente */
+    gap: 1.5rem; /* Um pouco mais de espaço entre os itens já que o container é alto */
+}
+
+/* Membros */
+.members-section {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.card-header-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+/* --- Listas e Itens --- */
 .card-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .item-card {
-  background-color: #F0F9FF; /* Azul clarinho */
+  background-color: #F8FAFC;
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: background 0.2s;
 }
 
-/* Ícones Quadrados */
+.item-card:hover { background-color: #F1F5F9; }
+
 .item-icon {
-  width: 42px;
-  height: 42px;
-  background: white; /* Fundo branco para destaque */
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 1rem;
-  font-size: 1.1rem;
-  color: #64748b; /* Cor padrão do ícone */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  font-size: 1.25rem;
 }
 
-.item-icon.blue {
-    color: #3b82f6; /* Azul para ícones de calendário/finanças */
+.item-icon.blue-bg {
+    background-color: #EFF6FF;
+    color: #2563EB;
 }
 
 .item-info { flex: 1; display: flex; flex-direction: column; }
 .item-info strong { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
-.item-info small { color: #64748b; margin-top: 3px; font-size: 0.8rem; }
+.item-info small { color: #64748b; margin-top: 4px; font-size: 0.8rem; }
 
-/* Botões de Texto (Links) */
+/* Botões Textuais */
 .btn-text {
   background: none;
   border: none;
@@ -204,83 +244,110 @@ h1, h2, h3 { margin: 0; }
   font-size: 0.85rem;
 }
 
-/* Botão Azul (+ Adicionar) */
-.btn-primary {
-  background-color: #0066ff;
+/* Footer Section */
+.mt-auto { margin-top: auto; }
+
+.suggestion-footer, .section-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+}
+
+.footer-hint {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+/* Botões */
+.btn-primary-solid {
+  background-color: #2563eb;
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 50px;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   transition: background 0.2s;
 }
-.btn-primary:hover { background-color: #0052cc; }
+.btn-primary-solid:hover { background-color: #1d4ed8; }
+.btn-primary-solid.small { padding: 8px 16px; font-size: 0.8rem;}
 
-.add-suggestion-box {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #94a3b8;
-  font-size: 0.85rem;
-}
-
-/* Layout de Grid (2 Colunas) */
-.content-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-.grid-column { display: flex; flex-direction: column; gap: 1.5rem; }
-
-/* Finanças */
-.finance-controls { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
-.badge { background: #F0F9FF; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: #334155; border: 1px solid #e2e8f0; }
-.badge-outline { background: white; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; color: #64748b; }
-
-/* Footer de Seção */
-.section-footer {
+.btn-soft-blue {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    color: #94a3b8;
-    font-size: 0.8rem;
+    gap: 6px;
+}
+.btn-soft-blue:hover { background-color: #dbeafe; }
+
+/* Finanças Badges */
+.finance-controls { 
+    display: flex; 
+    gap: 0.75rem; 
+    margin-bottom: 1.5rem; 
+}
+.badge-blue {
+    background: #F0F9FF; 
+    border: 1px solid transparent;
+    padding: 6px 12px; 
+    border-radius: 8px; 
+    font-size: 0.8rem; 
+    font-weight: 500; 
+    color: #1e293b;
+}
+.badge-outline { 
+    background: white; 
+    border: 1px solid #e2e8f0; 
+    padding: 6px 12px; 
+    border-radius: 8px; 
+    font-size: 0.8rem; 
+    color: #64748b; 
 }
 
 /* Membros */
 .member-list { display: flex; flex-direction: column; gap: 0.5rem; }
 .member-row {
-    display: flex; align-items: center; padding: 0.75rem 1rem;
-    background-color: #F0F9FF; 
-    border-radius: 12px;
+    display: flex; align-items: center; padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
 }
-.avatar {
-    width: 36px; height: 36px;
-    background: white;
+.member-row:last-child { border-bottom: none; }
+
+.avatar-img {
+    width: 40px; height: 40px;
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; color: #3b82f6; margin-right: 1rem;
-    font-size: 0.8rem;
-}
-.status-confirmed { color: #94a3b8; font-size: 0.8rem; font-weight: 500; }
-.btn-outline-small {
-    background: white; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 20px;
-    color: #475569; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    margin-right: 1rem;
+    background-size: cover;
+    background-position: center;
 }
 
-/* Mobile Responsiveness */
+.status-badge {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    background: #f8fafc;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .stats-grid { flex-direction: column; gap: 0; }
+  .stat-card { border-right: none; border-bottom: 1px solid #f1f5f9; }
+  .stat-card:last-child { border-bottom: none; }
+}
+
 @media (max-width: 768px) {
   .main-content { margin-left: 0; width: 100%; }
-  .content-header { padding: 1rem; flex-direction: column; align-items: flex-start; }
+  .content-header { padding: 1rem; }
   .content-body { padding: 1rem; }
-  .content-grid { grid-template-columns: 1fr; }
 }
