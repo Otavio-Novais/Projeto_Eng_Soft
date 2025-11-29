@@ -1,0 +1,181 @@
+/* src/components/layout/Sidebar.css */
+
+.sidebar-container {
+  width: 250px;
+  height: 100vh;
+  background-color: #ffffff;
+  border-right: 1px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 50;
+  font-family: "Inter", sans-serif;
+  box-sizing: border-box;
+}
+
+/* Logo */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  padding-left: 0.5rem;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  letter-spacing: -0.02em;
+}
+
+/* Seções */
+.nav-section {
+  margin-bottom: 2rem;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding-left: 0.75rem;
+}
+
+.nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Botões de Navegação */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: transparent;
+  color: #4b5563;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* APENAS HOVER aplica o azul forte */
+.nav-btn:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.nav-icon {
+  width: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Lista de Viagens */
+.trip-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: transparent;
+  color: #374151;
+  cursor: pointer;
+  width: 100%;
+  font-size: 0.9rem;
+  transition: all 0.2s ease; /* Transição suave */
+}
+
+/* Hover na viagem aplica o cinza claro */
+.trip-btn:hover {
+  background-color: #f9fafb;
+}
+
+/* Viagem Ativa: Apenas muda a cor do texto, sem fundo fixo */
+.trip-btn.active-trip {
+  /* background-color removido */
+  color: #1d4ed8; /* Mantém o texto azul para indicar seleção */
+  font-weight: 600;
+}
+
+.trip-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.trip-label {
+  font-weight: 500;
+}
+
+.trip-date {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.active-date {
+  color: #60a5fa;
+}
+
+/* Footer Actions */
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-create-trip {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.875rem;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+  font-size: 0.9rem;
+}
+
+.btn-create-trip:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-logout {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}

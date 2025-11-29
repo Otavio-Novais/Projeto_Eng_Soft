@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
+import TripDashboard from './pages/trip_dashboard/trip_dashboard';
 import './App.css';
 import { Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -82,6 +83,7 @@ function App() {
           <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
         <Route path="/" element={<LandingPage/>} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/trip/:tripId" element={<TripDashboard />} />
       </Routes>
     </Router>
     </SettingsProvider>
