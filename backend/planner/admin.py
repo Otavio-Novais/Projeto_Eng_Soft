@@ -1,33 +1,33 @@
 from django.contrib import admin
-from .models import Destination, Trip, Activity, Photo
+from .models import Viagem, Despesa, Rateio
 
 
-@admin.register(Destination)
-class DestinationAdmin(admin.ModelAdmin):
-    list_display = ("name", "country", "created_at")
-    search_fields = ("name", "country")
-    list_filter = ("country",)
+@admin.register(Viagem)
+class ViagemAdmin(admin.ModelAdmin):
+    list_display = ("titulo", "destino", "data_inicio", "data_fim")
+    search_fields = ("titulo", "destino")
+    list_filter = ("data_inicio", "data_fim")
+    date_hierarchy = "data_inicio"
 
 
-@admin.register(Trip)
-class TripAdmin(admin.ModelAdmin):
-    list_display = ("title", "user", "destination", "start_date", "end_date", "status")
-    list_filter = ("status", "start_date", "destination")
-    search_fields = ("title", "user__username", "destination__name")
-    date_hierarchy = "start_date"
+@admin.register(Despesa)
+class DespesaAdmin(admin.ModelAdmin):
+    list_display = (
+        "titulo",
+        "viagem",
+        "pagador",
+        "valor_total",
+        "categoria",
+        "data",
+        "status",
+    )
+    list_filter = ("status", "categoria", "data")
+    search_fields = ("titulo", "viagem__titulo", "pagador__username")
+    date_hierarchy = "data"
 
 
-@admin.register(Activity)
-class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("name", "trip", "date", "time", "cost")
-    list_filter = ("date", "trip")
-    search_fields = ("name", "trip__title")
-    date_hierarchy = "date"
-
-
-@admin.register(Photo)
-class PhotoAdmin(admin.ModelAdmin):
-    list_display = ("id", "caption", "uploaded_at")
-    list_filter = ("uploaded_at",)
-    search_fields = ("caption",)
-    filter_horizontal = ("trips",)  # UI amigável para ManyToMany
+@admin.register(Rateio)
+class RateioAdmin(admin.ModelAdmin):
+    list_display = ("despesa", "participante", "valor_devido")
+    list_filter = ("despesa__viagem",)
+    search_fields = ("despesa__titulo", "participante__username")
