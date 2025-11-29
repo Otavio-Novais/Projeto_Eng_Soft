@@ -1,38 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, User, Map, Save } from 'lucide-react';
-import '../Finance/Finance.css'; // Reutilizando o CSS bonito que já fizemos
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, User, Map, Camera, Save, Loader } from 'lucide-react';
+import '../Finance/Finance.css'; // Usa os estilos globais que já criamos
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null); // Referência para o input invisível
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  // Estado para armazenar os dados do formulário
+  // Estado da Imagem
+  const [avatarPreview, setAvatarPreview] = useState(null); // O que aparece na tela
+  const [avatarFile, setAvatarFile] = useState(null);       // O arquivo real para enviar
+
+  // Estado dos Dados de Texto
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     phone: '',
     city: '',
     birth_date: '',
-    travel_style: 'ECONOMICO', // Valor padrão
+    travel_style: 'ECONOMICO',
     bio: ''
   });
 
-  // 1. BUSCAR DADOS AO CARREGAR A TELA
+  // --- 1. BUSCAR DADOS DO BACKEND ---
   useEffect(() => {
     const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://127.0.0.1:8000/accounts/api/profile/', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        const response = await fetch('http://127.0.0.1:8000/api/profile/', {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.ok) {
           const data = await response.json();
+          
+          // Preenche o formulário (usa '' se vier null do banco)
           setFormData({
             full_name: data.full_name || '',
             email: data.email || '',
@@ -42,153 +47,204 @@ const ProfilePage = () => {
             travel_style: data.travel_style || 'ECONOMICO',
             bio: data.bio || ''
           });
+
+          // Lógica da Foto de Perfil
+          if (data.avatar) {
+            // Se o backend mandar caminho relativo (/media/...), adiciona o domínio
+            const avatarUrl = data.avatar.startsWith('http') 
+                ? data.avatar 
+                : `http://127.0.0.1:8000${data.avatar}`;
+            setAvatarPreview(avatarUrl);
+          }
         }
       } catch (error) {
-        console.error("Erro ao carregar perfil:", error);
+        console.error("Erro de conexão:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, []);
 
-  // 2. FUNÇÃO PARA SALVAR DADOS
+  // --- 2. GERENCIAR SELEÇÃO DE FOTO ---
+  const handleImageClick = () => {
+    fileInputRef.current.click(); // Clica no input escondido
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file); // Guarda o arquivo
+      setAvatarPreview(URL.createObjectURL(file)); // Mostra preview imediato
+    }
+  };
+
+  // --- 3. SALVAR DADOS (TEXTO + FOTO) ---
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
+    const token = localStorage.getItem('token');
+
+    // IMPORTANTE: FormData é obrigatório para enviar arquivos
+    const dataToSend = new FormData();
+    dataToSend.append('full_name', formData.full_name);
+    dataToSend.append('phone', formData.phone);
+    dataToSend.append('city', formData.city);
+    dataToSend.append('birth_date', formData.birth_date);
+    dataToSend.append('travel_style', formData.travel_style);
+    dataToSend.append('bio', formData.bio);
+    
+    // Só envia a foto se o usuário tiver alterado
+    if (avatarFile) {
+        dataToSend.append('avatar', avatarFile);
+    }
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/accounts/api/profile/', {
-        method: 'PATCH', // PATCH serve para atualizar dados
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await fetch('http://127.0.0.1:8000/api/profile/', {
+        method: 'PATCH',
+        headers: { 
+            'Authorization': `Bearer ${token}` 
+            // NÃO ADICIONE 'Content-Type': 'application/json' AQUI! 
+            // O navegador define automaticamente o boundary do FormData.
         },
-        body: JSON.stringify(formData)
+        body: dataToSend
       });
 
       if (response.ok) {
-        alert("Dados salvos com sucesso!");
+        alert("Perfil atualizado com sucesso! 🚀");
+        // Opcional: Recarregar para garantir que a foto veio do servidor
+        // window.location.reload(); 
       } else {
-        alert("Erro ao salvar dados.");
+        const errorData = await response.json();
+        console.error("Erro Backend:", errorData);
+        alert(`Erro ao salvar:\n${JSON.stringify(errorData, null, 2)}`);
       }
     } catch (error) {
-      console.error("Erro:", error);
-      alert("Erro de conexão.");
+      alert("Erro de conexão com o servidor.");
     } finally {
       setSaving(false);
     }
   };
 
-  // Atualiza o estado quando o usuário digita
+  // Atualiza campos de texto
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  if (loading) return <div style={{padding:40, textAlign:'center'}}>Carregando perfil...</div>;
+  if (loading) return <div style={{padding:60, textAlign:'center', color:'#64748B'}}>Carregando perfil...</div>;
 
   return (
     <div className="tripsync-layout">
-        {/* HEADER SIMPLES */}
+        
+        {/* HEADER */}
         <header className="top-header">
             <div className="logo-area"><Map size={24} color="#0066FF" strokeWidth={2.5}/><span>Tripsync</span></div>
             <div className="trip-info-badge"><User size={14}/><span>Meu Perfil</span></div>
         </header>
 
-        {/* SIDEBAR (Reutilizada, mas simplificada ou pode copiar a do Finance) */}
+        {/* SIDEBAR COM BOTÃO VOLTAR */}
         <aside className="sidebar">
              <div style={{marginBottom: 32}}>
-                <Link to="/mytrips" style={{textDecoration:'none', color:'#64748B', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', gap:8}}>
-                    <ArrowLeft size={16}/> Voltar para Viagens
-                </Link>
+                <button 
+                    onClick={() => navigate(-1)} // Volta histórico
+                    style={{background:'transparent', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:8, color:'#64748B', fontWeight:600, fontSize:13}}
+                >
+                    <ArrowLeft size={16}/> Voltar
+                </button>
             </div>
-            {/* ... Menu Lateral igual ao das outras páginas ... */}
         </aside>
 
-        {/* CONTEÚDO PRINCIPAL */}
+        {/* CONTEÚDO */}
         <div className="main-content-wrapper">
-            <div className="finance-container" style={{maxWidth: '800px'}}> {/* Container mais estreito para formulário */}
+            <div className="finance-container" style={{maxWidth: '800px'}}>
                 
-                <div style={{background:'white', padding:40, borderRadius:24, border:'1px solid #E2E8F0', boxShadow:'0 4px 6px -2px rgba(0,0,0,0.02)'}}>
+                <div style={{background:'white', padding:40, borderRadius:24, border:'1px solid #E2E8F0', boxShadow:'0 4px 12px -2px rgba(0,0,0,0.02)'}}>
                     
-                    {/* Foto e Título */}
+                    {/* ÁREA DA FOTO (Clicável) */}
                     <div style={{display:'flex', flexDirection:'column', alignItems:'center', marginBottom:32}}>
-                        <div style={{width:80, height:80, background:'#EFF6FF', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#0066FF', fontSize:32, fontWeight:700, marginBottom:16}}>
-                            {formData.full_name ? formData.full_name.charAt(0) : '?'}
+                        <div 
+                            onClick={handleImageClick}
+                            style={{
+                                width:100, height:100, 
+                                borderRadius:'50%', 
+                                position: 'relative',
+                                cursor: 'pointer',
+                                border: '3px solid white',
+                                boxShadow: '0 0 0 2px #E2E8F0',
+                                overflow: 'hidden'
+                            }}
+                        >
+                            {avatarPreview ? (
+                                <img src={avatarPreview} alt="Perfil" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                            ) : (
+                                <div style={{width:'100%', height:'100%', background:'#EFF6FF', display:'flex', alignItems:'center', justifyContent:'center', color:'#0066FF'}}>
+                                    <User size={40} />
+                                </div>
+                            )}
+                            
+                            {/* Overlay Hover */}
+                            <div className="camera-overlay" style={{position:'absolute', bottom:0, width:'100%', background:'rgba(0,0,0,0.5)', height:30, display:'flex', justifyContent:'center', alignItems:'center'}}>
+                                <Camera size={14} color="white"/>
+                            </div>
                         </div>
-                        <h2 style={{margin:0, fontSize:24, fontWeight:800, color:'#111827'}}>
+                        
+                        {/* Input Invisível */}
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleImageChange} 
+                            style={{display:'none'}} 
+                            accept="image/*"
+                        />
+
+                        <h2 style={{marginTop:16, fontSize:24, fontWeight:800, color:'#111827', margin:'16px 0 4px 0'}}>
                             {formData.full_name || 'Viajante'}
                         </h2>
+                        <span style={{fontSize:13, color:'#64748B'}}>Clique na foto para alterar</span>
                     </div>
 
-                    {/* Formulário */}
+                    {/* FORMULÁRIO */}
                     <form onSubmit={handleSave}>
-                        <div style={{marginBottom:20}}>
+                        <div style={{marginBottom:24}}>
                             <label className="pill-label">Nome Completo</label>
-                            <input 
-                                className="pill-input" 
-                                name="full_name"
-                                value={formData.full_name} 
-                                onChange={handleChange} 
-                                placeholder="Digite seu nome"
-                            />
+                            <div className="pill-input-group">
+                                <input className="pill-input" name="full_name" value={formData.full_name} onChange={handleChange} placeholder="Digite seu nome"/>
+                            </div>
                         </div>
 
-                        <div style={{marginBottom:20}}>
+                        <div style={{marginBottom:24}}>
                             <label className="pill-label">E-mail (Não editável)</label>
-                            <input 
-                                className="pill-input" 
-                                value={formData.email} 
-                                disabled 
-                                style={{background:'#F8FAFC', color:'#94A3B8'}}
-                            />
+                            <div className="pill-input-group">
+                                <input className="pill-input" value={formData.email} disabled style={{background:'#F8FAFC', color:'#94A3B8', cursor:'not-allowed'}}/>
+                            </div>
                         </div>
 
-                        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20}}>
+                        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:24}}>
                             <div>
                                 <label className="pill-label">Telefone</label>
-                                <input 
-                                    className="pill-input" 
-                                    name="phone"
-                                    value={formData.phone} 
-                                    onChange={handleChange} 
-                                    placeholder="(00) 00000-0000"
-                                />
+                                <div className="pill-input-group">
+                                    <input className="pill-input" name="phone" value={formData.phone} onChange={handleChange} placeholder="(00) 00000-0000"/>
+                                </div>
                             </div>
                             <div>
                                 <label className="pill-label">Cidade</label>
-                                <input 
-                                    className="pill-input" 
-                                    name="city"
-                                    value={formData.city} 
-                                    onChange={handleChange} 
-                                    placeholder="Sua cidade"
-                                />
+                                <div className="pill-input-group">
+                                    <input className="pill-input" name="city" value={formData.city} onChange={handleChange} placeholder="Sua cidade"/>
+                                </div>
                             </div>
                         </div>
 
-                        <div style={{marginBottom:20}}>
+                        <div style={{marginBottom:24}}>
                             <label className="pill-label">Data de Nascimento</label>
-                            <input 
-                                type="date"
-                                className="pill-input" 
-                                name="birth_date"
-                                value={formData.birth_date} 
-                                onChange={handleChange} 
-                            />
+                            <div className="pill-input-group">
+                                <input type="date" className="pill-input" name="birth_date" value={formData.birth_date} onChange={handleChange}/>
+                            </div>
                         </div>
 
-                        <div style={{marginBottom:20}}>
+                        <div style={{marginBottom:24}}>
                             <label className="pill-label">Estilo de Viagem</label>
                             <div className="pill-input-group">
-                                <select 
-                                    className="pill-input" 
-                                    name="travel_style"
-                                    value={formData.travel_style} 
-                                    onChange={handleChange}
-                                >
+                                <select className="pill-input" name="travel_style" value={formData.travel_style} onChange={handleChange}>
                                     <option value="ECONOMICO">🎒 Mochileiro / Econômico</option>
                                     <option value="CONFORTO">🧳 Conforto / Padrão</option>
                                     <option value="LUXO">💎 Luxo</option>
@@ -196,25 +252,27 @@ const ProfilePage = () => {
                             </div>
                         </div>
 
-                        <div style={{marginBottom:32}}>
+                        <div style={{marginBottom:40}}>
                             <label className="pill-label">Sobre Mim (Bio)</label>
-                            <textarea 
-                                className="pill-input" 
-                                name="bio"
-                                style={{height:'100px', paddingTop:12, borderRadius:20}}
-                                value={formData.bio} 
-                                onChange={handleChange} 
-                                placeholder="Conte um pouco sobre você..."
-                            />
+                            <div className="pill-input-group">
+                                <textarea 
+                                    className="pill-input" 
+                                    name="bio"
+                                    style={{height:'100px', paddingTop:12, borderRadius:20, fontFamily:'inherit'}}
+                                    value={formData.bio} 
+                                    onChange={handleChange} 
+                                    placeholder="Conte um pouco sobre você e seus destinos favoritos..."
+                                />
+                            </div>
                         </div>
 
                         <button 
                             type="submit" 
                             className="btn-primary" 
-                            style={{width:'100%', justifyContent:'center', height:50}}
+                            style={{width:'100%', justifyContent:'center', height:54, fontSize:15}}
                             disabled={saving}
                         >
-                            {saving ? 'Salvando...' : 'Salvar Dados'}
+                            {saving ? <><Loader className="animate-spin" size={18}/> Salvando...</> : <><Save size={18}/> Salvar Dados</>}
                         </button>
                     </form>
 

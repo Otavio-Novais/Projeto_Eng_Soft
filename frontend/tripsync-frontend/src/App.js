@@ -15,6 +15,8 @@ import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import SettingsPage from './pages/Settings/SettingsPage.jsx';
 import FinancePage from './pages/Finance/FinancePage.jsx';
 
+
+import { SettingsProvider } from './contexts/SettingsContext';
 function App() {
   const CLIENT_ID = "274939966706-78vmihp1pqp7j82o403btjuljk2bl4bs.apps.googleusercontent.com";
 
@@ -24,6 +26,7 @@ function App() {
   };
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
+    <SettingsProvider>
     <Router>
       <Routes>
         {/* --- ROTAS PÚBLICAS --- */}
@@ -81,6 +84,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
+    </SettingsProvider>
     </GoogleOAuthProvider>
   );
 }

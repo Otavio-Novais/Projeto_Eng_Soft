@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // <--- Voltamos com o axios
 import './ForgotPasswordPage.css';
-
+import { Map } from 'lucide-react';
 // Configuração da API
 const api = axios.create({
   baseURL: 'http://127.0.0.1:8000/api',
@@ -41,7 +41,7 @@ const ForgotPasswordPage = () => {
       
       <div className="simple-navbar">
         <div className="brand">
-            <span className="logo-icon">🗺️</span> 
+            <span className="logo-icon"><Map /></span> 
             <span className="logo-text">Tripsync</span>
         </div>
         <button className="btn-back-login" onClick={() => navigate('/')}>

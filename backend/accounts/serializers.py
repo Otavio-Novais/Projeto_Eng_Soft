@@ -44,25 +44,27 @@ class SetNewPasswordSerializer(serializers.Serializer):
 # --- ADICIONE ISTO NO FINAL DO ARQUIVO ---
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    avatar = serializers.ImageField(max_length=None, use_url=True, allow_null=True, required=False)
+    avatar = serializers.ImageField(required=False, allow_null=True) # Permite foto
 
     class Meta:
         model = CustomUser
-        # AQUI ESTÁ O SEGREDO: Listar TUDO que o perfil usa
-        fields = [
-            'email', 
-            'full_name', 
-            'city', 
-            'birth_date', 
-            'phone', 
-            'avatar', 
-            'bio',            # <--- Faltava confirmar
-            'travel_style',   # <--- Faltava confirmar
-            'email_notifications', 
-            'currency'
-        ]
+        # Adicione 'avatar' na lista de campos
+        fields = ['id', 'email', 'full_name', 'phone', 'city', 'birth_date', 'travel_style', 'bio', 'avatar']
         read_only_fields = ['email']
 
+    def to_representation(self, instance):
+        """
+        Garante que, se full_name estiver vazio, pega do cadastro inicial.
+        """
+        data = super().to_representation(instance)
+        
+        # Se full_name estiver vazio, tenta juntar first_name + last_name
+        if not data.get('full_name'):
+            nome_composto = f"{instance.first_name} {instance.last_name}".strip()
+            # Se ainda assim estiver vazio, usa "Viajante"
+            data['full_name'] = nome_composto if nome_composto else ""
+            
+        return data
 # 2. Crie este NOVO Serializer no final do arquivo
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
@@ -71,3 +73,4 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate_new_password(self, value):
         validate_password(value) # Valida força da senha
         return value
+    

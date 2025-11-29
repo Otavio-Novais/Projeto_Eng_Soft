@@ -286,3 +286,88 @@
     margin-bottom: 16px;
     display: block;
 }
+/* --- MENU SUSPENSO (DROPDOWN) --- */
+
+/* Wrapper para posicionamento relativo */
+.profile-menu-container {
+    position: relative;
+}
+
+/* O Botão de Perfil (Ajuste visual) */
+.btn-profile-trigger {
+    background: white;
+    border: 1px solid #E2E8F0;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-profile-trigger:hover, .btn-profile-trigger.active {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+    color: #1E293B;
+}
+
+/* A Caixa do Menu Flutuante */
+.dropdown-menu {
+    position: absolute;
+    top: 120%; /* Logo abaixo do botão */
+    right: 0;
+    width: 220px;
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 8px;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Itens do Menu */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: #334155;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none; /* Para Links */
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #F1F5F9;
+    color: #0F172A;
+}
+
+.dropdown-item.danger {
+    color: #EF4444;
+}
+.dropdown-item.danger:hover {
+    background-color: #FEF2F2;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #E2E8F0;
+    margin: 6px 0;
+}
+
+/* Animação suave */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
