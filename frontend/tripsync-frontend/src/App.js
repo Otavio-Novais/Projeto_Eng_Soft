@@ -80,7 +80,7 @@ function App() {
           {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
           <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
           <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage/>} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
