@@ -9,7 +9,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from "react-datepicker";
 import ptBR from 'date-fns/locale/pt-BR'; // Para deixar em português
-
+import { Map, Users, Sliders, CreditCard } from 'lucide-react';
 // Registra o idioma português no calendário
 registerLocale('pt-BR', ptBR);
 
@@ -52,7 +52,6 @@ const AuthPage = () => {
       });
       localStorage.setItem('token', response.data.access);
       localStorage.setItem('refreshToken', response.data.refresh);
-      alert("Login com Google realizado! 🚀");
       navigate('/mytrips');
     } catch (error) {
       setLoginError("Falha na autenticação com Google.");
@@ -149,7 +148,7 @@ const AuthPage = () => {
     <div className="auth-container">
       <div className="navbar">
         <div className="brand">
-          <span className="logo-icon">🗺️</span>
+          <span className="logo-icon"><Map /></span>
           <span className="logo-text">Tripsync</span>
         </div>
         {/* Botão Dashboard foi removido daqui */}
@@ -161,15 +160,15 @@ const AuthPage = () => {
             <h1>Planeje viagens em grupo sem stress</h1>
             <p className="hero-subtitle">Centralize decisões, faça votações e controle despesas.</p>
             <div className="features-grid">
-              <div className="feature-card"><div className="icon-wrapper">👥</div><strong>Tudo em um lugar</strong><p>Sugestões, roteiro e finanças.</p></div>
-              <div className="feature-card"><div className="icon-wrapper">🎛</div><strong>Decisões rápidas</strong><p>Votações claras.</p></div>
-              <div className="feature-card"><div className="icon-wrapper">💳</div><strong>Gastos sob controle</strong><p>Saldos automáticos.</p></div>
+              <div className="feature-card"><div className="icon-wrapper"><Users /></div><strong>Tudo em um lugar</strong><p>Sugestões, roteiro e finanças.</p></div>
+              <div className="feature-card"><div className="icon-wrapper"><Sliders /></div><strong>Decisões rápidas</strong><p>Votações claras.</p></div>
+              <div className="feature-card"><div className="icon-wrapper"><CreditCard /></div><strong>Gastos sob controle</strong><p>Saldos automáticos.</p></div>
             </div>
           </div>
           <div className="promo-box">
             <p className="promo-title">Novo: Dashboard Pessoal</p>
             <small className="promo-desc">Veja todas as suas viagens e crie uma nova com um clique.</small>
-            <button className="btn-new-trip">+ Criar Nova Viagem</button>
+            <div className="btn-new-trip">+ Criar Nova Viagem</div>
           </div>
         </div>
 
@@ -259,13 +258,13 @@ const AuthPage = () => {
                 </div>
               )}
 
-              {isLogin && <span className="forgot-password" onClick={() => navigate('/forgot-password')}>🕐 Esqueci minha senha</span>}
+              {isLogin && <span className="forgot-password" onClick={() => navigate('/forgot-password')}>Esqueci minha senha</span>}
 
               <button type="submit" className="btn-submit" disabled={loading} style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
                 {loading ? 'Carregando...' : (isLogin ? '→ Entrar' : 'Cadastrar')}
               </button>
 
-              {isLogin && loginError && <div className="login-error-alert">⚠️ {loginError}</div>}
+              {isLogin && loginError && <div className="login-error-alert"> {loginError}</div>}
             </form>
 
             <div className="divider">ou</div>

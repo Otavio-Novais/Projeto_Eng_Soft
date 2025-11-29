@@ -1,148 +1,167 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, DollarSign, Globe, Bell, Shield, Trash2, LogOut } from 'lucide-react';
+import { useSettings } from '../../contexts/SettingsContext';
 import './SettingsPage.css';
-import '../../pages/mytrips/MyTripsPage.css';
-import api from '../../services/api';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
-
-  // Estados das Configurações
-  const [notifications, setNotifications] = useState(true);
-  const [currency, setCurrency] = useState('BRL');
   
-  const [darkMode, setDarkMode] = useState(() => {
-      return localStorage.getItem('theme') === 'dark';
-  });
+  // Hook Global (Contexto)
+  const { 
+    currency, setCurrency, 
+    language, setLanguage,
+    emailNotifications, setEmailNotifications 
+  } = useSettings();
 
-  // --- 1. CARREGAR PREFERÊNCIAS DO BACKEND ---
-  useEffect(() => {
-    api.get('/auth/profile/')
-      .then(res => {
-        if (res.data.email_notifications !== undefined) setNotifications(res.data.email_notifications);
-        if (res.data.currency) setCurrency(res.data.currency);
-      })
-      .catch(err => console.error("Erro ao carregar configs", err));
-  }, []);
+  // VOLTA PARA A PÁGINA ANTERIOR DO NAVEGADOR
+  const handleGoBack = () => navigate(-1);
 
-  // --- 2. SALVAR AUTOMATICAMENTE AO MUDAR ---
-  const handleSavePreference = async (field, value) => {
-    try {
-        await api.patch('/auth/profile/', { [field]: value });
-    } catch (error) {
-        console.error(`Erro ao salvar ${field}`, error);
+  // Handlers com aviso visual "Em breve"
+  const handleCurrencyChange = (e) => {
+    setCurrency(e.target.value);
+    alert(`Moeda alterada para ${e.target.value}. (Conversão visual em breve)`);
+  };
+
+  const handleLanguageChange = (e) => {
+    setLanguage(e.target.value);
+    alert(`Idioma alterado para ${e.target.value}. (Tradução completa em breve)`);
+  };
+
+  const handleLogout = () => {
+    if(window.confirm("Deseja realmente sair?")) {
+        localStorage.removeItem('token');
+        navigate('/');
     }
   };
 
-  // Lógica Dark Mode (Salva no navegador)
-  useEffect(() => {
-    if (darkMode) {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('theme', 'dark');
-    } else {
-        document.body.classList.remove('dark-mode');
-        localStorage.setItem('theme', 'light');
+  const handleDeleteAccount = () => {
+    const confirm = window.confirm("ATENÇÃO: Isso apagará todos os seus dados permanentemente. Tem certeza?");
+    if (confirm) {
+        alert("Conta agendada para exclusão.");
+        localStorage.clear();
+        navigate('/');
     }
-  }, [darkMode]);
-
-  // Lógica Excluir Conta (Soft Delete)
-  const handleDeleteAccount = async () => {
-      if (window.confirm("Tem certeza? Sua conta será desativada e você será deslogado.")) {
-          try {
-              await api.delete('/auth/delete-account/');
-              alert("Conta desativada com sucesso.");
-              localStorage.clear();
-              navigate('/');
-          } catch (error) {
-              alert("Erro ao desativar conta.");
-          }
-      }
   };
 
   return (
-    <div className="dashboard-container">
-      <nav className="dash-navbar">
-        <div className="brand" onClick={() => navigate('/mytrips')} style={{cursor: 'pointer', display:'flex', alignItems:'center', gap:'8px', fontWeight:'800', fontSize:'1.2rem'}}>
-            <span>🗺️</span> Tripsync
-        </div>
-        <button className="btn-nav" onClick={() => navigate('/mytrips')}>← Voltar</button>
-      </nav>
+    <div className="settings-page-wrapper">
+      
+      {/* Header Fixo com Botão Voltar Arrumado */}
+      <header className="settings-header-fixed">
+        <button onClick={handleGoBack} className="btn-back-settings">
+          <ArrowLeft size={20} /> Voltar
+        </button>
+        <h1>Configurações</h1>
+        <div style={{width: 80}}></div> {/* Espaço vazio para centralizar o título */}
+      </header>
 
-      <main className="dash-content">
-        <div className="settings-header">
-            <h1>Configurações</h1>
-            <p>Preferências do aplicativo.</p>
-        </div>
-
-        <div className="settings-container">
+      <main className="settings-scroll-area">
+        <div className="settings-content-box">
             
-            {/* SELETOR DE MOEDA */}
-            <div className="setting-item">
-                <div className="setting-info">
-                    <h4>Moeda Principal</h4>
+            {/* SEÇÃO GERAL */}
+            <h3 className="settings-section-title">Geral</h3>
+            <div className="settings-card">
+                
+                {/* Moeda */}
+                <div className="setting-row">
+                    <div className="setting-icon-box"><DollarSign size={20}/></div>
+                    <div className="setting-info">
+                        <label>
+                            Moeda Principal 
+                            <span className="badge-soon">Beta</span>
+                        </label>
+                        <p>Moeda padrão para exibição de custos.</p>
+                    </div>
+                    <select 
+                        value={currency} 
+                        onChange={handleCurrencyChange} 
+                        className="setting-select"
+                    >
+                        <option value="BRL">Real (BRL)</option>
+                        <option value="USD">Dólar (USD)</option>
+                        <option value="EUR">Euro (EUR)</option>
+                    </select>
                 </div>
-                <select 
-                    className="input-field" 
-                    style={{width: '150px', padding: '8px'}}
-                    value={currency}
-                    onChange={(e) => {
-                        setCurrency(e.target.value);
-                        handleSavePreference('currency', e.target.value);
-                    }}
-                >
-                    <option value="BRL">R$ (BRL)</option>
-                    <option value="USD">$ (USD)</option>
-                    <option value="EUR">€ (EUR)</option>
-                </select>
+
+                <div className="setting-divider"></div>
+
+                {/* Idioma */}
+                <div className="setting-row">
+                    <div className="setting-icon-box"><Globe size={20}/></div>
+                    <div className="setting-info">
+                        <label>
+                            Idioma do Sistema
+                            <span className="badge-soon">Em Breve</span>
+                        </label>
+                        <p>Altera a linguagem da interface.</p>
+                    </div>
+                    <select 
+                        value={language} 
+                        onChange={handleLanguageChange} 
+                        className="setting-select"
+                    >
+                        <option value="PT-BR">Português (BR)</option>
+                        <option value="EN-US">English (US)</option>
+                        <option value="ES">Español</option>
+                    </select>
+                </div>
             </div>
 
-            {/* NOTIFICAÇÕES */}
-            <div className="setting-item">
-                <div className="setting-info">
-                    <h4>Notificações por E-mail</h4>
-                    <p>Receber avisos sobre suas viagens.</p>
+            {/* SEÇÃO NOTIFICAÇÕES */}
+            <h3 className="settings-section-title">Preferências</h3>
+            <div className="settings-card">
+                <div className="setting-row">
+                    <div className="setting-icon-box"><Bell size={20}/></div>
+                    <div className="setting-info">
+                        <label>Notificações por E-mail</label>
+                        <p>Receber atualizações importantes.</p>
+                    </div>
+                    <label className="switch-toggle">
+                        <input 
+                            type="checkbox" 
+                            checked={emailNotifications} 
+                            onChange={(e) => setEmailNotifications(e.target.checked)} 
+                        />
+                        <span className="slider"></span>
+                    </label>
                 </div>
-                <label className="switch">
-                    <input 
-                        type="checkbox" 
-                        checked={notifications}
-                        onChange={(e) => {
-                            setNotifications(e.target.checked);
-                            handleSavePreference('email_notifications', e.target.checked);
-                        }}
-                    />
-                    <span className="slider"></span>
-                </label>
             </div>
 
-            {/* DARK MODE */}
-            <div className="setting-item">
-                <div className="setting-info">
-                    <h4>Modo Escuro</h4>
-                    <p>Interface com cores escuras.</p>
+            {/* SEÇÃO CONTA */}
+            <h3 className="settings-section-title">Segurança</h3>
+            <div className="settings-card">
+                <div className="setting-row clickable" onClick={() => alert("Alteração de senha em desenvolvimento.")}>
+                    <div className="setting-icon-box"><Shield size={20}/></div>
+                    <div className="setting-info">
+                        <label>Alterar Senha</label>
+                        <p>Atualize sua senha de acesso.</p>
+                    </div>
+                    <span style={{color:'#CBD5E1', fontSize:20}}>›</span>
                 </div>
-                <label className="switch">
-                    <input 
-                        type="checkbox" 
-                        checked={darkMode}
-                        onChange={(e) => setDarkMode(e.target.checked)}
-                    />
-                    <span className="slider"></span>
-                </label>
+                
+                <div className="setting-divider"></div>
+
+                <div className="setting-row clickable" onClick={handleLogout}>
+                    <div className="setting-icon-box" style={{color:'#64748B'}}><LogOut size={20}/></div>
+                    <div className="setting-info">
+                        <label>Sair da Conta</label>
+                    </div>
+                </div>
             </div>
 
-            {/* ZONA DE PERIGO */}
-            <div className="setting-item">
-                <div className="setting-info">
-                    <h4 style={{color: '#dc3545'}}>Zona de Perigo</h4>
-                    <p>Excluir Conta</p>
+            {/* ZONA DE PERIGO (Separada e Vermelha) */}
+            <div className="danger-zone-container">
+                <div className="setting-row">
+                    <div className="setting-icon-box danger"><Trash2 size={20}/></div>
+                    <div className="setting-info">
+                        <label className="text-danger">Excluir Conta</label>
+                        <p>Essa ação é permanente.</p>
+                    </div>
+                    <button onClick={handleDeleteAccount} className="btn-danger-outline">
+                        Excluir
+                    </button>
                 </div>
-                <button 
-                    onClick={handleDeleteAccount}
-                    style={{background:'transparent', border:'1px solid #dc3545', color:'#dc3545', padding:'8px 16px', borderRadius:'8px', cursor:'pointer'}}
-                >
-                    Excluir Conta
-                </button>
             </div>
 
         </div>
