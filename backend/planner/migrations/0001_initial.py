@@ -15,75 +15,183 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Destination',
+            name="Destination",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='Nome')),
-                ('country', models.CharField(max_length=100, verbose_name='País')),
-                ('description', models.TextField(blank=True, verbose_name='Descrição')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, unique=True, verbose_name="Nome"),
+                ),
+                ("country", models.CharField(max_length=100, verbose_name="País")),
+                ("description", models.TextField(blank=True, verbose_name="Descrição")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'verbose_name': 'Destino',
-                'verbose_name_plural': 'Destinos',
-                'ordering': ['name'],
+                "verbose_name": "Destino",
+                "verbose_name_plural": "Destinos",
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='Trip',
+            name="Viagem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200, verbose_name='Título')),
-                ('start_date', models.DateField(verbose_name='Data de início')),
-                ('end_date', models.DateField(verbose_name='Data de término')),
-                ('status', models.CharField(choices=[('planned', 'Planejada'), ('ongoing', 'Em andamento'), ('completed', 'Concluída'), ('cancelled', 'Cancelada')], default='planned', max_length=20, verbose_name='Status')),
-                ('budget', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='Orçamento')),
-                ('notes', models.TextField(blank=True, verbose_name='Observações')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('destination', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='trips', to='planner.destination', verbose_name='Destino')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='trips', to=settings.AUTH_USER_MODEL, verbose_name='Usuário')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nome", models.CharField(max_length=200, verbose_name="Título")),
+                ("data_inicio", models.DateField(verbose_name="Data de início")),
+                ("data_fim", models.DateField(verbose_name="Data de término")),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("planned", "Planejada"),
+                            ("ongoing", "Em andamento"),
+                            ("completed", "Concluída"),
+                            ("cancelled", "Cancelada"),
+                        ],
+                        default="planned",
+                        max_length=20,
+                        verbose_name="Status",
+                    ),
+                ),
+                (
+                    "budget",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Orçamento",
+                    ),
+                ),
+                ("notes", models.TextField(blank=True, verbose_name="Observações")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "destino",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="trips",
+                        to="planner.destination",
+                        verbose_name="Destino",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="trips",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Usuário",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Viagem',
-                'verbose_name_plural': 'Viagens',
-                'ordering': ['-start_date'],
+                "verbose_name": "Viagem",
+                "verbose_name_plural": "Viagens",
+                "ordering": ["-start_date"],
             },
         ),
         migrations.CreateModel(
-            name='Photo',
+            name="Photo",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='trip_photos/%Y/%m/%d/', verbose_name='Imagem')),
-                ('caption', models.CharField(blank=True, max_length=200, verbose_name='Legenda')),
-                ('uploaded_at', models.DateTimeField(auto_now_add=True)),
-                ('trips', models.ManyToManyField(related_name='photos', to='planner.trip', verbose_name='Viagens')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        upload_to="trip_photos/%Y/%m/%d/", verbose_name="Imagem"
+                    ),
+                ),
+                (
+                    "caption",
+                    models.CharField(
+                        blank=True, max_length=200, verbose_name="Legenda"
+                    ),
+                ),
+                ("uploaded_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "trips",
+                    models.ManyToManyField(
+                        related_name="photos", to="planner.trip", verbose_name="Viagens"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Foto',
-                'verbose_name_plural': 'Fotos',
-                'ordering': ['-uploaded_at'],
+                "verbose_name": "Foto",
+                "verbose_name_plural": "Fotos",
+                "ordering": ["-uploaded_at"],
             },
         ),
         migrations.CreateModel(
-            name='Activity',
+            name="Activity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200, verbose_name='Nome')),
-                ('description', models.TextField(blank=True, verbose_name='Descrição')),
-                ('date', models.DateField(verbose_name='Data')),
-                ('time', models.TimeField(blank=True, null=True, verbose_name='Hora')),
-                ('location', models.CharField(blank=True, max_length=200, verbose_name='Local')),
-                ('cost', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='Custo')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('trip', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities', to='planner.trip', verbose_name='Viagem')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, verbose_name="Nome")),
+                ("description", models.TextField(blank=True, verbose_name="Descrição")),
+                ("date", models.DateField(verbose_name="Data")),
+                ("time", models.TimeField(blank=True, null=True, verbose_name="Hora")),
+                (
+                    "location",
+                    models.CharField(blank=True, max_length=200, verbose_name="Local"),
+                ),
+                (
+                    "cost",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="Custo",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "trip",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="activities",
+                        to="planner.trip",
+                        verbose_name="Viagem",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Atividade',
-                'verbose_name_plural': 'Atividades',
-                'ordering': ['date', 'time'],
+                "verbose_name": "Atividade",
+                "verbose_name_plural": "Atividades",
+                "ordering": ["date", "time"],
             },
         ),
     ]

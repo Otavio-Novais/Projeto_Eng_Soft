@@ -11,3 +11,77 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* --- TEMA ESCURO (DARK MODE) --- */
+
+/* Fundo Geral */
+body.dark-mode {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Forçar containers a ficarem escuros */
+body.dark-mode .dashboard-container,
+body.dark-mode .auth-container,
+body.dark-mode .left-section,
+body.dark-mode .right-section {
+    background-color: #121212 !important;
+}
+
+/* Cards e Caixas Brancas */
+body.dark-mode .dash-navbar,
+body.dark-mode .login-card,
+body.dark-mode .forgot-card,
+body.dark-mode .trip-card,
+body.dark-mode .feature-card,
+body.dark-mode .filters-bar,
+body.dark-mode .settings-card,
+body.dark-mode .dropdown-menu {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+    color: #fff !important;
+}
+
+/* Textos */
+body.dark-mode h1, 
+body.dark-mode h2, 
+body.dark-mode h3, 
+body.dark-mode strong,
+body.dark-mode .brand,
+body.dark-mode .logo-text,
+body.dark-mode .setting-title,
+body.dark-mode .dropdown-item {
+    color: #ffffff !important;
+}
+
+body.dark-mode p, 
+body.dark-mode small,
+body.dark-mode .hero-subtitle,
+body.dark-mode .subtitle-text,
+body.dark-mode .setting-desc,
+body.dark-mode .trip-meta,
+body.dark-mode .trip-type {
+    color: #a0a0a0 !important;
+}
+
+/* Botões e Inputs */
+body.dark-mode .btn-nav,
+body.dark-mode .filter-btn,
+body.dark-mode .input-field {
+    background-color: #2c2c2c !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+body.dark-mode .filter-btn.active {
+    background-color: #0066ff !important;
+    color: white !important;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #333 !important;
+}
+
+/* Ícones e Detalhes */
+body.dark-mode .logo-icon {
+    filter: brightness(0.8);
+}
