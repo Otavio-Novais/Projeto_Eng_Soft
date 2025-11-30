@@ -1,61 +1,39 @@
-/* src/pages/Dashboard.css */
+/* Dashboard.css */
 
 .dashboard-container {
     display: flex;
-    min-height: 100vh;
-    background-color: #f9fafb;
+    height: 100vh;
+    background-color: #f3f4f6;
+    overflow: hidden;
 }
 
 .dashboard-content {
-    margin-left: 260px;
-    /* Default sidebar width */
     flex: 1;
-    transition: margin-left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
 
 .dashboard-main {
+    flex: 1;
+    overflow-y: auto;
     padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding-bottom: 6rem;
+    /* Space for bottom content */
 }
 
-/* Responsive Sidebar Handling */
-@media (max-width: 768px) {
-    .dashboard-content {
-        margin-left: 0;
-        /* Remove margin on mobile */
-        padding-bottom: 80px;
-        /* Space for bottom nav if we add one later */
-    }
-
-    /* We might need to hide the sidebar or make it a drawer on mobile.
-     For now, assuming Sidebar handles its own responsiveness or we hide it.
-     If Sidebar is fixed, it might overlap content on mobile. 
-     Let's assume we want to stack or hide it. 
-     Since I can't easily change Sidebar structure without breaking things,
-     I'll ensure the content flows correctly. */
-}
-
-/* Hero Section */
-.hero-loading {
-    height: 200px;
-    background-color: #e5e7eb;
-    border-radius: 16px;
-    margin-bottom: 2.5rem;
-}
-
+/* HERO SECTION */
 .welcome-banner {
-    background-color: #2563eb;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 2.5rem;
     color: white;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
     margin-bottom: 2.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
-    flex-wrap: wrap;
-    gap: 1rem;
 }
 
 .welcome-title {
@@ -65,8 +43,9 @@
 }
 
 .welcome-text {
+    font-size: 1.1rem;
     opacity: 0.9;
-    max-width: 500px;
+    max-width: 600px;
 }
 
 .btn-create-first {
@@ -74,122 +53,131 @@
     color: #2563eb;
     border: none;
     padding: 0.8rem 1.5rem;
-    border-radius: 12px;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
 }
 
-/* Hero Carousel */
+.btn-create-first:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* HERO CAROUSEL */
 .hero-carousel {
     position: relative;
-    margin-bottom: 2.5rem;
+    width: 100%;
+    height: 320px;
+    margin-bottom: 3rem;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .hero-card {
-    background-color: #2563eb;
+    width: 100%;
+    height: 100%;
     background-size: cover;
     background-position: center;
-    border-radius: 16px;
-    padding: 3rem;
-    color: white;
-    min-height: 280px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-    transition: all 0.5s ease;
+    justify-content: flex-end;
+    padding: 2.5rem;
+    color: white;
+    transition: all 0.5s ease-in-out;
 }
 
 .hero-badge {
     background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 500;
-    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .hero-title {
     font-size: 2.5rem;
     font-weight: 800;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-details {
     display: flex;
     gap: 1.5rem;
-    margin-bottom: 2rem;
-    font-size: 1rem;
-    opacity: 0.9;
-    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
 }
 
 .hero-detail-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 6px 12px;
+    border-radius: 8px;
 }
 
 .btn-hero-action {
-    background-color: white;
-    color: #2563eb;
+    background-color: #2563eb;
+    color: white;
     border: none;
-    padding: 0.8rem 2rem;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
     width: fit-content;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s;
+    transition: all 0.2s;
 }
 
 .btn-hero-action:hover {
-    transform: scale(1.05);
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
 }
 
-/* Carousel Controls */
 .carousel-control {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: white;
-    border: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    width: 48px;
-    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s;
     z-index: 10;
-    color: #1f2937;
-    transition: background-color 0.2s;
 }
 
 .carousel-control:hover {
-    background-color: #f3f4f6;
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .carousel-control.prev {
-    left: -20px;
+    left: 20px;
 }
 
 .carousel-control.next {
-    right: -20px;
+    right: 20px;
 }
 
-/* Section Header */
+/* SECTION HEADER */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -200,70 +188,55 @@
 .section-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: #1f2937;
 }
 
 .btn-new-trip {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: #2563eb;
-    font-weight: 600;
-    background: none;
-    border: none;
-    cursor: pointer;
+    gap: 8px;
+    transition: background-color 0.2s;
 }
 
-/* Grid Layout */
-.trips-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+.btn-new-trip:hover {
+    background-color: #1d4ed8;
 }
 
-.loading-state {
-    text-align: center;
-    padding: 3rem;
-    color: #6b7280;
+/* TRIPS CAROUSEL (Bottom) */
+.trips-carousel {
+    padding: 4px;
+    /* Avoid shadow clipping */
 }
 
-.empty-state {
-    text-align: center;
-    padding: 3rem;
-    background-color: white;
-    border-radius: 12px;
-    border: 1px dashed #e5e7eb;
-}
-
-.empty-state p {
-    color: #6b7280;
-    margin-bottom: 1rem;
-}
-
-/* Mobile Adjustments */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
+    .dashboard-main {
+        padding: 1rem;
+    }
+
+    .welcome-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .hero-carousel {
+        height: 400px;
+    }
+
     .hero-title {
         font-size: 1.8rem;
     }
 
-    .hero-card {
-        padding: 1.5rem;
-    }
-
-    .carousel-control {
-        width: 36px;
-        height: 36px;
-    }
-
-    .carousel-control.prev {
-        left: -10px;
-    }
-
-    .carousel-control.next {
-        right: -10px;
-    }
-
-    .trips-grid {
-        grid-template-columns: 1fr;
+    .hero-details {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }
