@@ -1,40 +1,95 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Sidebar from "../../components/layout/Sidebar";
 import "./trip_dashboard.css";
 
 const TripDashboard = () => {
-  // MOCK DATA
-  const tripData = {
-    title: "Europa 2025",
-    dateRange: "12–20 Jun",
-    participants: 3,
-    budget: "8.200",
-    daysPlanned: 5,
-    nextActivities: [
-      {
-        id: 1,
-        title: "Chegada em Paris",
-        time: "15:00",
-        local: "Hotel République",
-      },
-      {
-        id: 2,
-        title: "Museu do Louvre",
-        time: "Tarde",
-        local: "Ingressos pendentes",
-      },
-    ],
-    finance: {
-      expenses: [
-        { id: 1, title: "Reserva Airbnb", amount: "2.400", payer: "Carla" },
-        { id: 2, title: "Passes de trem", amount: "620", payer: "Bruno" },
-      ],
-    },
-  };
+  const { tripId } = useParams(); // Pega o ID da URL
+  const navigate = useNavigate();
+  
+  const [tripData, setTripData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTripData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/');
+            return;
+        }
+
+        // Busca os detalhes da viagem
+        const response = await axios.get(
+            `http://127.0.0.1:8000/planner/api/viagem/${tripId}/`, 
+            {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }
+        );
+
+        const data = response.data;
+
+        // --- TRATAMENTO DE DADOS ---
+        // Aqui transformamos o JSON do Django no formato que o Layout espera
+        
+        // 1. Formatar Datas
+        const start = new Date(data.start_date);
+        const end = new Date(data.end_date);
+        const dateRange = `${start.toLocaleDateString('pt-BR', {day: 'numeric', month: 'short'})} – ${end.toLocaleDateString('pt-BR', {day: 'numeric', month: 'short'})}`;
+        
+        // 2. Calcular Dias
+        const diffTime = Math.abs(end - start);
+        const daysPlanned = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+
+        // 3. Calcular Total de Gastos (Baseado nas despesas que vieram)
+        const totalExpenses = data.expenses ? data.expenses.reduce((acc, curr) => acc + parseFloat(curr.amount), 0) : 0;
+
+        // 4. Mapear Despesas para o formato visual
+        const mappedExpenses = data.expenses ? data.expenses.map(exp => ({
+            id: exp.id,
+            title: exp.title,
+            amount: parseFloat(exp.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
+            payer: exp.payer_name || "Alguém"
+        })) : [];
+
+        // Monta o objeto final
+        setTripData({
+            title: data.title,
+            dateRange: dateRange,
+            participants: data.participants ? data.participants.length : 0,
+            budget: totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 }), // Por enquanto, mostra o total gasto
+            daysPlanned: daysPlanned,
+            
+            // ATENÇÃO: Como ainda não temos 'Atividades' no backend, deixei vazio ou mockado para não quebrar
+            nextActivities: [
+              { id: 1, title: "Chegada / Check-in", time: "14:00", local: "Local a definir" }
+            ], 
+            
+            finance: {
+                expenses: mappedExpenses
+            },
+            participantsList: data.participants || [] // Para usar na lista de membros
+        });
+
+      } catch (err) {
+        console.error("Erro ao buscar viagem:", err);
+        setError("Não foi possível carregar os dados da viagem.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTripData();
+  }, [tripId, navigate]);
+
+  if (loading) return <div className="loading-screen">Carregando viagem...</div>;
+  if (error) return <div className="error-screen">{error}</div>;
+  if (!tripData) return null;
 
   return (
     <div className="trip-dashboard-layout">
-      {/* Sidebar - Passamos 'Roteiro' ou null para não marcar nada se preferir */}
       <Sidebar activeTab="" />
 
       <main className="trip-main-content">
@@ -59,26 +114,26 @@ const TripDashboard = () => {
                   <small>Participantes</small>
                 </div>
                 <h3>{tripData.participants} confirmados</h3>
-                <span className="trip-sub-text">+2 pendentes</span>
+                <span className="trip-sub-text">Ver lista abaixo</span>
               </div>
               <div className="trip-stat-card">
                 <div className="trip-stat-header">
-                  <small>Orçamento</small>
+                  <small>Gasto Total</small>
                 </div>
                 <h3>R$ {tripData.budget}</h3>
-                <span className="trip-sub-text">Total estimado</span>
+                <span className="trip-sub-text">Soma das despesas</span>
               </div>
               <div className="trip-stat-card">
                 <div className="trip-stat-header">
-                  <small>Roteiro</small>
+                  <small>Duração</small>
                 </div>
-                <h3>{tripData.daysPlanned} dias planejados</h3>
-                <span className="trip-sub-text">2 abertos</span>
+                <h3>{tripData.daysPlanned} dias</h3>
+                <span className="trip-sub-text">Duração da viagem</span>
               </div>
             </div>
           </section>
 
-          {/* GRID PRINCIPAL (Sugestões vs Roteiro/Finanças) */}
+          {/* GRID PRINCIPAL */}
           <div className="trip-content-grid">
             
             {/* Coluna Esquerda: Sugestões */}
@@ -89,19 +144,12 @@ const TripDashboard = () => {
                 </div>
 
                 <div className="trip-card-list centered-list">
+                  {/* Placeholder pois ainda não temos endpoint de sugestões */}
                   <div className="trip-item-card">
                     <div className="trip-item-info">
-                      <strong>Passeio de barco no Sena</strong>
-                      <small>Adicionado por Ana • Paris</small>
+                      <strong>✨ Nenhuma sugestão ainda</strong>
+                      <small>Adicione ideias para o grupo votar!</small>
                     </div>
-                    <button className="trip-btn-text">Abrir</button>
-                  </div>
-                  <div className="trip-item-card">
-                    <div className="trip-item-info">
-                      <strong>Tour de bicicleta em Amsterdã</strong>
-                      <small>Adicionado por Bruno • Amsterdã</small>
-                    </div>
-                    <button className="trip-btn-text">Abrir</button>
                   </div>
                 </div>
 
@@ -141,28 +189,34 @@ const TripDashboard = () => {
               <section className="trip-white-container">
                 <span className="trip-card-title">Resumo financeiro</span>
                 <div className="trip-finance-controls">
-                  <span className="trip-badge-blue">Saldo: R$ 1.250</span>
-                  <span className="trip-badge-outline">Despesas: 7</span>
+                  <span className="trip-badge-blue">Total: R$ {tripData.budget}</span>
+                  <span className="trip-badge-outline">Itens: {tripData.finance.expenses.length}</span>
                 </div>
 
                 <div className="trip-card-list">
-                  {tripData.finance.expenses.map((exp) => (
-                    <div key={exp.id} className="trip-item-card">
-                      <div className="trip-item-icon blue-bg">💳</div>
-                      <div className="trip-item-info">
-                        <strong>{exp.title}</strong>
-                        <small>
-                          Pago por {exp.payer} • R$ {exp.amount}
-                        </small>
+                  {tripData.finance.expenses.length > 0 ? (
+                      tripData.finance.expenses.slice(0, 3).map((exp) => (
+                        <div key={exp.id} className="trip-item-card">
+                          <div className="trip-item-icon blue-bg">💳</div>
+                          <div className="trip-item-info">
+                            <strong>{exp.title}</strong>
+                            <small>
+                              Pago por {exp.payer} • R$ {exp.amount}
+                            </small>
+                          </div>
+                          <button className="trip-btn-text">Detalhes</button>
+                        </div>
+                      ))
+                  ) : (
+                      <div style={{padding: '1rem', color: '#9ca3af', textAlign: 'center'}}>
+                          Nenhuma despesa registrada.
                       </div>
-                      <button className="trip-btn-text">Detalhes</button>
-                    </div>
-                  ))}
+                  )}
                 </div>
 
                 <div className="trip-footer-row">
                   <span className="trip-footer-hint">
-                    Acompanhe as dívidas.
+                    Acompanhe as dívidas!
                   </span>
                   <button className="trip-btn-primary small">
                     + Despesa
@@ -173,56 +227,30 @@ const TripDashboard = () => {
           </div>
           {/* FIM DO GRID */}
 
-          {/* MEMBROS - Fora do Grid para ocupar largura total */}
+          {/* MEMBROS - Dinâmico */}
           <section className="trip-white-container trip-members-section">
             <span className="trip-card-title">Membros</span>
             <div className="trip-member-list">
-              <div className="trip-member-row">
-                <div
-                  className="trip-avatar"
-                  style={{
-                    backgroundImage:
-                      "url(https://ui-avatars.com/api/?name=Ana&background=random)",
-                  }}
-                ></div>
-                <div className="trip-item-info">
-                  <strong>Ana</strong>
-                  <small>Admin</small>
-                </div>
-                <span className="trip-status-badge">Confirmada</span>
-              </div>
-              <div className="trip-member-row">
-                <div
-                  className="trip-avatar"
-                  style={{
-                    backgroundImage:
-                      "url(https://ui-avatars.com/api/?name=Bruno&background=random)",
-                  }}
-                ></div>
-                <div className="trip-item-info">
-                  <strong>Bruno</strong>
-                  <small>Membro</small>
-                </div>
-                <span className="trip-status-badge">Confirmado</span>
-              </div>
-              <div className="trip-member-row">
-                <div
-                  className="trip-avatar"
-                  style={{
-                    backgroundImage:
-                      "url(https://ui-avatars.com/api/?name=Carla&background=random)",
-                  }}
-                ></div>
-                <div className="trip-item-info">
-                  <strong>Carla</strong>
-                  <small>Membro</small>
-                </div>
-                <span className="trip-status-badge">Confirmada</span>
-              </div>
+              {tripData.participantsList.map((user) => (
+                  <div key={user.id} className="trip-member-row">
+                    <div
+                      className="trip-avatar"
+                      style={{
+                        backgroundImage:
+                          `url(https://ui-avatars.com/api/?name=${user.first_name || user.email}&background=random)`,
+                      }}
+                    ></div>
+                    <div className="trip-item-info">
+                      <strong>{user.first_name || user.email}</strong>
+                      <small>Viajante</small>
+                    </div>
+                    <span className="trip-status-badge">Confirmado</span>
+                  </div>
+              ))}
             </div>
             <div className="trip-footer-row">
-              <span className="trip-footer-hint">Gerencie o grupo.</span>
-              <button className="trip-btn-soft">👤 Abrir Membros</button>
+              <span></span>
+              <button className="trip-btn-soft">👤 Ver todos</button>
             </div>
           </section>
         </div>
@@ -231,4 +259,4 @@ const TripDashboard = () => {
   );
 };
 
-export default TripDashboard;
+export default TripDashboard

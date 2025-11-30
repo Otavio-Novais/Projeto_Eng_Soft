@@ -7,9 +7,6 @@ from django.conf import settings
 
 class Viagem(models.Model):
     titulo = models.CharField(max_length=100)
-    participantes = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="viagens"
-    )
     nome = models.CharField(max_length=200, help_text="O nome ou título da viagem.")
     destino = models.CharField(max_length=200)
     data_inicio = models.DateField()
@@ -19,9 +16,9 @@ class Viagem(models.Model):
     )
 
 
-def __str__(self):
+    def __str__(self):
 
-    return f"{self.nome} - {self.destino}"
+        return f"{self.nome} - {self.destino}"
 
 
 class Despesa(models.Model):
