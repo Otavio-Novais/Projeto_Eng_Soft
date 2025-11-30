@@ -267,7 +267,7 @@ const AuthPage = () => {
             </form>
 
             <div className="divider">ou</div>
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '1rem' }}>
               <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => console.log('Login Failed')} shape="pill" width="300" />
             </div>
           </div>
