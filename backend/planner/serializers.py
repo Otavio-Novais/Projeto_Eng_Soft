@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Trip, Activity, Expense
+from .models import Viagem, Despesa, Rateio
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -8,30 +8,24 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name']
 
-class ActivitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Activity
-        fields = '__all__'
-
 class ExpenseSerializer(serializers.ModelSerializer):
     payer_name = serializers.ReadOnlyField(source='payer.username')
     
     class Meta:
-        model = Expense
+        model = Despesa
         fields = ['id', 'title', 'amount', 'payer_name']
 
 class TripDashboardSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
-    activities = ActivitySerializer(many=True, read_only=True)
     expenses = ExpenseSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Trip
-        fields = ['id', 'title', 'start_date', 'end_date', 'budget', 'participants', 'activities', 'expenses']
+        model = Viagem
+        fields = ['id', 'title', 'start_date', 'end_date', 'budget', 'participants', 'expenses']
 
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Trip
+        model = Viagem
         # campos que o frontend irá receber e enviar
         fields = ['id', 'title', 'description', 'start_date', 'end_date', 'budget']
         extra_kwargs = {

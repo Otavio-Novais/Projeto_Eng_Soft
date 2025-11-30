@@ -7,7 +7,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Trip
 from .serializers import TripDashboardSerializer
 from .serializers import TripSerializer
 from django.shortcuts import get_object_or_404
@@ -65,7 +64,7 @@ def home_data(request):
 
 class TripDetailView(APIView):
     def get(self, request, trip_id):
-        trip = get_object_or_404(Trip, pk=trip_id)
+        trip = get_object_or_404(Viagem, pk=trip_id)
         serializer = TripDashboardSerializer(trip)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
