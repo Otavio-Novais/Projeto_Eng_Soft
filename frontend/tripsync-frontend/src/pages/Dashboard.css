@@ -3,12 +3,11 @@
 .dashboard-container {
     display: flex;
     min-height: 100vh;
-    background-color: #f9fafb;
+    background-color: #ffffff;
 }
 
 .dashboard-content {
-    margin-left: 260px;
-    /* Default sidebar width */
+    margin-left: 250px;
     flex: 1;
     transition: margin-left 0.3s ease;
 }
@@ -23,17 +22,8 @@
 @media (max-width: 768px) {
     .dashboard-content {
         margin-left: 0;
-        /* Remove margin on mobile */
         padding-bottom: 80px;
-        /* Space for bottom nav if we add one later */
     }
-
-    /* We might need to hide the sidebar or make it a drawer on mobile.
-     For now, assuming Sidebar handles its own responsiveness or we hide it.
-     If Sidebar is fixed, it might overlap content on mobile. 
-     Let's assume we want to stack or hide it. 
-     Since I can't easily change Sidebar structure without breaking things,
-     I'll ensure the content flows correctly. */
 }
 
 /* Hero Section */

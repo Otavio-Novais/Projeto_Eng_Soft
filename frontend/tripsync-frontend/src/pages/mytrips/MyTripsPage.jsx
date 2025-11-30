@@ -50,7 +50,7 @@ const MyTripsPage = () => {
     });
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#ffffff' }}>
             {/* SIDEBAR FIXA */}
             <Sidebar activeTab="Minhas Viagens" />
 

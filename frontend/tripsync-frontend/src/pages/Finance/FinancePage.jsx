@@ -131,7 +131,7 @@ const FinancePage = () => {
     const listaExibida = mostrarTodas ? despesasFiltradas : despesasFiltradas.slice(0, 5);
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#ffffff' }}>
             <Sidebar activeTab="Finanças" />
 
             <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>

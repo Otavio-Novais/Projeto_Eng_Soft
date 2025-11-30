@@ -3,7 +3,7 @@
 .sidebar-container {
   width: 250px;
   height: 100vh;
-  background-color: #ffffff;
+  background-color: #f9fafb;
   border-right: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
