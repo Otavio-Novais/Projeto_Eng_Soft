@@ -42,8 +42,8 @@ function LandingPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ fontSize: '2rem' }}>✈️</span>
-            <span style={{ 
-              fontSize: '1.5rem', 
+            <span style={{
+              fontSize: '1.5rem',
               fontWeight: 'bold',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               WebkitBackgroundClip: 'text',
@@ -51,16 +51,16 @@ function LandingPage() {
             }}>TripSync</span>
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button style={{ 
-              textDecoration: 'none', 
-              color: '#374151', 
+            <button style={{
+              textDecoration: 'none',
+              color: '#374151',
               fontWeight: '500',
               border: 'none',
               background: 'none',
               cursor: 'pointer',
               fontSize: '1rem'
             }}>Login</button>
-            <button style={{ 
+            <button style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               padding: '0.5rem 1rem',
@@ -84,9 +84,9 @@ function LandingPage() {
           Plan Your Perfect Trip<br />
           <span style={{ color: '#fde047' }}>Together</span>
         </h1>
-        <p style={{ 
-          fontSize: '1.25rem', 
-          marginBottom: '2rem', 
+        <p style={{
+          fontSize: '1.25rem',
+          marginBottom: '2rem',
           opacity: 0.9,
           maxWidth: '800px',
           margin: '0 auto 2rem'
@@ -127,7 +127,7 @@ function LandingPage() {
             Powerful features designed for seamless group travel planning
           </p>
         </div>
-        
+
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',

@@ -31,10 +31,10 @@ const Dashboard = () => {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       <Sidebar activeTab="Início" />
-      
+
       <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <DashboardHeader />
-        
+
         <main style={{ padding: '2rem' }}>
           {/* Tabs */}
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
