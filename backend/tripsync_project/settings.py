@@ -46,9 +46,14 @@ INSTALLED_APPS = [
     "corsheaders",
     "planner",
     "accounts",
+    'rest_framework',
+    'corsheaders',
+    'suggestions',
+
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",  # Add CORS
@@ -59,6 +64,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [

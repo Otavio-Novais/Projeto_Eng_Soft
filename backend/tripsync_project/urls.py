@@ -15,16 +15,28 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.urls import include
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from suggestions.views import TripViewSet, SuggestionViewSet, VoteViewSet
 
-from django.conf import settings             
+from django.conf import settings
 from django.conf.urls.static import static
+
+# O Router cria os links automaticamente
+router = DefaultRouter()
+router.register(r'trips', TripViewSet)
+router.register(r'suggestions', SuggestionViewSet)
+router.register(r'votes', VoteViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('accounts.urls')), 
-    path('planner/', include('planner.urls')), 
+    # rotas de autenticação/contas
+    path('api/auth/', include('accounts.urls')),
+    # rotas do planner (mantidas no root como antes)
+    path('planner/', include('planner.urls')),
+    # rotas geradas automaticamente pelo router das suggestions
+    path('api/', include(router.urls)),
 ]
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
