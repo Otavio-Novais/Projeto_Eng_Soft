@@ -1,8 +1,12 @@
+// src/components/create_trip/CreateTripModal.jsx
 import React, { useState } from 'react';
 import './CreateTripModal.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const CreateTripModal = ({ isOpen, onClose }) => {
+const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
+  const navigate = useNavigate();
+  
   // Estado para guardar os dados do formulário
   const [formData, setFormData] = useState({
     title: '',
@@ -10,6 +14,8 @@ const CreateTripModal = ({ isOpen, onClose }) => {
     startDate: '',
     endDate: ''
   });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   // Se o modal não estiver aberto, não renderiza nada
   if (!isOpen) return null;
@@ -24,31 +30,68 @@ const CreateTripModal = ({ isOpen, onClose }) => {
   };
 
   // Lógica de envio 
-const handleSubmit = async (e) => { // Note o 'async' aqui
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    // O Django espera snake_case (start_date), mas seu state está camelCase (startDate).
-    // Vamos fazer o mapeamento aqui.
+    // Pegando o token salvo no login
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        alert("Você precisa estar logado para criar uma viagem.");
+        setIsLoading(false);
+        return;
+    }
+
+    // Mapeando para o formato que o Serializer do Django espera (snake_case)
     const payload = {
         title: formData.title,
-        description: formData.description || "",
-        start_date: formData.startDate, // Mapeando para o Python
-        end_date: formData.endDate      // Mapeando para o Python
+        description: formData.description || "", 
+        start_date: formData.startDate, 
+        end_date: formData.endDate      
     };
 
     try {
-        const response = await axios.post('http://127.0.0.1:8000/api/trips/create/', payload);
+        // ATENÇÃO: Verifique se o prefixo da URL do seu app é 'planner' mesmo
+        const response = await axios.post(
+            'http://127.0.0.1:8000/planner/api/viagens/criar/', 
+            payload,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Header obrigatório para o Django saber quem é request.user
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
         
         console.log("Viagem criada:", response.data);
-        alert("Viagem criada com sucesso!");
         
-        // futuramente redirecionar o usuário para a página da viagem criada:
-        // navigate(`/trip/${response.data.id}`);
-        
+        // Fecha o modal
         onClose();
+        
+        // Se houver uma função de atualização (ex: recarregar lista na sidebar), chama ela
+        if (onSuccess) onSuccess();
+
+        // Limpa o formulário
+        setFormData({ title: '', description: '', startDate: '', endDate: '' });
+
+        // REDIRECIONAMENTO: Leva o usuário para a Dashboard da nova viagem
+        navigate(`/trip/${response.data.id}`);
+
     } catch (error) {
-        console.error("Erro ao criar viagem:", error);
-        alert("Erro ao criar viagem. Verifique os dados.");
+        console.error("Erro ao criar viagem:", error.response?.data || error);
+        
+        // Tratamento de erro mais amigável
+        let errorMessage = "Erro ao criar viagem.";
+        if (error.response?.data) {
+            // Se o Django mandou erros específicos (ex: data final antes da inicial)
+            const djangoErrors = error.response.data;
+            if (djangoErrors.end_date) errorMessage = djangoErrors.end_date[0];
+            else if (djangoErrors.start_date) errorMessage = djangoErrors.start_date[0];
+        }
+        alert(errorMessage);
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -127,11 +170,11 @@ const handleSubmit = async (e) => { // Note o 'async' aqui
 
           {/* Botões inferiores */}
           <div className="modal-footer">
-            <button type="button" className="btn-cancel" onClick={onClose}>
+            <button type="button" className="btn-cancel" onClick={onClose} disabled={isLoading}>
               ✕ Cancelar
             </button>
-            <button type="submit" className="btn-continue">
-              Salvar e Continuar ➝
+            <button type="submit" className="btn-continue" disabled={isLoading}>
+              {isLoading ? 'Criando...' : 'Salvar e Continuar ➝'}
             </button>
           </div>
 
