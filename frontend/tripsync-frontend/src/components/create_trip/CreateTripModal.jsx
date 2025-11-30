@@ -24,31 +24,31 @@ const CreateTripModal = ({ isOpen, onClose }) => {
   };
 
   // Lógica de envio 
-const handleSubmit = async (e) => { // Note o 'async' aqui
+  const handleSubmit = async (e) => { // Note o 'async' aqui
     e.preventDefault();
-    
+
     // O Django espera snake_case (start_date), mas seu state está camelCase (startDate).
     // Vamos fazer o mapeamento aqui.
     const payload = {
-        title: formData.title,
-        description: formData.description || "",
-        start_date: formData.startDate, // Mapeando para o Python
-        end_date: formData.endDate      // Mapeando para o Python
+      title: formData.title,
+      description: formData.description || "",
+      start_date: formData.startDate, // Mapeando para o Python
+      end_date: formData.endDate      // Mapeando para o Python
     };
 
     try {
-        const response = await axios.post('http://127.0.0.1:8000/api/trips/create/', payload);
-        
-        console.log("Viagem criada:", response.data);
-        alert("Viagem criada com sucesso!");
-        
-        // futuramente redirecionar o usuário para a página da viagem criada:
-        // navigate(`/trip/${response.data.id}`);
-        
-        onClose();
+      const response = await axios.post('http://127.0.0.1:8000/api/trips/create/', payload);
+
+      console.log("Viagem criada:", response.data);
+      alert("Viagem criada com sucesso!");
+
+      // futuramente redirecionar o usuário para a página da viagem criada:
+      // navigate(`/trip/${response.data.id}`);
+
+      onClose();
     } catch (error) {
-        console.error("Erro ao criar viagem:", error);
-        alert("Erro ao criar viagem. Verifique os dados.");
+      console.error("Erro ao criar viagem:", error);
+      alert("Erro ao criar viagem. Verifique os dados.");
     }
   };
 
@@ -58,24 +58,24 @@ const handleSubmit = async (e) => { // Note o 'async' aqui
       if (e.target.className === 'modal-overlay') onClose();
     }}>
       <div className="modal-container">
-        
+
         <div className="modal-header">
           <h2>Nova Viagem</h2>
         </div>
-        
+
         <span className="modal-subtitle">
           Preencha as informações básicas para começar o planejamento.
         </span>
 
         <form onSubmit={handleSubmit}>
-          
+
           {/* Título */}
           <div className="form-group">
             <label>Título da Viagem</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="title"
-              className="form-input" 
+              className="form-input"
               placeholder="Ex: Fim de Semana em Paraty"
               value={formData.title}
               onChange={handleChange}
@@ -86,9 +86,9 @@ const handleSubmit = async (e) => { // Note o 'async' aqui
           {/* Descrição */}
           <div className="form-group">
             <label>Descrição (opcional)</label>
-            <textarea 
+            <textarea
               name="description"
-              className="form-textarea" 
+              className="form-textarea"
               placeholder="Conte um pouco sobre a viagem..."
               value={formData.description}
               onChange={handleChange}
@@ -100,8 +100,8 @@ const handleSubmit = async (e) => { // Note o 'async' aqui
             <div className="form-col">
               <div className="form-group">
                 <label>Data de Início</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   name="startDate"
                   className="form-input"
                   value={formData.startDate}
@@ -113,8 +113,8 @@ const handleSubmit = async (e) => { // Note o 'async' aqui
             <div className="form-col">
               <div className="form-group">
                 <label>Data de Fim</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   name="endDate"
                   className="form-input"
                   value={formData.endDate}
