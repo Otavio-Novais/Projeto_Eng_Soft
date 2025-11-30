@@ -52,7 +52,7 @@ const AuthPage = () => {
       });
       localStorage.setItem('token', response.data.access);
       localStorage.setItem('refreshToken', response.data.refresh);
-      navigate('/mytrips');
+      navigate('/dashboard');
     } catch (error) {
       setLoginError("Falha na autenticação com Google.");
     }
@@ -95,9 +95,10 @@ const AuthPage = () => {
 
     try {
       if (isLogin) {
+        // CORREÇÃO: Enviar 'email' pois o backend espera exatamente isso
         const response = await api.post('/auth/login/', { email, password });
         localStorage.setItem('token', response.data.access);
-        navigate('/mytrips');
+        navigate('/dashboard');
       } else {
         // --- CONVERTER DATA PARA FORMATO DO BACKEND (YYYY-MM-DD) ---
         // O DatePicker nos dá um objeto Date, mas o Django quer string "2000-01-01"
@@ -124,7 +125,9 @@ const AuthPage = () => {
         if (error.response && error.response.status === 401) {
           setLoginError("E-mail ou senha incorretos.");
         } else {
-          setLoginError("Erro de conexão.");
+          // Mostra erro detalhado se houver
+          const msg = error.response?.data?.detail || JSON.stringify(error.response?.data) || "Erro de conexão.";
+          setLoginError(`Erro: ${msg}`);
         }
       } else if (error.response && error.response.data) {
         const backendErrors = error.response.data;
@@ -151,7 +154,6 @@ const AuthPage = () => {
           <span className="logo-icon"><Map /></span>
           <span className="logo-text">Tripsync</span>
         </div>
-        {/* Botão Dashboard foi removido daqui */}
       </div>
 
       <div className="content-body">
@@ -192,7 +194,6 @@ const AuthPage = () => {
                       <input className={`input-field ${errors.city ? 'input-error' : ''}`} placeholder="Ex: SP" value={city} onChange={e => setCity(e.target.value)} />
                     </div>
 
-                    {/* --- 4. O NOVO COMPONENTE DE DATA --- */}
                     <div style={{ flex: 1 }}>
                       <label>Nascimento</label>
                       <div className="custom-datepicker-wrapper">
@@ -200,25 +201,23 @@ const AuthPage = () => {
                           selected={birthDate}
                           onChange={(date) => setBirthDate(date)}
                           dateFormat="dd/MM/yyyy"
-                          maxDate={maxDate} // Limite Superior (Hoje - 5 anos)
-                          minDate={minDate} // Limite Inferior (1900)
+                          maxDate={maxDate}
+                          minDate={minDate}
                           showYearDropdown
                           scrollableYearDropdown
                           yearDropdownItemNumber={100}
                           placeholderText="dd/mm/aaaa"
                           locale="pt-BR"
                           className={`input-field ${errors.birth_date ? 'input-error' : ''}`}
-                          onKeyDown={(e) => e.preventDefault()} // Impede digitar texto maluco
+                          onKeyDown={(e) => e.preventDefault()}
                         />
                       </div>
                       {errors.birth_date && <span className="error-msg">{errors.birth_date[0]}</span>}
                     </div>
-                    {/* ------------------------------------ */}
                   </div>
                 </>
               )}
 
-              {/* ... Resto do formulário (email, senha...) MANTENHA IGUAL ... */}
               <label>E-mail</label>
               <input className={`input-field ${errors.email ? 'input-error' : ''}`} type="email" placeholder="nome@exemplo.com" value={email} onChange={e => setEmail(e.target.value)} />
               {errors.email && <span className="error-msg">{errors.email[0]}</span>}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './CreateTripModal.css';
 import axios from 'axios';
+import CustomDatePicker from '../common/CustomDatePicker';
 
 const CreateTripModal = ({ isOpen, onClose }) => {
   // Estado para guardar os dados do formulário
@@ -100,26 +101,26 @@ const CreateTripModal = ({ isOpen, onClose }) => {
             <div className="form-col">
               <div className="form-group">
                 <label>Data de Início</label>
-                <input
-                  type="date"
-                  name="startDate"
-                  className="form-input"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  required
+                <CustomDatePicker
+                  selected={formData.startDate ? new Date(formData.startDate + 'T12:00:00') : null}
+                  onChange={(date) => {
+                    const formattedDate = date ? date.toISOString().split('T')[0] : '';
+                    setFormData(prev => ({ ...prev, startDate: formattedDate }));
+                  }}
+                  placeholder="Início da viagem"
                 />
               </div>
             </div>
             <div className="form-col">
               <div className="form-group">
                 <label>Data de Fim</label>
-                <input
-                  type="date"
-                  name="endDate"
-                  className="form-input"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                  required
+                <CustomDatePicker
+                  selected={formData.endDate ? new Date(formData.endDate + 'T12:00:00') : null}
+                  onChange={(date) => {
+                    const formattedDate = date ? date.toISOString().split('T')[0] : '';
+                    setFormData(prev => ({ ...prev, endDate: formattedDate }));
+                  }}
+                  placeholder="Fim da viagem"
                 />
               </div>
             </div>
