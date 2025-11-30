@@ -1,8 +1,15 @@
 from django.shortcuts import render
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from .serializers import TripDashboardSerializer
+from .serializers import TripSerializer
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -56,6 +63,20 @@ def home_data(request):
     }
     return Response(data)
 
+class TripDetailView(APIView):
+    def get(self, request, trip_id):
+        trip = get_object_or_404(Viagem, pk=trip_id)
+        serializer = TripDashboardSerializer(trip)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class TripCreateView(APIView):
+    def post(self, request):
+        serializer = TripSerializer(data = request.data)
+        if serializer.is_valid():
+            trip = serializer.save()
+            trip.participantes.add(request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 User = get_user_model()
 
 @csrf_exempt
@@ -195,27 +216,11 @@ def liquidar_divida_api(request, viagem_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt # Em produção, use autenticação real
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def listar_viagens_api(request):
-    # Se quiser filtrar pelo usuário logado: 
-    # viagens = request.user.viagens.all() (se o related_name estiver configurado)
-    # Por enquanto, pegamos todas para testar:
-    viagens = Viagem.objects.all()
-    
-    data = []
-    for v in viagens:
-        data.append({
-            'id': v.id,
-            'titulo': v.titulo,
-            'data': v.data_inicio.strftime('%d %b') if hasattr(v, 'data_inicio') and v.data_inicio else None,
-            'participantes_count': v.participantes.count()
-        })
-    
-    return JsonResponse(data, safe=False)
-
-@csrf_exempt
-def listar_viagens_api(request):
-    viagens = Viagem.objects.all().order_by('-id') # Ordena da mais nova para mais antiga
+    # Filtra apenas as viagens do usuário logado
+    viagens = Viagem.objects.filter(participantes=request.user).order_by('-id')
     
     data = []
     hoje = date.today()
@@ -238,4 +243,4 @@ def listar_viagens_api(request):
             'status_display': status_display # Usado para escrever na tela
         })
     
-    return JsonResponse(data, safe=False)
+    return Response(data)

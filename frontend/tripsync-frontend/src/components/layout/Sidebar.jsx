@@ -1,136 +1,148 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { House, Map, Sparkles, CreditCard, Users, Plus, User, Settings, LogOut } from 'lucide-react';
+import CreateTripModal from '../create_trip/CreateTripModal';
+import './Sidebar.css';
 
 const Sidebar = ({ activeTab = 'Início' }) => {
+  const navigate = useNavigate();
+  const { tripId } = useParams();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [recentTrips, setRecentTrips] = useState([]);
+
+  // Menu Items Definition
   const menuItems = [
-    { icon: '🏠', label: 'Início', id: 'home' },
-    { icon: '📅', label: 'Roteiro', id: 'itinerary' },
-    { icon: '✨', label: 'Sugestões', id: 'suggestions' },
-    { icon: '👥', label: 'Membros', id: 'members' },
+    { id: 'roteiro', label: 'Roteiro', icon: <Map size={18} />, path: tripId ? `/trip/${tripId}/planner` : null },
+    { id: 'sugestoes', label: 'Sugestões', icon: <Sparkles size={18} />, path: tripId ? `/trip/${tripId}/suggestions` : null },
+    { id: 'financas', label: 'Finanças', icon: <CreditCard size={18} />, path: tripId ? `/viagem/${tripId}/financas` : '/financas' },
+    { id: 'membros', label: 'Membros', icon: <Users size={18} />, path: tripId ? `/trip/${tripId}/members` : null },
   ];
 
-  const trips = [
-    { label: 'Europa 2025', date: '12-20 Jun', active: true },
-    { label: 'Patagônia', date: 'Set', active: false },
-  ];
+  // Fetch recent trips
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(res => {
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data && Array.isArray(data)) {
+          setRecentTrips(data.slice(0, 5));
+        }
+      })
+      .catch(err => console.error("Erro ao buscar viagens recentes:", err));
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
 
   return (
-    <div style={{
-      width: '250px',
-      height: '100vh',
-      backgroundColor: '#f8f9fa',
-      borderRight: '1px solid #e5e7eb',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '1.5rem',
-      position: 'fixed',
-      left: 0,
-      top: 0
-    }}>
-      {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-        <span style={{ fontSize: '1.5rem' }}>🗺️</span>
-        <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937' }}>tripsync</span>
-      </div>
-
-      {/* Navigation */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-          Navegação
+    <>
+      <aside className="sidebar-container">
+        <div className="sidebar-logo">
+          <span style={{ fontSize: '1.5rem' }}><Map size={18} /></span>
+          <span className="logo-text">tripsync</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-          {menuItems.map((item) => (
+
+        <div className="nav-section">
+          <div className="section-label">Navegação</div>
+          <div className="nav-list">
+            {/* Botão Fixo Início */}
             <button
-              key={item.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.75rem 1rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                backgroundColor: item.label === activeTab ? '#0066ff' : 'transparent',
-                color: item.label === activeTab ? 'white' : '#4b5563',
-                cursor: 'pointer',
-                width: '100%',
-                textAlign: 'left',
-                fontSize: '0.95rem',
-                fontWeight: item.label === activeTab ? '600' : '500',
-                transition: 'all 0.2s'
-              }}
+              className={`nav-btn ${activeTab === 'Início' ? 'active' : ''}`}
+              onClick={() => navigate('/dashboard')}
             >
-              <span>{item.icon}</span>
-              {item.label}
+              <span className="nav-icon"><House size={18} /></span>
+              Início
             </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Trips */}
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-          Viagens
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                className={`nav-btn ${item.label === activeTab ? 'active' : ''}`}
+                onClick={() => item.path && navigate(item.path)}
+                disabled={!item.path}
+                style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
+                title={!item.path ? "Selecione uma viagem para acessar" : ""}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {trips.map((trip, index) => (
-            <button
-              key={index}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.75rem 1rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                backgroundColor: trip.active ? '#e0f2fe' : 'transparent',
-                color: trip.active ? '#0369a1' : '#4b5563',
-                cursor: 'pointer',
-                width: '100%',
-                textAlign: 'left',
-                fontSize: '0.9rem'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span>🏝️</span>
-                <span style={{ fontWeight: '500' }}>{trip.label}</span>
-              </div>
-              {trip.date && (
-                <span style={{ fontSize: '0.75rem', color: trip.active ? '#0ea5e9' : '#9ca3af' }}>
-                  {trip.date}
-                </span>
-              )}
+
+        <div className="nav-section flex-grow">
+          <div className="section-label">Minhas Viagens Recentes</div>
+          <div className="nav-list">
+            {recentTrips.length > 0 ? recentTrips.map((trip) => (
+              <button
+                key={trip.id}
+                className={`trip-btn ${trip.id === parseInt(tripId) ? 'active-trip' : ''}`}
+                onClick={() => navigate(`/trip/${trip.id}`)}
+              >
+                <div className="trip-content">
+                  <span className="trip-label" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }}>
+                    {trip.titulo}
+                  </span>
+                </div>
+                {trip.data_inicio && (
+                  <span className={`trip-date ${trip.id === parseInt(tripId) ? 'active-date' : ''}`}>
+                    {new Date(trip.data_inicio).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
+                )}
+              </button>
+            )) : (
+              <div style={{ padding: '0.5rem', fontSize: '0.8rem', color: '#9ca3af' }}>Nenhuma viagem recente</div>
+            )}
+          </div>
+        </div>
+
+        <div className="sidebar-footer">
+          <button
+            className="btn-create-trip"
+            onClick={() => setIsCreateModalOpen(true)}
+            style={{ marginBottom: '0.5rem', padding: '0.6rem' }}
+          >
+            <span style={{ marginRight: '8px', display: 'inline-flex' }}>
+              <Plus size={16} />
+            </span>
+            Criar Nova Viagem
+          </button>
+
+          <div className="footer-links" style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+            <button className={`nav-btn ${activeTab === 'Perfil' ? 'active' : ''}`} onClick={() => navigate('/profile')}>
+              <span className="nav-icon"><User size={18} /></span>
+              Meu Perfil
             </button>
-          ))}
+            <button className={`nav-btn ${activeTab === 'Configurações' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
+              <span className="nav-icon"><Settings size={18} /></span>
+              Configurações
+            </button>
+            <button className="nav-btn btn-logout" onClick={handleLogout} style={{ color: '#ef4444', marginTop: '0.25rem', justifyContent: 'flex-start' }}>
+              <span className="nav-icon"><LogOut size={18} /></span>
+              Sair
+            </button>
+          </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Bottom Actions */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <button style={{
-          backgroundColor: '#0066ff',
-          color: 'white',
-          padding: '0.75rem',
-          borderRadius: '0.5rem',
-          border: 'none',
-          fontWeight: '600',
-          cursor: 'pointer',
-          width: '100%'
-        }}>
-          Criar Nova Viagem
-        </button>
-        <button style={{
-          backgroundColor: '#e0f2fe',
-          color: '#0369a1',
-          padding: '0.75rem',
-          borderRadius: '0.5rem',
-          border: 'none',
-          fontWeight: '600',
-          cursor: 'pointer',
-          width: '100%'
-        }}>
-          Sair
-        </button>
-      </div>
-    </div>
+      <CreateTripModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+    </>
   );
 };
 
