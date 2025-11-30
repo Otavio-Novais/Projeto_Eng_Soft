@@ -1,54 +1,26 @@
 // src/pages/trip_dashboard/trip_dashboard.jsx
-import React, { useState, useEffect } from "react";
-import { useParams } from 'react-router-dom';
+import React from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import AddExpenseModal from "../../components/AddExpenseModal";
 import "./trip_dashboard.css";
 
 const TripDashboard = () => {
-    const { tripId } = useParams();
-    const [loading, setLoading] = useState(true);
-    const [tripData, setTripData] = useState(null);
-    const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
-
-    const fetchTripDetails = async () => {
-        try {
-            const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/`);
-            if (response.ok) {
-                const data = await response.json();
-
-                // Transform API data to Component format
-                setTripData({
-                    title: data.title,
-                    dateRange: `${new Date(data.start_date).toLocaleDateString()} - ${new Date(data.end_date).toLocaleDateString()}`,
-                    participants: data.participants.length,
-                    budget: "0,00", // Budget not yet in API
-                    daysPlanned: 0, // Logic to be implemented
-                    nextActivities: [], // Logic to be implemented
-                    finance: {
-                        expenses: data.expenses.map(e => ({
-                            id: e.id,
-                            title: e.title,
-                            amount: e.amount,
-                            payer: e.payer_name
-                        }))
-                    },
-                    members: data.participants // Store full member data
-                });
-            }
-        } catch (error) {
-            console.error("Error fetching trip:", error);
-        } finally {
-            setLoading(false);
+    const tripData = {
+        title: "Europa 2025",
+        dateRange: "12–20 Jun",
+        participants: 3,
+        budget: "8.200",
+        daysPlanned: 5,
+        nextActivities: [
+            { id: 1, title: "Chegada em Paris", time: "15:00", local: "Hotel République" },
+            { id: 2, title: "Museu do Louvre", time: "Tarde", local: "Ingressos pendentes" }
+        ],
+        finance: {
+            expenses: [
+                { id: 1, title: "Reserva Airbnb", amount: "2.400", payer: "Carla" },
+                { id: 2, title: "Passes de trem", amount: "620", payer: "Bruno" }
+            ]
         }
     };
-
-    useEffect(() => {
-        fetchTripDetails();
-    }, [tripId]);
-
-    if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Carregando...</div>;
-    if (!tripData) return <div style={{ padding: 40, textAlign: 'center' }}>Viagem não encontrada.</div>;
 
     return (
         <div className="dashboard-layout">
@@ -78,7 +50,7 @@ const TripDashboard = () => {
                                     <small>Participantes</small>
                                 </div>
                                 <h3>{tripData.participants} confirmados</h3>
-                                <span className="sub-text">+0 pendentes</span>
+                                <span className="sub-text">+2 pendentes</span>
                             </div>
                             <div className="stat-card">
                                 <div className="stat-header">
@@ -92,7 +64,7 @@ const TripDashboard = () => {
                                     <small>Roteiro</small>
                                 </div>
                                 <h3>{tripData.daysPlanned} dias planejados</h3>
-                                <span className="sub-text">0 abertos</span>
+                                <span className="sub-text">2 abertos</span>
                             </div>
                         </div>
                     </section>
@@ -138,7 +110,7 @@ const TripDashboard = () => {
                             <section className="white-section-container">
                                 <span className="card-header-title">Próximos no roteiro</span>
                                 <div className="card-list">
-                                    {tripData.nextActivities.length > 0 ? tripData.nextActivities.map(act => (
+                                    {tripData.nextActivities.map(act => (
                                         <div key={act.id} className="item-card">
                                             <div className="item-icon blue-bg">📅</div>
                                             <div className="item-info">
@@ -147,7 +119,7 @@ const TripDashboard = () => {
                                             </div>
                                             <button className="btn-text">Ver dia</button>
                                         </div>
-                                    )) : <div style={{ padding: 20, color: '#999' }}>Nenhuma atividade planejada</div>}
+                                    ))}
                                 </div>
                             </section>
 
@@ -155,12 +127,12 @@ const TripDashboard = () => {
                             <section className="white-section-container">
                                 <span className="card-header-title">Resumo financeiro</span>
                                 <div className="finance-controls">
-                                    <span className="badge-blue">Saldo do grupo: R$ 0,00</span>
-                                    <span className="badge-outline">Despesas registradas: {tripData.finance.expenses.length}</span>
+                                    <span className="badge-blue">Saldo do grupo: R$ 1.250</span>
+                                    <span className="badge-outline">Despesas registradas: 7</span>
                                 </div>
 
                                 <div className="card-list">
-                                    {tripData.finance.expenses.length > 0 ? tripData.finance.expenses.map(exp => (
+                                    {tripData.finance.expenses.map(exp => (
                                         <div key={exp.id} className="item-card">
                                             <div className="item-icon blue-bg">💳</div>
                                             <div className="item-info">
@@ -169,17 +141,12 @@ const TripDashboard = () => {
                                             </div>
                                             <button className="btn-text">Detalhes</button>
                                         </div>
-                                    )) : <div style={{ padding: 20, color: '#999' }}>Nenhuma despesa registrada</div>}
+                                    ))}
                                 </div>
 
                                 <div className="section-footer-row">
                                     <span className="footer-hint">Acompanhe quem deve para quem.</span>
-                                    <button
-                                        className="btn-primary-solid small"
-                                        onClick={() => setIsExpenseModalOpen(true)}
-                                    >
-                                        + Adicionar despesa
-                                    </button>
+                                    <button className="btn-primary-solid small">+ Adicionar despesa</button>
                                 </div>
                             </section>
                         </div>
@@ -190,16 +157,30 @@ const TripDashboard = () => {
                     <section className="white-section-container members-section">
                         <span className="card-header-title">Membros</span>
                         <div className="member-list">
-                            {tripData.members.map(member => (
-                                <div key={member.id} className="member-row">
-                                    <div className="avatar-img" style={{ backgroundImage: `url(https://ui-avatars.com/api/?name=${member.first_name || member.email}&background=random)` }}></div>
-                                    <div className="item-info">
-                                        <strong>{member.first_name || member.email}</strong>
-                                        <small>Membro</small>
-                                    </div>
-                                    <span className="status-badge">Confirmado</span>
+                            <div className="member-row">
+                                <div className="avatar-img" style={{ backgroundImage: 'url(https://ui-avatars.com/api/?name=Ana&background=random)' }}></div>
+                                <div className="item-info">
+                                    <strong>Ana</strong>
+                                    <small>Admin</small>
                                 </div>
-                            ))}
+                                <span className="status-badge">Confirmada</span>
+                            </div>
+                            <div className="member-row">
+                                <div className="avatar-img" style={{ backgroundImage: 'url(https://ui-avatars.com/api/?name=Bruno&background=random)' }}></div>
+                                <div className="item-info">
+                                    <strong>Bruno</strong>
+                                    <small>Membro</small>
+                                </div>
+                                <span className="status-badge">Confirmado</span>
+                            </div>
+                            <div className="member-row">
+                                <div className="avatar-img" style={{ backgroundImage: 'url(https://ui-avatars.com/api/?name=Carla&background=random)' }}></div>
+                                <div className="item-info">
+                                    <strong>Carla</strong>
+                                    <small>Membro</small>
+                                </div>
+                                <span className="status-badge">Confirmada</span>
+                            </div>
                         </div>
                         <div className="section-footer-row">
                             <span className="footer-hint">Gerencie convites e cargos.</span>
@@ -209,14 +190,6 @@ const TripDashboard = () => {
 
                 </div>
             </main>
-
-            {isExpenseModalOpen && (
-                <AddExpenseModal
-                    viagemId={tripId}
-                    onClose={() => setIsExpenseModalOpen(false)}
-                    onSuccess={fetchTripDetails}
-                />
-            )}
         </div>
     );
 };

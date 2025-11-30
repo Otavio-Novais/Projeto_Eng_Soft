@@ -4,35 +4,29 @@ import DashboardHeader from '../components/dashboard/DashboardHeader';
 import TripCard from '../components/dashboard/TripCard';
 
 const Dashboard = () => {
-  const [trips, setTrips] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:8000/planner/api/viagens/');
-        if (response.ok) {
-          const data = await response.json();
-          // Mapeia os dados do backend para o formato do TripCard
-          const mappedTrips = data.map(t => ({
-            id: t.id,
-            title: t.titulo,
-            tag: t.data || 'Data a definir',
-            locations: t.status_display, // Usando status como "local" por enquanto
-            image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Imagem padrão
-            members: Array(t.participantes_count).fill('') // Placeholders para membros
-          }));
-          setTrips(mappedTrips);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar viagens:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrips();
-  }, []);
+  const trips = [
+    {
+      title: 'Europa 2025',
+      tag: '12–20 Jun',
+      locations: 'Lisboa • Madrid • Paris',
+      image: 'https://images.unsplash.com/photo-1471623320832-752e8bbf8413?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      members: ['', '', '', ''] // Placeholders for avatars
+    },
+    {
+      title: 'Patagônia',
+      tag: 'Setembro',
+      locations: 'El Calafate • El Chaltén',
+      image: 'https://images.unsplash.com/photo-1518182170546-0766bc6f9213?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      members: ['', '']
+    },
+    {
+      title: 'Japão 2026',
+      tag: 'Abril',
+      locations: 'Tóquio • Kyoto • Osaka',
+      image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      members: ['', '', '']
+    }
+  ];
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
@@ -84,21 +78,15 @@ const Dashboard = () => {
               </button>
             </div>
 
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: 20, color: '#64748B' }}>Carregando viagens...</div>
-            ) : (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '2rem'
-              }}>
-                {trips.length > 0 ? trips.map((trip, index) => (
-                  <TripCard key={index} trip={trip} />
-                )) : (
-                  <p style={{ color: '#64748B' }}>Nenhuma viagem encontrada.</p>
-                )}
-              </div>
-            )}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '2rem'
+            }}>
+              {trips.map((trip, index) => (
+                <TripCard key={index} trip={trip} />
+              ))}
+            </div>
           </div>
         </main>
       </div>
