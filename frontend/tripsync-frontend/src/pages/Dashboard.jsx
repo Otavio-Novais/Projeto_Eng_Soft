@@ -1,95 +1,233 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Plus, Grid, Clock, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import Sidebar from '../components/layout/Sidebar';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import TripCard from '../components/dashboard/TripCard';
+import CreateTripModal from '../components/create_trip/CreateTripModal';
+import './Dashboard.css'; // Import responsive styles
 
 const Dashboard = () => {
-  const trips = [
-    {
-      title: 'Europa 2025',
-      tag: '12–20 Jun',
-      locations: 'Lisboa • Madrid • Paris',
-      image: 'https://images.unsplash.com/photo-1471623320832-752e8bbf8413?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      members: ['', '', '', ''] // Placeholders for avatars
-    },
-    {
-      title: 'Patagônia',
-      tag: 'Setembro',
-      locations: 'El Calafate • El Chaltén',
-      image: 'https://images.unsplash.com/photo-1518182170546-0766bc6f9213?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      members: ['', '']
-    },
-    {
-      title: 'Japão 2026',
-      tag: 'Abril',
-      locations: 'Tóquio • Kyoto • Osaka',
-      image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      members: ['', '', '']
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentTripIndex, setCurrentTripIndex] = useState(0); // State for Hero Carousel
+  const navigate = useNavigate();
+
+  const fetchTrips = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/');
+        return;
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        const mappedTrips = data.map(t => ({
+          id: t.id,
+          title: t.titulo,
+          tag: t.data_inicio ? new Date(t.data_inicio).toLocaleDateString() : 'Data a definir',
+          locations: t.destino || 'Destino não definido',
+          image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+          members: Array(t.participantes_count || 0).fill('')
+        }));
+        setTrips(mappedTrips.reverse());
+      }
+    } catch (error) {
+      console.error("Erro ao buscar viagens:", error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchTrips();
+  }, []);
+
+  // Logic for Hero Carousel
+  const recentTripsForCarousel = trips.slice(0, 3);
+
+  const nextTrip = () => {
+    setCurrentTripIndex((prev) => (prev + 1) % recentTripsForCarousel.length);
+  };
+
+  const prevTrip = () => {
+    setCurrentTripIndex((prev) => (prev - 1 + recentTripsForCarousel.length) % recentTripsForCarousel.length);
+  };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <div className="dashboard-container">
       <Sidebar activeTab="Início" />
-
-      <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="dashboard-content">
         <DashboardHeader />
+        <div className="dashboard-main">
 
-        <main style={{ padding: '2rem' }}>
-          {/* Tabs */}
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-            {['Sugestões', 'Roteiro', 'Membros'].map((tab, idx) => (
-              <button key={idx} style={{
-                padding: '0.5rem 1.25rem',
-                borderRadius: '2rem',
-                border: 'none',
-                backgroundColor: idx === 0 ? '#0066ff' : '#f3f4f6',
-                color: idx === 0 ? 'white' : '#4b5563',
-                fontWeight: '600',
-                cursor: 'pointer',
-                fontSize: '0.95rem'
-              }}>
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* My Trips Section */}
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '1.5rem',
-            padding: '2rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#111827', margin: 0 }}>
-                Minhas Viagens
-              </h2>
-              <button style={{
-                backgroundColor: '#0066ff',
-                color: 'white',
-                border: 'none',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '2rem',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}>
-                Criar Nova Viagem
+          {/* HERO SECTION: Welcome Banner OR Trip Carousel */}
+          {loading ? (
+            <div className="hero-loading"></div>
+          ) : trips.length === 0 ? (
+            // Default Welcome Banner (No Trips)
+            <div className="welcome-banner">
+              <div>
+                <h2 className="welcome-title">Bem-vindo ao Tripsync! 🌍</h2>
+                <p className="welcome-text">Gerencie suas aventuras, divida despesas e planeje roteiros incríveis com seus amigos.</p>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="btn-create-first"
+              >
+                Criar Primeira Viagem <Plus size={18} />
               </button>
             </div>
+          ) : (
+            // Hero Carousel (Has Trips)
+            <div className="hero-carousel">
+              <div
+                className="hero-card"
+                style={{
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${recentTripsForCarousel[currentTripIndex].image})`,
+                }}
+              >
+                <div style={{ marginBottom: '1rem' }}>
+                  <span className="hero-badge">
+                    Viagem Recente ({currentTripIndex + 1}/{recentTripsForCarousel.length})
+                  </span>
+                </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '2rem'
-            }}>
-              {trips.map((trip, index) => (
-                <TripCard key={index} trip={trip} />
-              ))}
+                <h2 className="hero-title">
+                  {recentTripsForCarousel[currentTripIndex].title}
+                </h2>
+
+                <div className="hero-details">
+                  <div className="hero-detail-item">
+                    <Clock size={18} /> {recentTripsForCarousel[currentTripIndex].tag}
+                  </div>
+                  <div className="hero-detail-item">
+                    <Grid size={18} /> {recentTripsForCarousel[currentTripIndex].locations}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate(`/trip/${recentTripsForCarousel[currentTripIndex].id}`)}
+                  className="btn-hero-action"
+                >
+                  Ver Detalhes <ArrowRight size={18} />
+                </button>
+              </div>
+
+              {/* Carousel Controls */}
+              {recentTripsForCarousel.length > 1 && (
+                <>
+                  <button onClick={prevTrip} className="carousel-control prev">
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button onClick={nextTrip} className="carousel-control next">
+                    <ChevronRight size={24} />
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="section-header">
+            <h2 className="section-title">Minhas Viagens Recentes</h2>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <button
+                onClick={() => navigate('/mytrips')}
+                className="btn-view-all"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: '#4b5563',
+                  fontWeight: '600',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                Ver Minhas Viagens <ArrowRight size={18} />
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="btn-new-trip"
+              >
+                <Plus size={18} /> Nova Viagem
+              </button>
             </div>
           </div>
-        </main>
+
+          {loading ? (
+            <div className="loading-state">Carregando suas viagens...</div>
+          ) : trips.length === 0 ? (
+            <div className="empty-state">
+              <p>Você ainda não tem viagens planejadas.</p>
+            </div>
+          ) : (
+            <div style={{ position: 'relative' }}>
+              {trips.length > 3 && (
+                <>
+                  <button
+                    onClick={() => {
+                      const container = document.getElementById('trips-carousel-bottom');
+                      if (container) container.scrollLeft -= 320;
+                    }}
+                    className="carousel-control prev"
+                    style={{ top: '50%', transform: 'translateY(-50%)', left: '-20px' }}
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const container = document.getElementById('trips-carousel-bottom');
+                      if (container) container.scrollLeft += 320;
+                    }}
+                    className="carousel-control next"
+                    style={{ top: '50%', transform: 'translateY(-50%)', right: '-20px' }}
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                </>
+              )}
+
+              <div
+                id="trips-carousel-bottom"
+                className="trips-carousel"
+                style={{
+                  display: 'flex',
+                  gap: '1.5rem',
+                  overflowX: 'auto',
+                  scrollBehavior: 'smooth',
+                  paddingBottom: '0.5rem',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none'
+                }}
+              >
+                <style>
+                  {`
+                    #trips-carousel-bottom::-webkit-scrollbar {
+                      display: none;
+                    }
+                  `}
+                </style>
+                {trips.map((trip) => (
+                  <div key={trip.id} style={{ minWidth: '300px', flex: '0 0 auto' }}>
+                    <TripCard trip={trip} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+      <CreateTripModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchTrips} />
     </div>
   );
 };

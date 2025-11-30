@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, User, FileText, Check, ChevronDown } from 'lucide-react';
+import { X, DollarSign, Calendar, User, FileText, Check, ChevronDown, MapPin } from 'lucide-react';
+import CustomDatePicker from './common/CustomDatePicker';
+import '../pages/Finance/Finance.css';
 
 const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(true);
     const [participantes, setParticipantes] = useState([]);
+    const [trips, setTrips] = useState([]);
+    const [selectedTripId, setSelectedTripId] = useState(viagemId || '');
 
     // States do Formulário
     const [titulo, setTitulo] = useState('');
@@ -17,8 +21,26 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
     const [selecionados, setSelecionados] = useState([]);
     const [valoresManuais, setValoresManuais] = useState({});
 
+    // Fetch Trips para o seletor
     useEffect(() => {
-        fetch(`http://127.0.0.1:8000/planner/api/viagem/${viagemId}/financas/`)
+        fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')} ` }
+        })
+            .then(res => res.json())
+            .then(data => {
+                setTrips(data);
+                if (!selectedTripId && data.length > 0) {
+                    setSelectedTripId(data[0].id);
+                }
+            })
+            .catch(err => console.error("Erro ao carregar viagens:", err));
+    }, []);
+
+    // Fetch Participantes quando a viagem selecionada muda
+    useEffect(() => {
+        if (!selectedTripId) return;
+        setLoading(true);
+        fetch(`http://127.0.0.1:8000/planner/api/viagem/${selectedTripId}/financas/`)
             .then(res => res.json())
             .then(d => {
                 const users = d.resumo.map(u => ({ id: u.id, nome: u.nome, avatar: u.nome.charAt(0) }));
@@ -26,8 +48,12 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
                 setSelecionados(users.map(u => u.id));
                 if (users.length > 0) setPagadorId(users[0].id);
                 setLoading(false);
+            })
+            .catch(err => {
+                console.error("Erro ao carregar participantes:", err);
+                setLoading(false);
             });
-    }, [viagemId]);
+    }, [selectedTripId]);
 
     // Handlers
     const toggleSelecionado = (id) => {
@@ -63,7 +89,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
         }
 
         try {
-            const res = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${viagemId}/despesa/nova/`, {
+            const res = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${selectedTripId}/despesa/nova/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -88,7 +114,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
             ? Object.values(valoresManuais).reduce((a, b) => a + (parseFloat(b) || 0), 0)
             : 0;
 
-    if (loading) return null;
+    if (loading && !participantes.length) return null;
 
     return (
         <div className="modal-overlay">
@@ -105,6 +131,24 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
                 {/* FORMULÁRIO */}
                 <form onSubmit={handleSubmit} className="expense-form-container">
                     <div className="expense-scroll-body">
+
+                        {/* SELETOR DE VIAGEM */}
+                        <div style={{ marginBottom: 20 }}>
+                            <label className="pill-label">Viagem</label>
+                            <div className="pill-input-group">
+                                <MapPin size={18} className="pill-icon" />
+                                <select
+                                    className="pill-input"
+                                    value={selectedTripId}
+                                    onChange={e => setSelectedTripId(e.target.value)}
+                                >
+                                    {trips.map(t => (
+                                        <option key={t.id} value={t.id}>{t.titulo}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={16} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
+                            </div>
+                        </div>
 
                         {/* Linha 1 */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 20, marginBottom: 20 }}>
@@ -138,7 +182,14 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
                                 <label className="pill-label">Data</label>
                                 <div className="pill-input-group">
                                     <Calendar size={18} className="pill-icon" />
-                                    <input type="date" className="pill-input" value={data} onChange={e => setData(e.target.value)} />
+                                    <CustomDatePicker
+                                        selected={data ? new Date(data + 'T12:00:00') : null}
+                                        onChange={(date) => {
+                                            const formattedDate = date ? date.toISOString().split('T')[0] : '';
+                                            setData(formattedDate);
+                                        }}
+                                        placeholder="Data da despesa"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -219,7 +270,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
                             </button>
                         </div>
                     </div>
-                    
+
                 </form >
             </div >
         </div >

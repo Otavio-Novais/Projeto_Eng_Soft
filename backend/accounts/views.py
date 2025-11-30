@@ -24,21 +24,7 @@ from .serializers import (
 )
 from .models import CustomUser
 
-class UserProfileView(APIView):
-    permission_classes = [IsAuthenticated] # Só funciona se estiver logado
 
-    def get(self, request):
-        # Retorna os dados do usuário logado
-        serializer = UserProfileSerializer(request.user)
-        return Response(serializer.data)
-
-    def patch(self, request):
-        # Atualiza os dados do usuário logado
-        serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
 class RegisterView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
