@@ -28,7 +28,7 @@ const Sidebar = ({ activeTab = 'Início' }) => {
         if (res.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          navigate('/login');
+          navigate('/');
           return null;
         }
         return res.json();
@@ -44,7 +44,7 @@ const Sidebar = ({ activeTab = 'Início' }) => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/');
   };
 
   return (
