@@ -8,10 +8,10 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name']
+        fields = ['id', 'email', 'full_name']
 
 class ExpenseSerializer(serializers.ModelSerializer):
-    payer_name = serializers.ReadOnlyField(source='pagador.first_name')
+    payer_name = serializers.ReadOnlyField(source='pagador.full_name')
     amount = serializers.DecimalField(source='valor_total', max_digits=10, decimal_places=2)
     title = serializers.CharField(source='titulo')
     
@@ -20,7 +20,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'amount', 'payer_name']
 
 class TripDashboardSerializer(serializers.ModelSerializer):
-    participants = UserSerializer(source='participantes', many=True, read_only=True)
+    participants = serializers.SerializerMethodField()
     expenses = ExpenseSerializer(source='despesas', many=True, read_only=True)
     title = serializers.CharField(source='titulo')
     start_date = serializers.DateField(source='data_inicio')
@@ -30,6 +30,31 @@ class TripDashboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Viagem
         fields = ['id', 'title', 'start_date', 'end_date', 'participants', 'expenses']
+    
+    def get_participants(self, obj):
+        """Retorna participantes do TripMember ou fallback para participantes ManyToMany"""
+        from .models import TripMember
+        
+        # Tenta pegar do TripMember primeiro
+        members = TripMember.objects.filter(viagem=obj, status='CONFIRMED').select_related('user')
+        
+        if members.exists():
+            return [{
+                'id': member.user.id,
+                'email': member.user.email,
+                'name': member.user.full_name or member.user.email.split('@')[0],
+                'avatar': member.user.avatar.url if hasattr(member.user, 'avatar') and member.user.avatar else None,
+                'role': member.role
+            } for member in members]
+        
+        # Fallback para participantes ManyToMany antigo
+        return [{
+            'id': user.id,
+            'email': user.email,
+            'name': user.full_name or user.email.split('@')[0],
+            'avatar': user.avatar.url if hasattr(user, 'avatar') and user.avatar else None,
+            'role': 'MEMBER'
+        } for user in obj.participantes.all()]
 
 class TripSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='titulo')
@@ -62,7 +87,7 @@ class TripSerializer(serializers.ModelSerializer):
 
 
 class VotoSerializer(serializers.ModelSerializer):
-    usuario_nome = serializers.ReadOnlyField(source='usuario.first_name')
+    usuario_nome = serializers.ReadOnlyField(source='usuario.full_name')
     
     class Meta:
         model = Voto
@@ -71,7 +96,7 @@ class VotoSerializer(serializers.ModelSerializer):
 
 
 class SugestaoSerializer(serializers.ModelSerializer):
-    autor_nome = serializers.ReadOnlyField(source='autor.first_name')
+    autor_nome = serializers.ReadOnlyField(source='autor.full_name')
     autor_email = serializers.ReadOnlyField(source='autor.email')
     votos_count = serializers.SerializerMethodField()
     usuario_votou = serializers.SerializerMethodField()

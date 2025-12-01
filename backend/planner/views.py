@@ -78,8 +78,8 @@ class TripCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 User = get_user_model()
 
-@csrf_exempt
-@require_http_methods(["GET"])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def dashboard_api(request, viagem_id):
     viagem = get_object_or_404(Viagem, pk=viagem_id)
     user = request.user
@@ -92,10 +92,11 @@ def dashboard_api(request, viagem_id):
         # Pega apenas despesas CONFIRMADAS
         pagou = Despesa.objects.filter(viagem=viagem, pagador=p, status='CONFIRMADO').aggregate(Sum('valor_total'))['valor_total__sum'] or 0
         consumiu = Rateio.objects.filter(despesa__viagem=viagem, despesa__status='CONFIRMADO', participante=p).aggregate(Sum('valor_devido'))['valor_devido__sum'] or 0
+        saldo_calculado = float(pagou - consumiu)
         resumo_todos.append({
             'id': p.id,
-            'nome': p.first_name or p.email.split('@')[0],
-            'saldo': float(pagou - consumiu)
+            'nome': p.full_name or p.email.split('@')[0],
+            'saldo': saldo_calculado
         })
 
     # 2. Calcular Totais do USUÁRIO LOGADO (Para os cards do topo)
@@ -119,7 +120,7 @@ def dashboard_api(request, viagem_id):
             'id': d.id,
             'titulo': d.titulo,
             'valor': float(d.valor_total),
-            'pagador': d.pagador.first_name or d.pagador.email.split('@')[0],
+            'pagador': d.pagador.full_name or d.pagador.email.split('@')[0],
             'pagador_id': d.pagador.id,
             'data': d.data.strftime('%Y-%m-%d'),
             'status': d.status
@@ -142,12 +143,12 @@ def dashboard_api(request, viagem_id):
         'despesas': lista_despesas
     })
 
-@csrf_exempt
-@require_http_methods(["POST"])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def criar_despesa_api(request, viagem_id):
     viagem = get_object_or_404(Viagem, pk=viagem_id)
     try:
-        data = json.loads(request.body)
+        data = request.data
         status = data.get('status', 'CONFIRMADO') # Recebe o status (Rascunho ou não)
 
         with transaction.atomic():
@@ -175,8 +176,8 @@ def criar_despesa_api(request, viagem_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-@csrf_exempt
-@require_http_methods(["POST"])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def liquidar_divida_api(request, viagem_id):
     """
     Registra um pagamento direto (reembolso) entre duas pessoas para quitar dívida.
@@ -184,7 +185,7 @@ def liquidar_divida_api(request, viagem_id):
     viagem = get_object_or_404(Viagem, pk=viagem_id)
     
     try:
-        data = json.loads(request.body)
+        data = request.data
         devedor_id = data.get('devedor_id')  # Quem está pagando (ex: Ana)
         credor_id = data.get('credor_id')    # Quem está recebendo (ex: Bruno)
         valor = float(data.get('valor'))
@@ -197,7 +198,7 @@ def liquidar_divida_api(request, viagem_id):
             nova_despesa = Despesa.objects.create(
                 viagem=viagem,
                 pagador=devedor,
-                titulo=f"Acerto: {devedor.first_name} pagou {credor.first_name}",
+                titulo=f"Acerto: {devedor.full_name} pagou {credor.full_name}",
                 valor_total=valor,
                 categoria='OUTROS', # Poderia criar uma categoria REEMBOLSO
                 data=timezone.now().date()

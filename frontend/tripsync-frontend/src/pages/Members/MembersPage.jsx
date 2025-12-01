@@ -190,7 +190,7 @@ const MembersPage = () => {
 
   return (
     <div className="members-page-layout">
-      <Sidebar activeTab="Membros" />
+      <Sidebar activeTab="Membros" tripIdOverride={tripId} />
       
       <main className="members-main-content">
         {/* Header */}

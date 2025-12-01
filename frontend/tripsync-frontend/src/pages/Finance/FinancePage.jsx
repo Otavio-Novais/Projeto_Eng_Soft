@@ -7,15 +7,18 @@ import {
 import Sidebar from '../../components/layout/Sidebar';
 import AddExpenseModal from '../../components/AddExpenseModal';
 import SettlementModal from '../../components/SettlementModal';
+import { useTrips } from '../../contexts/TripsContext';
+import { useAuthCheck } from '../../hooks/useAuthCheck';
 import { API_BASE_URL } from '../../services/api';
 import './Finance.css';
 
 const FinancePage = () => {
+    useAuthCheck(); // Verifica autenticação
     const { tripId } = useParams();
     const navigate = useNavigate();
     const [dados, setDados] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [trips, setTrips] = useState([]);
+    const { trips } = useTrips();
     const [selectedTripId, setSelectedTripId] = useState(tripId || '');
 
     // Modais
@@ -27,33 +30,14 @@ const FinancePage = () => {
     const [filtroRapido, setFiltroRapido] = useState('TODOS');
     const [mostrarTodas, setMostrarTodas] = useState(false);
 
-    // --- CARREGAR VIAGENS (Para o seletor) ---
+    // Atualiza selectedTripId se a URL mudar ou trips carregarem
     useEffect(() => {
-        const fetchTrips = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE_URL}/planner/api/viagens/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setTrips(data);
-                    // Se não tiver tripId na URL e tiver viagens, seleciona a primeira (ou a mais recente)
-                    if (!tripId && data.length > 0) {
-                        setSelectedTripId(data[0].id);
-                    }
-                }
-            } catch (err) {
-                console.error("Erro ao buscar viagens:", err);
-            }
-        };
-        fetchTrips();
-    }, [tripId]);
-
-    // Atualiza selectedTripId se a URL mudar
-    useEffect(() => {
-        if (tripId) setSelectedTripId(tripId);
-    }, [tripId]);
+        if (tripId) {
+            setSelectedTripId(tripId);
+        } else if (!tripId && trips.length > 0 && !selectedTripId) {
+            setSelectedTripId(trips[0].id);
+        }
+    }, [tripId, trips]);
 
     // --- CARREGAR DADOS DA VIAGEM SELECIONADA ---
     const carregarDados = async () => {
@@ -99,10 +83,18 @@ const FinancePage = () => {
     // --- WIDGET SUGESTÕES ---
     const sugestoesWidget = useMemo(() => {
         if (!dados || !dados.resumo) return [];
-        let devedores = dados.resumo.filter(u => u.saldo < -0.01).map(u => ({ ...u, saldo: Math.abs(u.saldo) }));
-        let credores = dados.resumo.filter(u => u.saldo > 0.01);
+        
+        // Criar cópias profundas para não modificar dados.resumo original
+        let devedores = dados.resumo
+            .filter(u => u.saldo < -0.01)
+            .map(u => ({ id: u.id, nome: u.nome, saldo: Math.abs(u.saldo) }));
+        let credores = dados.resumo
+            .filter(u => u.saldo > 0.01)
+            .map(u => ({ id: u.id, nome: u.nome, saldo: u.saldo }));
+        
         devedores.sort((a, b) => b.saldo - a.saldo);
         credores.sort((a, b) => b.saldo - a.saldo);
+        
         let resultado = [];
         let i = 0, j = 0;
         while (i < devedores.length && j < credores.length && resultado.length < 3) {
@@ -113,6 +105,7 @@ const FinancePage = () => {
             devedor.saldo -= valor; credor.saldo -= valor;
             if (devedor.saldo < 0.01) i++; if (credor.saldo < 0.01) j++;
         }
+        
         return resultado;
     }, [dados]);
 
@@ -133,7 +126,7 @@ const FinancePage = () => {
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#ffffff' }}>
-            <Sidebar activeTab="Finanças" />
+            <Sidebar activeTab="Finanças" tripIdOverride={selectedTripId} />
 
             <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div className="finance-container" style={{ padding: '2rem' }}>

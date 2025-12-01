@@ -9,9 +9,11 @@ const TripDashboard = () => {
   const navigate = useNavigate();
   const [tripData, setTripData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
 
   useEffect(() => {
     if (tripId) {
+      setLoading(true); // Força loading quando tripId mudar
       fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
@@ -60,7 +62,29 @@ const TripDashboard = () => {
       <div className="trip-dashboard-layout">
         <Sidebar activeTab="" />
         <main className="trip-main-content">
-          <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando viagem...</div>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center', 
+            justifyContent: 'center',
+            height: '100vh',
+            gap: '1rem'
+          }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              border: '4px solid #e5e7eb',
+              borderTopColor: '#0066ff',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            <p style={{ color: '#6b7280', fontSize: '0.95rem' }}>Carregando viagem...</p>
+            <style>{`
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
         </main>
       </div>
     );
@@ -88,6 +112,7 @@ const TripDashboard = () => {
     : 'Datas não definidas';
 
   return (
+    <>
     <div className="trip-dashboard-layout">
       {/* Sidebar - Passamos 'Roteiro' ou null para não marcar nada se preferir */}
       <Sidebar activeTab="" />
@@ -114,7 +139,13 @@ const TripDashboard = () => {
                   <small>Participantes</small>
                 </div>
                 <h3>{tripData.participants?.length || 0} confirmados</h3>
-                <span className="trip-sub-text">Ver todos</span>
+                <span 
+                  className="trip-sub-text" 
+                  onClick={() => setShowParticipantsModal(true)}
+                  style={{ cursor: 'pointer', color: '#0066ff' }}
+                >
+                  Ver todos
+                </span>
               </div>
               <div className="trip-stat-card">
                 <div className="trip-stat-header">
@@ -288,6 +319,160 @@ const TripDashboard = () => {
         </div>
       </main>
     </div>
+
+    {/* MODAL DE PARTICIPANTES */}
+    {showParticipantsModal && (
+      <div 
+        className="modal-overlay" 
+        onClick={() => setShowParticipantsModal(false)}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}
+      >
+        <div 
+          className="modal-content"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '1rem',
+            padding: '2rem',
+            maxWidth: '600px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700' }}>
+              Todos os Participantes
+            </h2>
+            <button
+              onClick={() => setShowParticipantsModal(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '0.25rem',
+                lineHeight: 1
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+            {tripData.participants?.length || 0} participante(s) confirmado(s)
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {tripData.participants && tripData.participants.length > 0 ? (
+              tripData.participants.map((participant, index) => (
+                <div
+                  key={index}
+                  className="trip-member-row"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '1rem',
+                    backgroundColor: '#f9fafb',
+                    borderRadius: '0.5rem',
+                    gap: '1rem'
+                  }}
+                >
+                  <div
+                    className="trip-avatar"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      backgroundImage: participant.avatar 
+                        ? `url(${participant.avatar})`
+                        : `url(https://ui-avatars.com/api/?name=${encodeURIComponent(participant.name || participant.email)}&background=random)`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      flexShrink: 0
+                    }}
+                  ></div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: '600', color: '#111827', marginBottom: '0.25rem' }}>
+                      {participant.name || participant.email?.split('@')[0]}
+                    </div>
+                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                      {participant.role === 'ADMIN' ? 'Administrador' : 'Membro'}
+                      {participant.email && ` • ${participant.email}`}
+                    </div>
+                  </div>
+                  <span 
+                    className="trip-status-badge"
+                    style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      backgroundColor: '#d1fae5',
+                      color: '#065f46'
+                    }}
+                  >
+                    Confirmado
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>
+                Nenhum participante encontrado
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => {
+                setShowParticipantsModal(false);
+                navigate(`/viagem/${tripId}/membros`);
+              }}
+              style={{
+                padding: '0.5rem 1.5rem',
+                backgroundColor: '#0066ff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Gerenciar Membros
+            </button>
+            <button
+              onClick={() => setShowParticipantsModal(false)}
+              style={{
+                padding: '0.5rem 1.5rem',
+                backgroundColor: '#f3f4f6',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

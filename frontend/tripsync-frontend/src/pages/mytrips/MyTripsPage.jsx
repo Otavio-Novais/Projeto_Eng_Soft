@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar'; // Importando Sidebar
 import CreateTripModal from '../../components/create_trip/CreateTripModal';
-import { API_BASE_URL } from '../../services/api';
+import { useTrips } from '../../contexts/TripsContext';
+import { useAuthCheck } from '../../hooks/useAuthCheck';
 import {
     Map, Plus, User, Calendar, Users, ArrowRight, LayoutGrid, Clock, CheckCircle, Wallet,
     Settings, LogOut, ChevronDown
@@ -10,41 +11,33 @@ import {
 import './MyTripsPage.css';
 
 const MyTripsPage = () => {
+    useAuthCheck(); // Verifica autenticação
     const navigate = useNavigate();
+    const { trips, loading: contextLoading } = useTrips();
     const [viagens, setViagens] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [filtro, setFiltro] = useState('TODAS');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [loadingTripId, setLoadingTripId] = useState(null);
 
     // Estado para o Menu Suspenso (se ainda for necessário no header interno, mas com sidebar talvez não precise tanto)
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
 
     useEffect(() => {
-        fetch(`${API_BASE_URL}/planner/api/viagens/`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        })
-            .then(res => res.json())
-            .then(data => {
-                // Mapeando dados para o formato esperado se necessário, ou usando direto
-                // A API retorna campos como 'titulo', 'data_inicio', etc.
-                // Vamos garantir que temos os campos certos para o display
-                const mapped = data.map(v => ({
-                    ...v,
-                    status_display: v.status === 'CONCLUIDA' ? 'Concluída' : 'Em Planejamento', // Exemplo simples
-                    participantes_count: v.participantes_count || 1
-                }));
-                setViagens(mapped);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setLoading(false);
-            });
-    }, []);
+        const mapped = trips.map(v => ({
+            ...v,
+            status_display: v.status === 'CONCLUIDA' ? 'Concluída' : 'Em Planejamento',
+            participantes_count: v.participantes_count || 1
+        }));
+        setViagens(mapped);
+    }, [trips]);
 
     const handleCardClick = (id) => {
-        navigate(`/trip/${id}`);
+        setLoadingTripId(id);
+        // Pequeno delay para mostrar o feedback visual
+        setTimeout(() => {
+            navigate(`/trip/${id}`);
+        }, 100);
     };
 
     const viagensFiltradas = viagens.filter(v => {
@@ -108,7 +101,7 @@ const MyTripsPage = () => {
                         </span>
                     </div>
 
-                    {loading ? (
+                    {contextLoading ? (
                         <div style={{ padding: 60, textAlign: 'center' }}>Carregando suas viagens...</div>
                     ) : viagensFiltradas.length === 0 ? (
                         <div className="empty-state" style={{ textAlign: 'center', padding: '3rem', backgroundColor: 'white', borderRadius: '1rem' }}>
@@ -121,9 +114,33 @@ const MyTripsPage = () => {
                             {viagensFiltradas.map(viagem => (
                                 <div key={viagem.id} className="trip-card" onClick={() => handleCardClick(viagem.id)} style={{
                                     backgroundColor: 'white', borderRadius: '1rem', overflow: 'hidden',
-                                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer', transition: 'transform 0.2s'
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer', transition: 'transform 0.2s',
+                                    opacity: loadingTripId === viagem.id ? 0.6 : 1,
+                                    transform: loadingTripId === viagem.id ? 'scale(0.98)' : 'scale(1)',
+                                    pointerEvents: loadingTripId ? 'none' : 'auto',
+                                    position: 'relative'
                                 }}>
                                     <div className="card-image-box" style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
+                                        {loadingTripId === viagem.id && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                inset: 0,
+                                                backgroundColor: 'rgba(255,255,255,0.9)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                zIndex: 10
+                                            }}>
+                                                <div style={{
+                                                    width: '32px',
+                                                    height: '32px',
+                                                    border: '3px solid #e5e7eb',
+                                                    borderTopColor: '#0066ff',
+                                                    borderRadius: '50%',
+                                                    animation: 'spin 0.8s linear infinite'
+                                                }} />
+                                            </div>
+                                        )}
                                         <img
                                             src={`https://source.unsplash.com/800x600/?travel,${viagem.titulo}`}
                                             className="card-img"
@@ -164,6 +181,11 @@ const MyTripsPage = () => {
                 </main>
             </div>
         </div>
+        <style>{`
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        `}</style>
         </>
     );
 };

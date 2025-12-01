@@ -20,17 +20,27 @@ import MembersPage from './pages/Members/MembersPage.jsx';
 
 
 import { SettingsProvider } from './contexts/SettingsContext';
+import { TripsProvider } from './contexts/TripsContext';
+
 function App() {
   const CLIENT_ID = "274939966706-78vmihp1pqp7j82o403btjuljk2bl4bs.apps.googleusercontent.com";
 
   const PrivateRoute = ({ children }) => {
     const token = localStorage.getItem('token');
-    return token ? children : <Navigate to="/" />;
+    
+    if (!token) {
+      // Limpa qualquer dado residual
+      localStorage.removeItem('user');
+      return <Navigate to="/" replace />;
+    }
+    
+    return children;
   };
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
       <SettingsProvider>
-        <Router>
+        <TripsProvider>
+          <Router>
           <Routes>
             {/* --- ROTAS PÚBLICAS --- */}
             <Route path="/" element={<AuthPage />} />
@@ -118,9 +128,8 @@ function App() {
             {/* Placeholders para os links da Sidebar não quebrarem a tela */}
             {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
             <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
-            <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
-            {/* explicit landing route to avoid duplicate '/' routes */}
-            <Route path="/landing" element={<LandingPage />} />
+            
+            {/* Rota de Membros */}
             <Route 
               path="/viagem/:tripId/membros" 
               element={
@@ -129,11 +138,15 @@ function App() {
                 </PrivateRoute>
               } 
             />
+            
+            {/* explicit landing route to avoid duplicate '/' routes */}
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/trip/:tripId" element={<TripDashboard />} />
           </Routes>
         </Router>
+        </TripsProvider>
       </SettingsProvider>
     </GoogleOAuthProvider>
   );

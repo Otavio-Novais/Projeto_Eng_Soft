@@ -5,94 +5,67 @@ import Sidebar from '../components/layout/Sidebar';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import TripCard from '../components/dashboard/TripCard';
 import CreateTripModal from '../components/create_trip/CreateTripModal';
-import { API_BASE_URL } from '../services/api';
+import { useTrips } from '../contexts/TripsContext';
+import { useAuthCheck } from '../hooks/useAuthCheck';
 import './Dashboard.css'; // Import responsive styles
 
 const Dashboard = () => {
-  const [trips, setTrips] = useState([]);
-  const [loading, setLoading] = useState(true);
+  useAuthCheck(); // Verifica autenticação
+  const { trips: contextTrips, loading: contextLoading } = useTrips();
+  const [mappedTrips, setMappedTrips] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTripIndex, setCurrentTripIndex] = useState(0); // State for Hero Carousel
   const navigate = useNavigate();
 
-  const fetchTrips = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/planner/api/viagens/`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        navigate('/');
-        return;
-      }
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Dados recebidos da API:", data);
-        const mappedTrips = data.map(t => {
-          console.log("Processando viagem:", t);
-          let dateTag = 'Data a definir';
-          if (t.data_inicio && t.data_fim) {
-            // Remove a parte do horário se vier com ele
-            const startDateStr = t.data_inicio.split('T')[0];
-            const endDateStr = t.data_fim.split('T')[0];
-            
-            // Parse manual para evitar problemas de timezone
-            const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
-            const [endYear, endMonth, endDay] = endDateStr.split('-').map(Number);
-            
-            const startDate = new Date(startYear, startMonth - 1, startDay);
-            const endDate = new Date(endYear, endMonth - 1, endDay);
-            
-            const startMonthName = startDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-            const endMonthName = endDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-            
-            // Se os meses forem diferentes, mostra ambos
-            if (startMonth !== endMonth || startYear !== endYear) {
-              dateTag = `${startDay} ${startMonthName} - ${endDay} ${endMonthName}`;
-            } else {
-              dateTag = `${startDay}-${endDay} ${startMonthName}`;
-            }
-            console.log("Data formatada:", dateTag);
-          } else if (t.data_inicio) {
-            const startDateStr = t.data_inicio.split('T')[0];
-            const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
-            const startDate = new Date(startYear, startMonth - 1, startDay);
-            dateTag = startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
-          }
-          
-          return {
-            id: t.id,
-            title: t.titulo,
-            titulo: t.titulo,
-            tag: dateTag,
-            locations: t.destino || 'Destino não definido',
-            destino: t.destino,
-            image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-            members: t.participantes || [],
-            participantes: t.participantes || [],
-            data_inicio: t.data_inicio,
-            data_fim: t.data_fim
-          };
-        });
-        setTrips(mappedTrips.reverse());
-      }
-    } catch (error) {
-      console.error("Erro ao buscar viagens:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchTrips();
-  }, []);
+    if (contextTrips.length > 0) {
+      const mapped = contextTrips.map(t => {
+        let dateTag = 'Data a definir';
+        if (t.data_inicio && t.data_fim) {
+          const startDateStr = t.data_inicio.split('T')[0];
+          const endDateStr = t.data_fim.split('T')[0];
+          
+          const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
+          const [endYear, endMonth, endDay] = endDateStr.split('-').map(Number);
+          
+          const startDate = new Date(startYear, startMonth - 1, startDay);
+          const endDate = new Date(endYear, endMonth - 1, endDay);
+          
+          const startMonthName = startDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+          const endMonthName = endDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+          
+          if (startMonth !== endMonth || startYear !== endYear) {
+            dateTag = `${startDay} ${startMonthName} - ${endDay} ${endMonthName}`;
+          } else {
+            dateTag = `${startDay}-${endDay} ${startMonthName}`;
+          }
+        } else if (t.data_inicio) {
+          const startDateStr = t.data_inicio.split('T')[0];
+          const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
+          const startDate = new Date(startYear, startMonth - 1, startDay);
+          dateTag = startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
+        }
+        
+        return {
+          id: t.id,
+          title: t.titulo,
+          titulo: t.titulo,
+          tag: dateTag,
+          locations: t.destino || 'Destino não definido',
+          destino: t.destino,
+          image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+          members: t.participantes || [],
+          participantes: t.participantes || [],
+          data_inicio: t.data_inicio,
+          data_fim: t.data_fim
+        };
+      });
+      setMappedTrips(mapped.reverse());
+    }
+  }, [contextTrips]);
 
   // Logic for Hero Carousel
-  const recentTripsForCarousel = trips.slice(0, 3);
+  const recentTripsForCarousel = mappedTrips.slice(0, 3);
 
   const nextTrip = () => {
     setCurrentTripIndex((prev) => (prev + 1) % recentTripsForCarousel.length);
@@ -110,9 +83,9 @@ const Dashboard = () => {
         <div className="dashboard-main">
 
           {/* HERO SECTION: Welcome Banner OR Trip Carousel */}
-          {loading ? (
+          {contextLoading ? (
             <div className="hero-loading"></div>
-          ) : trips.length === 0 ? (
+          ) : mappedTrips.length === 0 ? (
             // Default Welcome Banner (No Trips)
             <div className="welcome-banner">
               <div>
@@ -204,15 +177,15 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {loading ? (
+          {contextLoading ? (
             <div className="loading-state">Carregando suas viagens...</div>
-          ) : trips.length === 0 ? (
+          ) : mappedTrips.length === 0 ? (
             <div className="empty-state">
               <p>Você ainda não tem viagens planejadas.</p>
             </div>
           ) : (
             <div style={{ position: 'relative' }}>
-              {trips.length > 3 && (
+              {mappedTrips.length > 3 && (
                 <>
                   <button
                     onClick={() => {
@@ -253,11 +226,11 @@ const Dashboard = () => {
                 <style>
                   {`
                     #trips-carousel-bottom::-webkit-scrollbar {
-                      display: none;
-                    }
-                  `}
+                    display: none;
+                  }
+                `}
                 </style>
-                {trips.map((trip) => (
+                {mappedTrips.map((trip) => (
                   <div key={trip.id} style={{ minWidth: '300px', flex: '0 0 auto' }}>
                     <TripCard trip={trip} />
                   </div>
@@ -267,9 +240,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-      <CreateTripModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchTrips} />
+      <CreateTripModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
-};
-
-export default Dashboard;
+};export default Dashboard;

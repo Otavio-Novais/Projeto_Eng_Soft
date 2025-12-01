@@ -8,26 +8,50 @@ const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
   const [filtroAtivo, setFiltroAtivo] = useState('TODAS');
 
   useEffect(() => {
-    if (!dados || !dados.resumo) return;
-    let devedores = dados.resumo.filter(u => u.saldo < -0.01).map(u => ({...u, saldo: Math.abs(u.saldo)}));
-    let credores = dados.resumo.filter(u => u.saldo > 0.01);
+    if (!dados || !dados.resumo) {
+      setTransacoes([]);
+      return;
+    }
+    
+    // Fazer cópia profunda dos objetos para não modificar os originais
+    let devedores = dados.resumo
+      .filter(u => u.saldo < -0.01)
+      .map(u => ({ id: u.id, nome: u.nome, saldo: Math.abs(u.saldo) }));
+    
+    let credores = dados.resumo
+      .filter(u => u.saldo > 0.01)
+      .map(u => ({ id: u.id, nome: u.nome, saldo: u.saldo }));
+    
     devedores.sort((a, b) => b.saldo - a.saldo);
     credores.sort((a, b) => b.saldo - a.saldo);
+    
     let resultado = [];
     let i = 0, j = 0;
+    
     while (i < devedores.length && j < credores.length) {
       let devedor = devedores[i];
       let credor = credores[j];
       let valor = Math.min(devedor.saldo, credor.saldo);
-      resultado.push({ id: `${devedor.id}-${credor.id}`, de: devedor, para: credor, valor: valor });
-      devedor.saldo -= valor; credor.saldo -= valor;
-      if (devedor.saldo < 0.01) i++; if (credor.saldo < 0.01) j++;
+      
+      resultado.push({ 
+        id: `${devedor.id}-${credor.id}`, 
+        de: { id: devedor.id, nome: devedor.nome }, 
+        para: { id: credor.id, nome: credor.nome }, 
+        valor: valor 
+      });
+      
+      devedor.saldo -= valor; 
+      credor.saldo -= valor;
+      
+      if (devedor.saldo < 0.01) i++; 
+      if (credor.saldo < 0.01) j++;
     }
+    
     setTransacoes(resultado);
   }, [dados]);
 
   const transacoesFiltradas = useMemo(() => {
-    const meuId = dados?.resumo?.[0]?.id; // Mock: Pega o primeiro como 'eu'
+    const meuId = dados?.current_user_id;
     if (!meuId || filtroAtivo === 'TODAS') return transacoes;
     if (filtroAtivo === 'PAGAR') return transacoes.filter(t => t.de.id === meuId);
     if (filtroAtivo === 'RECEBER') return transacoes.filter(t => t.para.id === meuId);
@@ -38,8 +62,13 @@ const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
     if(!window.confirm(`Confirmar acerto de R$ ${transacao.valor.toFixed(2)}?`)) return;
     setLoadingAction(true);
     try {
+        const token = localStorage.getItem('token');
         await fetch(`${API_BASE_URL}/planner/api/viagem/${viagemId}/liquidar/`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            method: 'POST', 
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({ devedor_id: transacao.de.id, credor_id: transacao.para.id, valor: transacao.valor })
         });
         onRefresh();
@@ -49,9 +78,14 @@ const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
   const handlePagarTudo = async () => {
     if(!window.confirm("Isso marcará TODAS como pagas.")) return;
     setLoadingAction(true);
+    const token = localStorage.getItem('token');
     for (const t of transacoes) {
         await fetch(`${API_BASE_URL}/planner/api/viagem/${viagemId}/liquidar/`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            method: 'POST', 
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({ devedor_id: t.de.id, credor_id: t.para.id, valor: t.valor })
         });
     }

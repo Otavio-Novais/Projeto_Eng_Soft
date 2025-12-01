@@ -1,46 +1,26 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { House, Map, Sparkles, CreditCard, Users, Plus, User, Settings, LogOut } from 'lucide-react';
 import CreateTripModal from '../create_trip/CreateTripModal';
-import { API_BASE_URL } from '../../services/api';
+import { useTrips } from '../../contexts/TripsContext';
 import './Sidebar.css';
 
-const Sidebar = ({ activeTab = 'Início' }) => {
+const Sidebar = ({ activeTab = 'Início', tripIdOverride }) => {
   const navigate = useNavigate();
   const { tripId } = useParams();
+  const effectiveTripId = tripIdOverride || tripId;
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [recentTrips, setRecentTrips] = useState([]);
+  const { trips } = useTrips();
+  const recentTrips = trips.slice(0, 5);
 
   // Menu Items Definition
   const menuItems = [
-    { id: 'roteiro', label: 'Roteiro', icon: <Map size={18} />, path: tripId ? `/trip/${tripId}/planner` : null },
-    { id: 'sugestoes', label: 'Sugestões', icon: <Sparkles size={18} />, path: tripId ? `/trip/${tripId}/suggestions` : '/suggestions' },
-    { id: 'financas', label: 'Finanças', icon: <CreditCard size={18} />, path: tripId ? `/viagem/${tripId}/financas` : '/financas' },
-    { id: 'membros', label: 'Membros', icon: <Users size={18} />, path: tripId ? `/viagem/${tripId}/membros` : null },
+    { id: 'roteiro', label: 'Roteiro', icon: <Map size={18} />, path: effectiveTripId ? `/trip/${effectiveTripId}/planner` : null },
+    { id: 'sugestoes', label: 'Sugestões', icon: <Sparkles size={18} />, path: effectiveTripId ? `/trip/${effectiveTripId}/suggestions` : '/suggestions' },
+    { id: 'financas', label: 'Finanças', icon: <CreditCard size={18} />, path: effectiveTripId ? `/viagem/${effectiveTripId}/financas` : '/financas' },
+    { id: 'membros', label: 'Membros', icon: <Users size={18} />, path: effectiveTripId ? `/viagem/${effectiveTripId}/membros` : null },
   ];
-
-  // Fetch recent trips
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/planner/api/viagens/`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    })
-      .then(res => {
-        if (res.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          navigate('/');
-          return null;
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (data && Array.isArray(data)) {
-          setRecentTrips(data.slice(0, 5));
-        }
-      })
-      .catch(err => console.error("Erro ao buscar viagens recentes:", err));
-  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');

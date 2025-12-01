@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import './CreateTripModal.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useTrips } from '../../contexts/TripsContext';
 
 const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
   const navigate = useNavigate();
+  const { refreshTrips } = useTrips();
   
   // Estado para guardar os dados do formulário
   const [formData, setFormData] = useState({
@@ -65,6 +67,9 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
         );
         
         console.log("Viagem criada:", response.data);
+        
+        // Atualiza o contexto de viagens
+        await refreshTrips();
         
         // Fecha o modal
         onClose();
