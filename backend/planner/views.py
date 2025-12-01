@@ -64,7 +64,13 @@ def home_data(request):
 
 class TripDetailView(APIView):
     def get(self, request, trip_id):
-        trip = get_object_or_404(Viagem, pk=trip_id)
+        trip = get_object_or_404(
+            Viagem.objects.prefetch_related(
+                'participantes',
+                'despesas__pagador'
+            ),
+            pk=trip_id
+        )
         serializer = TripDashboardSerializer(trip)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -81,11 +87,19 @@ User = get_user_model()
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dashboard_api(request, viagem_id):
-    viagem = get_object_or_404(Viagem, pk=viagem_id)
+    # Otimiza query com prefetch de relacionamentos
+    viagem = get_object_or_404(
+        Viagem.objects.prefetch_related(
+            'participantes',
+            'despesas__pagador',
+            'despesas__rateios__participante'
+        ),
+        pk=viagem_id
+    )
     user = request.user
     
     # 1. Calcular saldos de TODOS (para o gráfico de usuários)
-    participantes = viagem.participantes.all()
+    participantes = list(viagem.participantes.all())  # Converte para lista
     resumo_todos = []
     
     for p in participantes:
@@ -219,8 +233,14 @@ def liquidar_divida_api(request, viagem_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def listar_viagens_api(request):
-    # Filtra apenas as viagens do usuário logado
-    viagens = Viagem.objects.filter(participantes=request.user).order_by('-id')
+    # Filtra apenas as viagens do usuário logado com otimizações
+    viagens = Viagem.objects.filter(
+        participantes=request.user
+    ).prefetch_related(
+        'participantes'  # Carrega participantes em uma única query
+    ).annotate(
+        participantes_count_cached=models.Count('participantes')  # Conta sem query adicional
+    ).order_by('-id')
     
     data = []
     hoje = date.today()
@@ -234,9 +254,10 @@ def listar_viagens_api(request):
             status = 'CONCLUIDA'
             status_display = 'Concluída'
 
-        # Busca participantes com avatares
+        # Busca participantes com avatares (já carregados via prefetch_related)
+        participantes_list = list(v.participantes.all()[:5])  # Converte para lista para evitar re-query
         participantes_data = []
-        for p in v.participantes.all()[:5]:  # Limita a 5 participantes
+        for p in participantes_list:
             avatar_url = None
             if p.avatar:
                 avatar_url = request.build_absolute_uri(p.avatar.url)
@@ -253,7 +274,7 @@ def listar_viagens_api(request):
             'data': v.data_inicio.strftime('%d %b') if hasattr(v, 'data_inicio') and v.data_inicio else "Data a definir",
             'data_inicio': v.data_inicio.isoformat() if v.data_inicio else None,
             'data_fim': v.data_fim.isoformat() if v.data_fim else None,
-            'participantes_count': v.participantes.count(),
+            'participantes_count': v.participantes_count_cached,  # Usa o valor anotado
             'participantes': participantes_data,
             'status': status,          # Usado para filtrar no código (FUTURAS/PASSADAS)
             'status_display': status_display # Usado para escrever na tela

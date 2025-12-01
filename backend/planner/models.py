@@ -12,11 +12,18 @@ class Viagem(models.Model):
     titulo = models.CharField(max_length=100)
     nome = models.CharField(max_length=200, help_text="O nome ou título da viagem.")
     destino = models.CharField(max_length=200)
-    data_inicio = models.DateField()
+    data_inicio = models.DateField(db_index=True)  # Índice para ordenação e filtros
     data_fim = models.DateField()
     participantes = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="viagens"
     )
+
+    class Meta:
+        ordering = ['-id']  # Ordenação padrão para evitar order_by em queries
+        indexes = [
+            models.Index(fields=['-id']),  # Índice para listar viagens mais recentes
+            models.Index(fields=['data_inicio']),  # Índice para filtros de data
+        ]
 
     def __str__(self):
         return f"{self.nome} - {self.destino}"
@@ -35,7 +42,7 @@ class Despesa(models.Model):
         ("RASCUNHO", "Rascunho"),
     ]
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default="CONFIRMADO"
+        max_length=20, choices=STATUS_CHOICES, default="CONFIRMADO", db_index=True
     )
     viagem = models.ForeignKey(
         Viagem, on_delete=models.CASCADE, related_name="despesas"
@@ -52,6 +59,12 @@ class Despesa(models.Model):
     data = models.DateField()
     criado_em = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['viagem', 'status']),  # Índice composto para filtrar despesas por viagem e status
+            models.Index(fields=['pagador']),  # Índice para queries por pagador
+        ]
+
     def __str__(self):
         return f"{self.titulo} - R$ {self.valor_total}"
 
@@ -66,6 +79,9 @@ class Rateio(models.Model):
 
     class Meta:
         unique_together = ("despesa", "participante")
+        indexes = [
+            models.Index(fields=['despesa', 'participante']),  # Índice para queries de rateio
+        ]
 
 
 class Sugestao(models.Model):
