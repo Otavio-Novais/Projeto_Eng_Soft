@@ -219,33 +219,111 @@ label {
 .btn-submit {
     width: 100%;
     margin-top: 2rem;
-    padding: 14px;
-    background-color: #0066ff;
+    margin-bottom: 1rem;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
     color: white;
     border: none;
     border-radius: 25px;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
+    transition: all 0.3s ease;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    letter-spacing: 0.3px;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #0052cc 0%, #003d99 100%);
+    box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 102, 255, 0.3);
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .divider {
     text-align: center;
-    margin: 1.5rem 0;
+    margin: 1rem 0;
     color: #aaa;
     font-size: 0.8rem;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .divider::before, .divider::after {
     content: "";
-    position: absolute;
-    top: 50%;
-    width: 40%;
+    flex: 1;
     height: 1px;
     background-color: #eee;
 }
-.divider::before { left: 0; }
-.divider::after { right: 0; }
+.divider::before { margin-right: 10px; }
+.divider::after { margin-left: 10px; }
+
+/* Estilo do container do botão Google */
+.google-login-container {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.google-login-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Estiliza o botão do Google para ficar mais bonito */
+.google-login-wrapper > div {
+    width: 100% !important;
+    background-color: transparent !important;
+}
+
+.google-login-wrapper > div > div {
+    width: 100% !important;
+    border-radius: 25px !important;
+    height: 48px !important;
+    background-color: #e8f3ff !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.google-login-wrapper > div > div:hover {
+    background-color: #d0e7ff !important;
+}
+
+.google-login-wrapper iframe {
+    border-radius: 25px !important;
+}
+
+/* Ajusta o botão interno do Google */
+.google-login-wrapper button {
+    background: transparent !important;
+    border-radius: 25px !important;
+    height: 48px !important;
+    width: 100% !important;
+}
+
+/* Força o arredondamento em todos os elementos internos */
+.google-login-wrapper * {
+    border-radius: 25px !important;
+}
 
 .forgot-password {
     display: block;

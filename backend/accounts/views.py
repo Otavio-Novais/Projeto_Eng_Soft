@@ -9,6 +9,7 @@ from .serializers import UserRegistrationSerializer, ChangePasswordSerializer, U
 
 from django.contrib.auth.forms import PasswordResetForm
 from django.conf import settings
+from django.contrib.auth import authenticate
 
 # --- IMPORTS NOVOS DE SEGURANÇA ---
 from django.utils.http import urlsafe_base64_decode
@@ -30,34 +31,98 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
 
+# View de Login customizado
+class CustomLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        if not email or not password:
+            return Response(
+                {"error": "Email e senha são obrigatórios"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            if user.check_password(password):
+                refresh = RefreshToken.for_user(user)
+                return Response(
+                    {
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                        "email": user.email,
+                        "full_name": user.full_name,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                return Response(
+                    {"error": "Credenciais inválidas"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "Credenciais inválidas"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+
 # View de Login com Google
 class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        print("=" * 50)
+        print("RECEBIDA REQUISIÇÃO DE LOGIN GOOGLE")
+        print(f"Headers: {request.headers}")
+        print(f"Data: {request.data}")
+        
         token = request.data.get("token")
 
         if not token:
+            print("ERRO: Token não fornecido")
             return Response(
                 {"error": "Token não fornecido"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+        print(f"Token recebido (primeiros 50 chars): {token[:50]}...")
+
         try:
             # 1. Validar o token direto na API do Google
+            print("Validando token com Google...")
             google_response = requests.get(
                 "https://www.googleapis.com/oauth2/v3/tokeninfo",
                 params={"id_token": token},
+                timeout=5
             )
 
+            print(f"Status da resposta do Google: {google_response.status_code}")
+
             if not google_response.ok:
+                error_detail = google_response.json() if google_response.content else "Token inválido"
+                print(f"ERRO na validação do Google: {error_detail}")
                 return Response(
-                    {"error": "Token do Google inválido"},
-                    status=status.HTTP_400_BAD_REQUEST,
+                    {"error": f"Token do Google inválido: {error_detail}"},
+                    status=status.HTTP_401_UNAUTHORIZED,
                 )
 
             google_data = google_response.json()
+            print(f"Dados do Google: {google_data}")
+            
             email = google_data.get("email")
             name = google_data.get("name", "")
+
+            if not email:
+                print("ERRO: Email não encontrado no token")
+                return Response(
+                    {"error": "Email não encontrado no token do Google"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            print(f"✓ Login Google bem-sucedido para: {email}")
 
             # 2. Verificar se o usuário existe. Se não, cria.
             user, created = CustomUser.objects.get_or_create(
@@ -67,22 +132,40 @@ class GoogleLoginView(APIView):
             if created:
                 user.set_unusable_password()
                 user.save()
+                print(f"✓ Novo usuário criado: {email}")
+            else:
+                print(f"✓ Usuário existente: {email}")
 
             # 3. Gerar tokens JWT
             refresh = RefreshToken.for_user(user)
+            print("✓ Tokens JWT gerados com sucesso")
 
+            response_data = {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "email": user.email,
+                "full_name": user.full_name,
+            }
+            print(f"Retornando resposta: {response_data}")
+            print("=" * 50)
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except requests.exceptions.RequestException as e:
+            print(f"ERRO de rede ao validar token: {str(e)}")
+            print("=" * 50)
             return Response(
-                {
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    "email": user.email,
-                    "full_name": user.full_name,
-                }
+                {"error": f"Erro ao validar token com Google: {str(e)}"},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
-
         except Exception as e:
+            print(f"ERRO inesperado no login Google: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            print("=" * 50)
             return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": f"Erro interno: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 

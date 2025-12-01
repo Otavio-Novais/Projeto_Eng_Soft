@@ -38,26 +38,43 @@ const Dashboard = () => {
             // Remove a parte do horário se vier com ele
             const startDateStr = t.data_inicio.split('T')[0];
             const endDateStr = t.data_fim.split('T')[0];
-            const startDate = new Date(startDateStr + 'T12:00:00');
-            const endDate = new Date(endDateStr + 'T12:00:00');
-            const startDay = startDate.getDate();
-            const endDay = endDate.getDate();
-            const month = startDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
-            dateTag = `${startDay}–${endDay} ${month}`;
+            
+            // Parse manual para evitar problemas de timezone
+            const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
+            const [endYear, endMonth, endDay] = endDateStr.split('-').map(Number);
+            
+            const startDate = new Date(startYear, startMonth - 1, startDay);
+            const endDate = new Date(endYear, endMonth - 1, endDay);
+            
+            const startMonthName = startDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+            const endMonthName = endDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+            
+            // Se os meses forem diferentes, mostra ambos
+            if (startMonth !== endMonth || startYear !== endYear) {
+              dateTag = `${startDay} ${startMonthName} - ${endDay} ${endMonthName}`;
+            } else {
+              dateTag = `${startDay}-${endDay} ${startMonthName}`;
+            }
             console.log("Data formatada:", dateTag);
           } else if (t.data_inicio) {
             const startDateStr = t.data_inicio.split('T')[0];
-            const startDate = new Date(startDateStr + 'T12:00:00');
-            dateTag = startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+            const [startYear, startMonth, startDay] = startDateStr.split('-').map(Number);
+            const startDate = new Date(startYear, startMonth - 1, startDay);
+            dateTag = startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
           }
           
           return {
             id: t.id,
             title: t.titulo,
+            titulo: t.titulo,
             tag: dateTag,
             locations: t.destino || 'Destino não definido',
+            destino: t.destino,
             image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-            members: t.participantes || []
+            members: t.participantes || [],
+            participantes: t.participantes || [],
+            data_inicio: t.data_inicio,
+            data_fim: t.data_fim
           };
         });
         setTrips(mappedTrips.reverse());
