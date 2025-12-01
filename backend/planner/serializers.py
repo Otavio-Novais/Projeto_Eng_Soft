@@ -29,8 +29,9 @@ class TripDashboardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Viagem
-        fields = ['id', 'title', 'start_date', 'end_date', 'participants', 'expenses']
-    
+
+        fields = ['id', 'title', 'start_date', 'end_date', 'participants', 'expenses', 'imagem', 'status']
+
     def get_participants(self, obj):
         """Retorna participantes do TripMember ou fallback para participantes ManyToMany"""
         from .models import TripMember
@@ -56,6 +57,7 @@ class TripDashboardSerializer(serializers.ModelSerializer):
             'role': 'MEMBER'
         } for user in obj.participantes.all()]
 
+
 class TripSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='titulo')
     start_date = serializers.DateField(source='data_inicio')
@@ -64,7 +66,7 @@ class TripSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Viagem
-        fields = ['id', 'title', 'description', 'start_date', 'end_date']
+        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'imagem', 'status']
 
     def validate(self, data):
         start_date = data.get('data_inicio')
@@ -98,18 +100,24 @@ class VotoSerializer(serializers.ModelSerializer):
 class SugestaoSerializer(serializers.ModelSerializer):
     autor_nome = serializers.ReadOnlyField(source='autor.full_name')
     autor_email = serializers.ReadOnlyField(source='autor.email')
+    autor_avatar = serializers.SerializerMethodField()
     votos_count = serializers.SerializerMethodField()
     usuario_votou = serializers.SerializerMethodField()
     
     class Meta:
         model = Sugestao
         fields = [
-            'id', 'titulo', 'tipo', 'autor', 'autor_nome', 'autor_email',
+            'id', 'titulo', 'tipo', 'autor', 'autor_nome', 'autor_email', 'autor_avatar',
             'descricao', 'status', 'votos_count', 'usuario_votou',
             'criado_em', 'atualizado_em'
         ]
         read_only_fields = ['id', 'autor', 'criado_em', 'atualizado_em']
     
+    def get_autor_avatar(self, obj):
+        if obj.autor.avatar:
+            return obj.autor.avatar.url
+        return None
+
     def get_votos_count(self, obj):
         return obj.votos.count()
     

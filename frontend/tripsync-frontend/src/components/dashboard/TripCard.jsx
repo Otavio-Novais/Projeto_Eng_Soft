@@ -133,7 +133,7 @@ const TripCard = ({ trip }) => {
           flexShrink: 0,
           maxWidth: '100%'
         }}>
-          {trip.locations || trip.destino || 'Destino não definido'}
+          
         </div>
 
         {/* Footer: Avatars and Button */}

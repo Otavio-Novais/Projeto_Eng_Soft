@@ -27,13 +27,13 @@ function App() {
 
   const PrivateRoute = ({ children }) => {
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       // Limpa qualquer dado residual
       localStorage.removeItem('user');
       return <Navigate to="/" replace />;
     }
-    
+
     return children;
   };
   return (
@@ -41,72 +41,71 @@ function App() {
       <SettingsProvider>
         <TripsProvider>
           <Router>
-          <Routes>
-            {/* --- ROTAS PÚBLICAS --- */}
-            <Route path="/" element={<AuthPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
+            <Routes>
+              {/* --- ROTAS PÚBLICAS --- */}
+              <Route path="/" element={<AuthPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
 
-            {/* --- ROTAS PROTEGIDAS --- */}
+              {/* --- ROTAS PROTEGIDAS --- */}
 
-            {/* 1. Tela de Listagem (Minhas Viagens) */}
-            <Route
-              path="/mytrips"
-              element={
-                <PrivateRoute>
-                  <MyTripsPage />
-                </PrivateRoute>
-              }
-            />
+              {/* 1. Tela de Listagem (Minhas Viagens) */}
+              <Route
+                path="/mytrips"
+                element={
+                  <PrivateRoute>
+                    <MyTripsPage />
+                  </PrivateRoute>
+                }
+              />
 
-            {/* 2. Telas Globais (Perfil e Configurações) */}
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <ProfilePage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <PrivateRoute>
-                  <SettingsPage />
-                </PrivateRoute>
-              }
-            />
+              {/* 2. Telas Globais (Perfil e Configurações) */}
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute>
+                    <ProfilePage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <PrivateRoute>
+                    <SettingsPage />
+                  </PrivateRoute>
+                }
+              />
 
-            {/* 3. MÓDULO DA VIAGEM (Financeiro e outros) */}
+              {/* 3. MÓDULO DA VIAGEM (Financeiro e outros) */}
 
-            {/* Rota Principal de Finanças */}
-            {/* Rota Principal de Finanças */}
-            <Route
-              path="/viagem/:tripId/financas"
-              element={
-                <PrivateRoute>
-                  <FinancePage />
-                </PrivateRoute>
-              }
-            />
-            {/* Rota Global de Finanças (sem tripId) */}
-            <Route
-              path="/financas"
-              element={
-                <PrivateRoute>
-                  <FinancePage />
-                </PrivateRoute>
-              }
-            />
+              {/* Rota Principal de Finanças */}
+              <Route
+                path="/viagem/:tripId/financas"
+                element={
+                  <PrivateRoute>
+                    <FinancePage />
+                  </PrivateRoute>
+                }
+              />
+              {/* Rota Global de Finanças (sem tripId) */}
+              <Route
+                path="/financas"
+                element={
+                  <PrivateRoute>
+                    <FinancePage />
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/viagem/:tripId/sugestoes"
-              element={
-                <PrivateRoute>
-                  <SuggestionsPage />
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/viagem/:tripId/sugestoes"
+                element={
+                  <PrivateRoute>
+                    <SuggestionsPage />
+                  </PrivateRoute>
+                }
+              />
               {/* Routes compatible with Sidebar paths (English/short) */}
               <Route
                 path="/suggestions"
@@ -125,27 +124,34 @@ function App() {
                 }
               />
 
-            {/* Placeholders para os links da Sidebar não quebrarem a tela */}
-            {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
-            <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
-            
-            {/* Rota de Membros */}
-            <Route 
-              path="/viagem/:tripId/membros" 
-              element={
-                <PrivateRoute>
-                  <MembersPage />
-                </PrivateRoute>
-              } 
-            />
-            
-            {/* explicit landing route to avoid duplicate '/' routes */}
-            <Route path="/landing" element={<LandingPage />} />
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/trip/:tripId" element={<TripDashboard />} />
-          </Routes>
-        </Router>
+
+              {/* Placeholders para os links da Sidebar não quebrarem a tela */}
+              <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
+
+              {/* Rota de Membros */}
+              <Route
+                path="/viagem/:tripId/membros"
+                element={
+                  <PrivateRoute>
+                    <MembersPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/members"
+                element={
+                  <PrivateRoute>
+                    <MembersPage />
+                  </PrivateRoute>
+                }
+              />
+
+              {/* explicit landing route to avoid duplicate '/' routes */}
+              <Route path="/landing" element={<LandingPage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/trip/:tripId" element={<TripDashboard />} />
+            </Routes>
+          </Router>
         </TripsProvider>
       </SettingsProvider>
     </GoogleOAuthProvider>

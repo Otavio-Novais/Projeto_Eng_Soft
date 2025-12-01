@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import './AuthPage.css';
 import api from '../../services/api';
+import { useTrips } from '../../contexts/TripsContext';
 
 // --- 1. NOVOS IMPORTS DO CALENDÁRIO ---
 import DatePicker from "react-datepicker";
@@ -15,6 +16,7 @@ registerLocale('pt-BR', ptBR);
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const { refreshTrips } = useTrips();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -54,6 +56,7 @@ const AuthPage = () => {
       console.log('Resposta do Google:', response.data);
       localStorage.setItem('token', response.data.access);
       localStorage.setItem('refreshToken', response.data.refresh);
+      await refreshTrips();
       navigate('/dashboard');
     } catch (error) {
       console.error('Erro Google OAuth:', error);
@@ -102,6 +105,7 @@ const AuthPage = () => {
         // CORREÇÃO: Enviar 'email' pois o backend espera exatamente isso
         const response = await api.post('/auth/login/', { email, password });
         localStorage.setItem('token', response.data.access);
+        await refreshTrips();
         navigate('/dashboard');
       } else {
         // --- CONVERTER DATA PARA FORMATO DO BACKEND (YYYY-MM-DD) ---
@@ -213,7 +217,6 @@ const AuthPage = () => {
                           placeholderText="dd/mm/aaaa"
                           locale="pt-BR"
                           className={`input-field ${errors.birth_date ? 'input-error' : ''}`}
-                          onKeyDown={(e) => e.preventDefault()}
                         />
                       </div>
                       {errors.birth_date && <span className="error-msg">{errors.birth_date[0]}</span>}

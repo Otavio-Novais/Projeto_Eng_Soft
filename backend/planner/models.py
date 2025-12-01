@@ -14,9 +14,26 @@ class Viagem(models.Model):
     destino = models.CharField(max_length=200)
     data_inicio = models.DateField(db_index=True)  # Índice para ordenação e filtros
     data_fim = models.DateField()
+    imagem = models.ImageField(upload_to='trip_covers/', null=True, blank=True)
     participantes = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="viagens"
     )
+    
+
+
+    STATUS_CHOICES = [
+        ('ATIVO', 'Ativo'),
+        ('INATIVO', 'Inativo'),
+        ('RASCUNHO', 'Rascunho'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ATIVO')
+
+    class Meta:
+        ordering = ['-id']  # Ordenação padrão para evitar order_by em queries
+        indexes = [
+            models.Index(fields=['-id']),  # Índice para listar viagens mais recentes
+            models.Index(fields=['data_inicio']),  # Índice para filtros de data
+        ]
 
     class Meta:
         ordering = ['-id']  # Ordenação padrão para evitar order_by em queries

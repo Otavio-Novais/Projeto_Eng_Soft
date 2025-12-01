@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.db import transaction, models
 from django.db.models import Sum
 import json
-from .models import Viagem, Despesa, Rateio, Sugestao, Voto
+from .models import Viagem, Despesa, Rateio, Sugestao, Voto, TripMember
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from django.views.decorators.http import require_http_methods
@@ -63,6 +63,8 @@ def home_data(request):
     return Response(data)
 
 class TripDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, trip_id):
         trip = get_object_or_404(
             Viagem.objects.prefetch_related(
@@ -71,17 +73,97 @@ class TripDetailView(APIView):
             ),
             pk=trip_id
         )
+
+        # Security check: User must be a participant
+        if request.user not in trip.participantes.all():
+             return Response({"error": "Você não tem permissão para visualizar esta viagem."}, status=status.HTTP_403_FORBIDDEN)
+
         serializer = TripDashboardSerializer(trip)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, trip_id):
+        trip = get_object_or_404(Viagem, pk=trip_id)
+        
+        # Check if user is ADMIN
+        is_admin = TripMember.objects.filter(viagem=trip, user=request.user, role='ADMIN').exists()
+        
+        # Fallback for legacy trips (no TripMember records yet): allow if user is a participant
+        if not is_admin and not TripMember.objects.filter(viagem=trip).exists():
+            if request.user in trip.participantes.all():
+                is_admin = True
+
+        if not is_admin:
+            return Response({"error": "Apenas administradores podem excluir a viagem."}, status=status.HTTP_403_FORBIDDEN)
+
+        trip.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, trip_id):
+        trip = get_object_or_404(Viagem, pk=trip_id)
+        
+        # Check if user is ADMIN
+        is_admin = TripMember.objects.filter(viagem=trip, user=request.user, role='ADMIN').exists()
+        
+        # Fallback for legacy trips
+        if not is_admin and not TripMember.objects.filter(viagem=trip).exists():
+            if request.user in trip.participantes.all():
+                is_admin = True
+
+        if not is_admin:
+            return Response({"error": "Apenas administradores podem editar a viagem."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = TripSerializer(trip, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class TripCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
-        serializer = TripSerializer(data = request.data)
+        serializer = TripSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             trip = serializer.save()
             trip.participantes.add(request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listar_viagens_api(request):
+    """
+    Lista todas as viagens do usuário autenticado, ordenadas por mais recentes
+    """
+    viagens = Viagem.objects.filter(
+        participantes=request.user
+    ).prefetch_related('participantes').order_by('-id')  # Ordenação explícita por ID decrescente
+    
+    viagens_data = []
+    for v in viagens:
+        # Define status_display
+        if v.data_fim and v.data_fim < timezone.now().date():
+            status = 'CONCLUIDA'
+            status_display = 'Concluída'
+        else:
+            status = 'PLANEJAMENTO'
+            status_display = 'Em Planejamento'
+        
+        viagens_data.append({
+            'id': v.id,
+            'titulo': v.titulo,
+            'nome': v.nome,
+            'destino': v.destino,
+            'data_inicio': v.data_inicio,
+            'data_fim': v.data_fim,
+            'imagem': v.imagem.url if v.imagem else None,
+            'participantes_count': v.participantes.count(),
+            'status': status,
+            'status_display': status_display,
+        })
+    
+    return Response(viagens_data)
+
 User = get_user_model()
 
 @api_view(['GET'])
@@ -107,10 +189,17 @@ def dashboard_api(request, viagem_id):
         pagou = Despesa.objects.filter(viagem=viagem, pagador=p, status='CONFIRMADO').aggregate(Sum('valor_total'))['valor_total__sum'] or 0
         consumiu = Rateio.objects.filter(despesa__viagem=viagem, despesa__status='CONFIRMADO', participante=p).aggregate(Sum('valor_devido'))['valor_devido__sum'] or 0
         saldo_calculado = float(pagou - consumiu)
+        
+        avatar_url = None
+        if p.avatar:
+            avatar_url = request.build_absolute_uri(p.avatar.url)
+
         resumo_todos.append({
             'id': p.id,
             'nome': p.full_name or p.email.split('@')[0],
-            'saldo': saldo_calculado
+            'saldo': saldo_calculado,
+            'avatar': avatar_url
+
         })
 
     # 2. Calcular Totais do USUÁRIO LOGADO (Para os cards do topo)
@@ -246,7 +335,6 @@ def listar_viagens_api(request):
     hoje = date.today()
 
     for v in viagens:
-        # Lógica simples: Se a data já passou, está concluída. Se é futura ou sem data, é planejamento.
         status = 'PLANEJAMENTO'
         status_display = 'Em Planejamento'
         
@@ -258,6 +346,7 @@ def listar_viagens_api(request):
         participantes_list = list(v.participantes.all()[:5])  # Converte para lista para evitar re-query
         participantes_data = []
         for p in participantes_list:
+
             avatar_url = None
             if p.avatar:
                 avatar_url = request.build_absolute_uri(p.avatar.url)
@@ -267,6 +356,12 @@ def listar_viagens_api(request):
                 'avatar': avatar_url
             })
         
+        # --- CORREÇÃO DA IMAGEM AQUI ---
+        imagem_url = None
+        if v.imagem:
+            # request.build_absolute_uri cria a URL completa (http://localhost:8000/media/...)
+            imagem_url = v.imagem.url 
+
         data.append({
             'id': v.id,
             'titulo': v.titulo,
@@ -276,8 +371,9 @@ def listar_viagens_api(request):
             'data_fim': v.data_fim.isoformat() if v.data_fim else None,
             'participantes_count': v.participantes_count_cached,  # Usa o valor anotado
             'participantes': participantes_data,
-            'status': status,          # Usado para filtrar no código (FUTURAS/PASSADAS)
-            'status_display': status_display # Usado para escrever na tela
+            'status': status,
+            'status_display': status_display,
+            'imagem': imagem_url  # <--- ADICIONE ESTA LINHA
         })
     
     return Response(data)
