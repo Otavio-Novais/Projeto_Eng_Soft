@@ -105,13 +105,44 @@ WSGI_APPLICATION = "tripsync_project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": config(
-        "DATABASE_URL",
-        default=f"postgres://{config('DB_USER', default='tripsync_user')}:{config('DB_PASSWORD', default='password')}@{config('DB_HOST', default='localhost')}:{config('DB_PORT', default='5432')}/{config('DB_NAME', default='tripsync_db')}",
-        cast=dj_database_url.parse,
-    )
-}
+# Database Configuration
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+# Tenta ler DATABASE_URL do .env
+db_url = config("DATABASE_URL", default=None)
+
+if db_url:
+    # Se tiver DATABASE_URL, usa dj_database_url
+    DATABASES = {
+        "default": dj_database_url.parse(db_url)
+    }
+    # Força SSL se for Neon
+    if 'neon.tech' in db_url and 'sslmode' not in db_url:
+        DATABASES['default'].setdefault('OPTIONS', {})
+        DATABASES['default']['OPTIONS']['sslmode'] = 'require'
+else:
+    # Se não, usa parâmetros individuais (mais seguro para garantir OPTIONS)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='tripsync_db'),
+            'USER': config('DB_USER', default='tripsync_user'),
+            'PASSWORD': config('DB_PASSWORD', default='password'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
+    
+    # Adiciona SSL se for Neon
+    if 'neon.tech' in DATABASES['default']['HOST']:
+        DATABASES['default']['OPTIONS'] = {
+            'sslmode': 'require',
+        }
+
+print(f"DEBUG: DB HOST: {DATABASES['default'].get('HOST')}")
+print(f"DEBUG: DB OPTIONS: {DATABASES['default'].get('OPTIONS')}")
+
+# Password validation
 
 
 # Password validation
