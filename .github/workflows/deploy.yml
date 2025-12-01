@@ -17,18 +17,12 @@ jobs:
       - name: Deploy Backend to Heroku
         env:
           HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+          HEROKU_EMAIL: ${{secrets.HEROKU_EMAIL}}
         run: |
-          cat > ~/.netrc <<EOF
-          machine api.heroku.com
-            login ${{secrets.HEROKU_EMAIL}}
-            password ${{secrets.HEROKU_API_KEY}}
-          machine git.heroku.com
-            login ${{secrets.HEROKU_EMAIL}}
-            password ${{secrets.HEROKU_API_KEY}}
-          EOF
-          chmod 600 ~/.netrc
-          git remote add heroku-backend https://git.heroku.com/tripsyncheroku.git || true
-          git push heroku-backend `git subtree split --prefix backend main`:refs/heads/main --force
+          git config --global user.email "$HEROKU_EMAIL"
+          git config --global user.name "GitHub Actions"
+          SPLIT_SHA=$(git subtree split --prefix backend main)
+          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/tripsyncheroku.git $SPLIT_SHA:refs/heads/main --force
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -40,15 +34,9 @@ jobs:
       - name: Deploy Frontend to Heroku
         env:
           HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+          HEROKU_EMAIL: ${{secrets.HEROKU_EMAIL}}
         run: |
-          cat > ~/.netrc <<EOF
-          machine api.heroku.com
-            login ${{secrets.HEROKU_EMAIL}}
-            password ${{secrets.HEROKU_API_KEY}}
-          machine git.heroku.com
-            login ${{secrets.HEROKU_EMAIL}}
-            password ${{secrets.HEROKU_API_KEY}}
-          EOF
-          chmod 600 ~/.netrc
-          git remote add heroku-frontend https://git.heroku.com/tripsyncheroku-frontend.git || true
-          git push heroku-frontend `git subtree split --prefix frontend/tripsync-frontend main`:refs/heads/main --force
+          git config --global user.email "$HEROKU_EMAIL"
+          git config --global user.name "GitHub Actions"
+          SPLIT_SHA=$(git subtree split --prefix frontend/tripsync-frontend main)
+          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/tripsyncheroku-frontend.git $SPLIT_SHA:refs/heads/main --force
