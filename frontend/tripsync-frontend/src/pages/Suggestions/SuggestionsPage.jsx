@@ -1,22 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { House, Map } from 'lucide-react';
 import './Suggestions.css'; // Importa o CSS para esta página
 import AddSuggestionModal from '../../components/add_suggestion/AddSuggestionModal';
 import suggestionsApi from '../../services/suggestionsApi';
-
-// Mock URLs para fotos de perfil
-const MOCK_PHOTOS = {
-    Ana: 'https://placehold.co/40x40/f472b6/ffffff?text=A',
-    Bruno: 'https://placehold.co/40x40/3b82f6/ffffff?text=B',
-    Carla: 'https://placehold.co/40x40/10b981/ffffff?text=C',
-    Diego: 'https://placehold.co/40x40/f97316/ffffff?text=D',
-    Elisa: 'https://placehold.co/40x40/a855f7/ffffff?text=E',
-    Felipe: 'https://placehold.co/40x40/ef4444/ffffff?text=F',
-};
-
+import { API_BASE_URL } from '../../services/api';
 
 // Componente para um card de sugestão individual
-const SugestaoCard = ({ id, tipo, titulo, autor_nome, votos_count, status, usuario_votou, onVote, tripId }) => {
+const SugestaoCard = ({ id, tipo, titulo, autor_nome, autor_avatar, votos_count, status, usuario_votou, onVote, tripId }) => {
     const [votandoId, setVotandoId] = useState(null);
     const [votouAtual, setVotouAtual] = useState(usuario_votou);
     const [votosAtual, setVotosAtual] = useState(votos_count);
@@ -59,6 +50,14 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, votos_count, status, usuar
         }
     }
 
+    // Helper para URL do avatar
+    const getAvatarUrl = (avatarPath) => {
+        if (!avatarPath) return null;
+        if (avatarPath.startsWith('http')) return avatarPath;
+        return `${API_BASE_URL}${avatarPath}`;
+    };
+
+    const avatarUrl = getAvatarUrl(autor_avatar);
 
     return (
         <div className="sugestao-card">
@@ -86,11 +85,15 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, votos_count, status, usuar
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    overflow: 'hidden',
+                    backgroundImage: avatarUrl ? `url(${avatarUrl})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                     color: 'white',
                     fontWeight: 'bold',
                     fontSize: '14px'
                 }}>
-                    {autor_nome ? autor_nome.charAt(0).toUpperCase() : '?'}
+                    {!avatarUrl && (autor_nome ? autor_nome.charAt(0).toUpperCase() : '?')}
                 </div>
                 <p className="sugestao-autor">Sugerido por {autor_nome}</p>
             </div>
@@ -207,9 +210,7 @@ function SuggestionsPage() {
                 {/* 1. Logo Tripsync (Ícone + Título) */}
                 <div className="top-bar-left">
                     <div className="logo-icon-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
-                            <path fill="none" stroke='#007bff' strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0zm.894.211v15M9 3.236v15"></path>
-                        </svg>
+                        <Map size={18} color="#007bff" />
                     </div>
                     <span className="tripsync-title">Tripsync</span>
                 </div>
@@ -223,9 +224,7 @@ function SuggestionsPage() {
                         }}
                     >
                         <div className='icon-wrapper'>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
-                                <path fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 13h4v7H4zm6-9h4v16h-4zm6 4h4v12h-4z"></path>
-                            </svg>
+                            <House size={16} color="#007bff" />
                         </div>
                         Dashboard
                     </button>
@@ -236,9 +235,7 @@ function SuggestionsPage() {
                     >
 
                         <div className='icon-wrapper'>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
-                                <path fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7M16 3h-1a2 2 0 0 0-2 2v1H11V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v1H5a2 2 0 0 0-2 2v2h18V7a2 2 0 0 0-2-2h-1V5a2 2 0 0 0-2-2z"></path>
-                            </svg>
+                            <Map size={16} color="#007bff" />
                         </div>
                         Tela de Viagem
                     </button>
@@ -247,6 +244,7 @@ function SuggestionsPage() {
 
             {/* Main Content Area */}
             <div className="sugestoes-content-wrapper">
+
                 <div className="sugestoes-header-section">
                     <h2>Banco de Sugestões</h2>
                     <p>Reúna ideias do grupo, filtre por categoria e acompanhe a votação.</p>
@@ -261,7 +259,7 @@ function SuggestionsPage() {
                             onClick={() => setFiltroSelecionado('Todas')}
                         >
                             {/* Ícone de Todas/Lista - Branco */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='white' fill="none" style={{ strokeWidth: '2' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke={filtroSelecionado === 'Todas' ? 'white' : '#007bff'} fill="none" style={{ strokeWidth: '2' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
                             </svg>
                             Todas
@@ -273,7 +271,7 @@ function SuggestionsPage() {
                             onClick={() => setFiltroSelecionado('Hospedagem')}
                         >
                             {/* Ícone de Hospedagem (Casa) - Azul */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke={filtroSelecionado === 'Hospedagem' ? 'white' : '#007bff'} fill="none" style={{ strokeWidth: '2' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 22V12h6v10"></path>
                             </svg>
@@ -286,7 +284,7 @@ function SuggestionsPage() {
                             onClick={() => setFiltroSelecionado('Atividade')}
                         >
                             {/* Ícone de Atividade (Montanha/Trilha) - Azul */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke={filtroSelecionado === 'Atividade' ? 'white' : '#007bff'} fill="none" style={{ strokeWidth: '2' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m3 12 7-7 7 7 5 5-12 12-5-5-7-7z"></path>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M18 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"></path>
                             </svg>
@@ -299,7 +297,7 @@ function SuggestionsPage() {
                             onClick={() => setFiltroSelecionado('Comida')}
                         >
                             {/* Ícone de Comida (Talheres) - Azul */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke={filtroSelecionado === 'Comida' ? 'white' : '#007bff'} fill="none" style={{ strokeWidth: '2' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v20m0-20L7 5m5-3 5 3M7 7h10V4H7zM3 3h2v2H3zM19 3h2v2h-2zM4 19h2v2H4zM18 19h2v2h-2z"></path>
                             </svg>
                             Comida

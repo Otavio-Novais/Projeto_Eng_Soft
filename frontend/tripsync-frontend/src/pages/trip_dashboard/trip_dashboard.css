@@ -5,18 +5,18 @@
   display: flex;
   min-height: 100vh;
   background-color: #F9FAFB;
-  font-family: "Inter", sans-serif;
-  color: #1f2937;
-  width: 100%;
+  /* Garante fundo cinza */
 }
 
 .trip-main-content {
-  margin-left: 250px; /* Igual largura da Sidebar */
+  margin-left: 250px;
+  /* Igual largura da Sidebar */
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background-color: #F9FAFB; /* Garante fundo cinza */
+  background-color: #F9FAFB;
+  /* Garante fundo cinza */
 }
 
 /* --- Header --- */
@@ -112,7 +112,10 @@
   flex-direction: column;
   border-right: 1px solid #f1f5f9;
 }
-.trip-stat-card:last-child { border-right: none; }
+
+.trip-stat-card:last-child {
+  border-right: none;
+}
 
 .trip-stat-header {
   margin-bottom: 1rem;
@@ -144,7 +147,8 @@
   display: grid;
   grid-template-columns: 1.8fr 1fr;
   gap: 2rem;
-  align-items: stretch; /* Garante mesma altura */
+  align-items: stretch;
+  /* Garante mesma altura */
 }
 
 .trip-grid-column {
@@ -178,8 +182,9 @@
 }
 
 .centered-list {
-    flex: 1;
-    justify-content: center; /* Centraliza verticalmente as sugestões */
+  flex: 1;
+  justify-content: center;
+  /* Centraliza verticalmente as sugestões */
 }
 
 .trip-item-card {
@@ -191,41 +196,86 @@
   justify-content: space-between;
   transition: background 0.2s;
 }
-.trip-item-card:hover { background-color: #F1F5F9; }
 
-.trip-item-info { flex: 1; display: flex; flex-direction: column; }
-.trip-item-info strong { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
-.trip-item-info small { color: #64748b; margin-top: 4px; font-size: 0.8rem; }
+.trip-item-card:hover {
+  background-color: #F1F5F9;
+}
+
+.trip-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-item-info strong {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.trip-item-info small {
+  color: #64748b;
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
 
 .trip-item-icon {
-    width: 48px; height: 48px;
-    background: white; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    margin-right: 1rem; font-size: 1.25rem; flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
-.blue-bg { background-color: #EFF6FF; color: #2563EB; }
+
+.blue-bg {
+  background-color: #EFF6FF;
+  color: #2563EB;
+}
 
 /* Botões */
 .trip-btn-text {
-  background: none; border: none;
-  color: #2563eb; font-weight: 600;
-  cursor: pointer; font-size: 0.85rem;
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .trip-btn-primary {
-  background-color: #2563eb; color: white;
-  border: none; padding: 10px 20px;
-  border-radius: 50px; font-weight: 600;
-  cursor: pointer; font-size: 0.9rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
-.trip-btn-primary:hover { background-color: #1d4ed8; }
-.trip-btn-primary.small { padding: 8px 16px; font-size: 0.8rem; }
+
+.trip-btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.trip-btn-primary.small {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+}
 
 .trip-btn-soft {
-  background-color: #eff6ff; color: #2563eb;
-  border: none; padding: 10px 20px;
-  border-radius: 50px; font-weight: 600;
-  cursor: pointer; font-size: 0.9rem;
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 /* Footers */
@@ -236,42 +286,112 @@
   padding-top: 1.5rem;
   margin-top: 1rem;
 }
-.mt-auto { margin-top: auto; }
 
-.trip-footer-hint { color: #94a3b8; font-size: 0.85rem; }
+.mt-auto {
+  margin-top: auto;
+}
+
+.trip-footer-hint {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
 
 /* Finanças Badges */
-.trip-finance-controls { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
-.trip-badge-blue { background: #F0F9FF; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 500; color: #1e293b; }
-.trip-badge-outline { background: white; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; color: #64748b; }
+.trip-finance-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.trip-badge-blue {
+  background: #F0F9FF;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.trip-badge-outline {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
 
 /* Membros (Largura Total) */
 .trip-members-section {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
-.trip-member-list { display: flex; flex-direction: column; gap: 0.5rem; }
-.trip-member-row { display: flex; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9; }
-.trip-member-row:last-child { border-bottom: none; }
+
+.trip-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trip-member-row {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.trip-member-row:last-child {
+  border-bottom: none;
+}
 
 .trip-avatar {
-    width: 40px; height: 40px; border-radius: 50%;
-    margin-right: 1rem; background-size: cover; background-position: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 1rem;
+  background-size: cover;
+  background-position: center;
 }
+
 .trip-status-badge {
-    color: #94a3b8; font-size: 0.8rem;
-    background: #f8fafc; padding: 4px 8px; border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  background: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 /* Responsividade */
 @media (max-width: 1200px) {
-  .trip-content-grid { grid-template-columns: 1fr; }
-  .trip-stats-grid { flex-direction: column; }
-  .trip-stat-card { border-right: none; border-bottom: 1px solid #f1f5f9; }
-  .trip-stat-card:last-child { border-bottom: none; }
+  .trip-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-stats-grid {
+    flex-direction: column;
+  }
+
+  .trip-stat-card {
+    border-right: none;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .trip-stat-card:last-child {
+    border-bottom: none;
+  }
 }
 
 @media (max-width: 768px) {
-  .trip-main-content { margin-left: 0; }
-  .trip-content-header { padding: 1rem; flex-direction: column; gap: 1rem; }
-  .trip-content-body { padding: 1rem; }
+  .trip-main-content {
+    margin-left: 0;
+  }
+
+  .trip-content-header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .trip-content-body {
+    padding: 1rem;
+  }
 }

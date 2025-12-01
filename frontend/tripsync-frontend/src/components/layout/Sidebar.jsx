@@ -16,7 +16,7 @@ const Sidebar = ({ activeTab = 'Início', tripIdOverride }) => {
 
   // Menu Items Definition
   const menuItems = [
-    { id: 'roteiro', label: 'Roteiro', icon: <Map size={18} />, path: effectiveTripId ? `/trip/${effectiveTripId}/planner` : null },
+    { id: 'roteiro', label: 'Roteiro', icon: <Map size={18} />, path: null, disabled: true }, // Desativado conforme solicitado
     { id: 'sugestoes', label: 'Sugestões', icon: <Sparkles size={18} />, path: effectiveTripId ? `/trip/${effectiveTripId}/suggestions` : '/suggestions' },
     { id: 'financas', label: 'Finanças', icon: <CreditCard size={18} />, path: effectiveTripId ? `/viagem/${effectiveTripId}/financas` : '/financas' },
     { id: 'membros', label: 'Membros', icon: <Users size={18} />, path: effectiveTripId ? `/viagem/${effectiveTripId}/membros` : '/members' },
@@ -52,9 +52,9 @@ const Sidebar = ({ activeTab = 'Início', tripIdOverride }) => {
               <button
                 key={item.id}
                 className={`nav-btn ${item.label === activeTab ? 'active' : ''}`}
-                onClick={() => item.path && navigate(item.path)}
-                disabled={!item.path}
-                style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
+                onClick={() => !item.disabled && item.path && navigate(item.path)}
+                disabled={!item.path || item.disabled}
+                style={{ opacity: (item.path && !item.disabled) ? 1 : 0.5, cursor: (item.path && !item.disabled) ? 'pointer' : 'not-allowed' }}
                 title={!item.path ? "Selecione uma viagem para acessar" : ""}
               >
                 <span className="nav-icon">{item.icon}</span>
