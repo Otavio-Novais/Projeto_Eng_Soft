@@ -66,7 +66,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
+    "https://tripsyncheroku-frontend-320b6c6b0d9a.herokuapp.com",
 ]
+
+# Permitir credenciais
+CORS_ALLOW_CREDENTIALS = True
 
 # REST Framework Settings
 REST_FRAMEWORK = {
