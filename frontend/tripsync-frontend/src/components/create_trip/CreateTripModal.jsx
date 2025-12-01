@@ -1,14 +1,13 @@
 // src/components/create_trip/CreateTripModal.jsx
 import React, { useState } from 'react';
 import './CreateTripModal.css';
-import axios from 'axios';
+import tripsApi from '../../services/tripsApi';
 import { useNavigate } from 'react-router-dom';
 import { useTrips } from '../../contexts/TripsContext';
 
 const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
   const navigate = useNavigate();
   const { refreshTrips } = useTrips();
-
 
   const [formData, setFormData] = useState({
     title: '',
@@ -38,13 +37,6 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert("Você precisa estar logado.");
-      setIsLoading(false);
-      return;
-    }
-
     const dataToSend = new FormData();
     dataToSend.append('title', formData.title);
     dataToSend.append('description', formData.description || "");
@@ -57,32 +49,11 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
     }
 
     try {
+      const response = await tripsApi.criarViagem(dataToSend);
 
-      const response = await axios.post(
-        'http://127.0.0.1:8000/planner/api/viagens/criar/',
-        dataToSend,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        }
-      );
-
-      console.log("Viagem criada:", response.data);
+      console.log("Viagem criada:", response);
 
       // Atualiza o contexto de viagens
-      await refreshTrips();
-
-      // Fecha o modal
-      onClose();
-
-      // Se houver uma função de atualização (ex: recarregar lista na sidebar), chama ela
-      if (onSuccess) onSuccess();
-
-
-      console.log("Viagem criada:", response.data);
-
-      // Atualiza a lista de viagens
       await refreshTrips();
 
       // Limpa formulário
@@ -92,11 +63,13 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
 
       // Fecha o modal
       onClose();
+
+      // Se houver uma função de atualização (ex: recarregar lista na sidebar), chama ela
       if (onSuccess) onSuccess();
 
       // Pequeno delay para garantir que o estado foi atualizado antes de navegar
       setTimeout(() => {
-        navigate(`/trip/${response.data.id}`);
+        navigate(`/trip/${response.id}`);
       }, 100);
 
     } catch (error) {
