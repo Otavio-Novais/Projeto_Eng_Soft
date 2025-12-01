@@ -198,3 +198,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "noreply@tripsync.com"
 AUTH_USER_MODEL = "accounts.CustomUser"
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # O usuário fica logado por 60 minutos direto
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # O token de renovação dura 1 dia
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}

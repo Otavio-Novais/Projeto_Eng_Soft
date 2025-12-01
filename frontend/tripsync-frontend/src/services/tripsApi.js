@@ -32,8 +32,10 @@ const tripsApi = {
     // Obter detalhes de uma viagem
     obterViagem: async (tripId) => {
         try {
+            const token = localStorage.getItem('token');
             const response = await api.get(`/planner/api/viagem/${tripId}/`, {
-                baseURL: API_BASE_URL
+                baseURL: API_BASE_URL,
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
             return response.data;
         } catch (error) {
@@ -45,8 +47,10 @@ const tripsApi = {
     // Obter finanças de uma viagem
     obterFinancas: async (tripId) => {
         try {
+            const token = localStorage.getItem('token');
             const response = await api.get(`/planner/api/viagem/${tripId}/financas/`, {
-                baseURL: API_BASE_URL
+                baseURL: API_BASE_URL,
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
             return response.data;
         } catch (error) {
@@ -58,8 +62,13 @@ const tripsApi = {
     // Criar nova despesa
     criarDespesa: async (tripId, dadosDespesa) => {
         try {
+            const token = localStorage.getItem('token');
             const response = await api.post(`/planner/api/viagem/${tripId}/despesa/nova/`, dadosDespesa, {
-                baseURL: API_BASE_URL
+                baseURL: API_BASE_URL,
+                headers: token ? {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                } : { 'Content-Type': 'application/json' }
             });
             return response.data;
         } catch (error) {
