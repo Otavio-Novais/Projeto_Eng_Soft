@@ -233,11 +233,27 @@ def listar_viagens_api(request):
             status = 'CONCLUIDA'
             status_display = 'Concluída'
 
+        # Busca participantes com avatares
+        participantes_data = []
+        for p in v.participantes.all()[:5]:  # Limita a 5 participantes
+            avatar_url = None
+            if p.avatar:
+                avatar_url = request.build_absolute_uri(p.avatar.url)
+            participantes_data.append({
+                'id': p.id,
+                'name': p.full_name or p.email,
+                'avatar': avatar_url
+            })
+        
         data.append({
             'id': v.id,
             'titulo': v.titulo,
+            'destino': v.destino if hasattr(v, 'destino') else None,
             'data': v.data_inicio.strftime('%d %b') if hasattr(v, 'data_inicio') and v.data_inicio else "Data a definir",
+            'data_inicio': v.data_inicio.isoformat() if v.data_inicio else None,
+            'data_fim': v.data_fim.isoformat() if v.data_fim else None,
             'participantes_count': v.participantes.count(),
+            'participantes': participantes_data,
             'status': status,          # Usado para filtrar no código (FUTURAS/PASSADAS)
             'status_display': status_display # Usado para escrever na tela
         })
@@ -390,3 +406,218 @@ class VotarSugestaoView(APIView):
                 {'message': 'Voto adicionado', 'votou': True},
                 status=status.HTTP_201_CREATED
             )
+# ===== VIEWS PARA MEMBROS E CONVITES =====
+from .models import TripMember, TripInvite
+from .serializers import TripMemberSerializer, TripInviteSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status as http_status
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listar_membros_e_convites(request, viagem_id):
+    """Lista todos os membros e convites pendentes de uma viagem"""
+    viagem = get_object_or_404(Viagem, pk=viagem_id)
+    
+    # Verifica se o usuário é membro da viagem (TripMember OU participantes)
+    is_trip_member = TripMember.objects.filter(viagem=viagem, user=request.user).exists()
+    is_participant = viagem.participantes.filter(id=request.user.id).exists()
+    
+    if not (is_trip_member or is_participant):
+        return Response({"error": "Você não tem permissão para acessar esta viagem"}, 
+                       status=http_status.HTTP_403_FORBIDDEN)
+    
+    # Busca membros
+    membros = TripMember.objects.filter(viagem=viagem).select_related('user')
+    membros_data = TripMemberSerializer(membros, many=True).data
+    
+    # Busca convites pendentes
+    convites = TripInvite.objects.filter(viagem=viagem, status='PENDING').order_by('-created_at')
+    convites_data = TripInviteSerializer(convites, many=True).data
+    
+    # Verifica se o usuário atual é admin
+    user_member = TripMember.objects.filter(viagem=viagem, user=request.user).first()
+    is_admin = user_member.role == 'ADMIN' if user_member else False
+    
+    return Response({
+        'members': membros_data,
+        'invites': convites_data,
+        'is_admin': is_admin,
+        'trip_info': {
+            'id': viagem.id,
+            'title': viagem.titulo,
+            'date_range': f"{viagem.data_inicio.strftime('%d-%m')} {viagem.data_fim.strftime('%d %b')}" if viagem.data_inicio else ""
+        }
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def enviar_convites(request, viagem_id):
+    """Envia convites por email (separados por vírgula)"""
+    viagem = get_object_or_404(Viagem, pk=viagem_id)
+    
+    # Verifica se o usuário é admin
+    user_member = TripMember.objects.filter(viagem=viagem, user=request.user, role='ADMIN').first()
+    if not user_member:
+        return Response({"error": "Apenas administradores podem enviar convites"}, 
+                       status=http_status.HTTP_403_FORBIDDEN)
+    
+    emails_string = request.data.get('emails', '')
+    emails = [e.strip() for e in emails_string.split(',') if e.strip()]
+    
+    if not emails:
+        return Response({"error": "Nenhum email fornecido"}, status=http_status.HTTP_400_BAD_REQUEST)
+    
+    convites_criados = []
+    erros = []
+    
+    for email in emails:
+        # Verifica se já é membro
+        if User.objects.filter(email=email, viagens=viagem).exists():
+            erros.append(f"{email} já é membro da viagem")
+            continue
+        
+        # Verifica se já tem convite pendente
+        if TripInvite.objects.filter(viagem=viagem, email=email, status='PENDING').exists():
+            erros.append(f"{email} já tem um convite pendente")
+            continue
+        
+        # Cria o convite
+        convite = TripInvite.objects.create(
+            viagem=viagem,
+            email=email,
+            invited_by=request.user
+        )
+        
+        # Envia email (simplificado - em produção usar templates)
+        try:
+            link_convite = f"https://tripsync.app/join/{convite.token}"
+            send_mail(
+                subject=f"Convite para {viagem.titulo}",
+                message=f"Você foi convidado para participar da viagem {viagem.titulo}. Acesse: {link_convite}",
+                from_email=django_settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            convites_criados.append(email)
+        except Exception as e:
+            erros.append(f"{email}: Erro ao enviar email - {str(e)}")
+    
+    return Response({
+        'message': f'{len(convites_criados)} convite(s) enviado(s)',
+        'convites_criados': convites_criados,
+        'erros': erros
+    }, status=http_status.HTTP_201_CREATED if convites_criados else http_status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reenviar_convite(request, viagem_id, convite_id):
+    """Reenvia um convite"""
+    viagem = get_object_or_404(Viagem, pk=viagem_id)
+    convite = get_object_or_404(TripInvite, pk=convite_id, viagem=viagem)
+    
+    # Verifica se o usuário é admin
+    user_member = TripMember.objects.filter(viagem=viagem, user=request.user, role='ADMIN').first()
+    if not user_member:
+        return Response({"error": "Apenas administradores podem reenviar convites"}, 
+                       status=http_status.HTTP_403_FORBIDDEN)
+    
+    # Atualiza data de expiração
+    convite.expires_at = timezone.now() + timedelta(days=7)
+    convite.save()
+    
+    # Reenvia email
+    try:
+        link_convite = f"https://tripsync.app/join/{convite.token}"
+        send_mail(
+            subject=f"Lembrete: Convite para {viagem.titulo}",
+            message=f"Lembrete: Você foi convidado para {viagem.titulo}. Acesse: {link_convite}",
+            from_email=django_settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[convite.email],
+            fail_silently=False,
+        )
+        return Response({"message": "Convite reenviado com sucesso"})
+    except Exception as e:
+        return Response({"error": f"Erro ao enviar email: {str(e)}"}, 
+                       status=http_status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def cancelar_convite(request, viagem_id, convite_id):
+    """Cancela um convite pendente"""
+    viagem = get_object_or_404(Viagem, pk=viagem_id)
+    convite = get_object_or_404(TripInvite, pk=convite_id, viagem=viagem)
+    
+    # Verifica se o usuário é admin
+    user_member = TripMember.objects.filter(viagem=viagem, user=request.user, role='ADMIN').first()
+    if not user_member:
+        return Response({"error": "Apenas administradores podem cancelar convites"}, 
+                       status=http_status.HTTP_403_FORBIDDEN)
+    
+    convite.status = 'CANCELLED'
+    convite.save()
+    
+    return Response({"message": "Convite cancelado"}, status=http_status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def alternar_admin(request, viagem_id, membro_id):
+    """Promove ou remove permissão de admin de um membro"""
+    viagem = get_object_or_404(Viagem, pk=viagem_id)
+    membro = get_object_or_404(TripMember, pk=membro_id, viagem=viagem)
+    
+    # Verifica se o usuário é admin
+    user_member = TripMember.objects.filter(viagem=viagem, user=request.user, role='ADMIN').first()
+    if not user_member:
+        return Response({"error": "Apenas administradores podem alterar permissões"}, 
+                       status=http_status.HTTP_403_FORBIDDEN)
+    
+    # Impede que o criador perca o admin
+    primeiro_admin = viagem.members.filter(role='ADMIN').order_by('joined_at').first()
+    if membro == primeiro_admin and membro.role == 'ADMIN':
+        return Response({"error": "O criador da viagem não pode perder permissões de admin"}, 
+                       status=http_status.HTTP_400_BAD_REQUEST)
+    
+    # Alterna o role
+    membro.role = 'MEMBER' if membro.role == 'ADMIN' else 'ADMIN'
+    membro.save()
+    
+    return Response({
+        "message": f"Usuário {'promovido a admin' if membro.role == 'ADMIN' else 'removido de admin'}",
+        "new_role": membro.role
+    })
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remover_membro(request, viagem_id, membro_id):
+    """Remove um membro da viagem"""
+    viagem = get_object_or_404(Viagem, pk=viagem_id)
+    membro = get_object_or_404(TripMember, pk=membro_id, viagem=viagem)
+    
+    # Verifica se o usuário é admin
+    user_member = TripMember.objects.filter(viagem=viagem, user=request.user, role='ADMIN').first()
+    if not user_member:
+        return Response({"error": "Apenas administradores podem remover membros"}, 
+                       status=http_status.HTTP_403_FORBIDDEN)
+    
+    # Impede remover o criador
+    primeiro_admin = viagem.members.filter(role='ADMIN').order_by('joined_at').first()
+    if membro == primeiro_admin:
+        return Response({"error": "O criador da viagem não pode ser removido"}, 
+                       status=http_status.HTTP_400_BAD_REQUEST)
+    
+    # Remove da tabela de membros e da relação ManyToMany
+    user_to_remove = membro.user
+    membro.delete()
+    viagem.participantes.remove(user_to_remove)
+    
+    return Response({"message": "Membro removido com sucesso"}, status=http_status.HTTP_200_OK)

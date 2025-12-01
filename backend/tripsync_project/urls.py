@@ -17,11 +17,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from django.http import JsonResponse
 
 from django.conf import settings             
 from django.conf.urls.static import static
 
+def api_root(request):
+    return JsonResponse({
+        'message': 'TripSync API',
+        'version': '1.0',
+        'endpoints': {
+            'auth': '/api/auth/',
+            'planner': '/planner/api/',
+            'admin': '/admin/',
+        },
+        'status': 'running'
+    })
+
 urlpatterns = [
+    path('', api_root, name='api_root'),
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')), 
     path('planner/', include('planner.urls')), 

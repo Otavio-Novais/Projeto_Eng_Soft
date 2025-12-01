@@ -16,6 +16,7 @@ import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import SettingsPage from './pages/Settings/SettingsPage.jsx';
 import FinancePage from './pages/Finance/FinancePage.jsx';
 import SuggestionsPage from './pages/Suggestions/SuggestionsPage.jsx';
+import MembersPage from './pages/Members/MembersPage.jsx';
 
 
 import { SettingsProvider } from './contexts/SettingsContext';
@@ -120,6 +121,15 @@ function App() {
             <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
             {/* explicit landing route to avoid duplicate '/' routes */}
             <Route path="/landing" element={<LandingPage />} />
+            <Route 
+              path="/viagem/:tripId/membros" 
+              element={
+                <PrivateRoute>
+                  <MembersPage />
+                </PrivateRoute>
+              } 
+            />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/trip/:tripId" element={<TripDashboard />} />
           </Routes>

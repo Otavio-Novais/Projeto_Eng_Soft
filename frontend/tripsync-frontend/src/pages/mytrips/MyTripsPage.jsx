@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar'; // Importando Sidebar
+import CreateTripModal from '../../components/create_trip/CreateTripModal';
 import {
     Map, Plus, User, Calendar, Users, ArrowRight, LayoutGrid, Clock, CheckCircle, Wallet,
     Settings, LogOut, ChevronDown
@@ -12,6 +13,7 @@ const MyTripsPage = () => {
     const [viagens, setViagens] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filtro, setFiltro] = useState('TODAS');
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     // Estado para o Menu Suspenso (se ainda for necessário no header interno, mas com sidebar talvez não precise tanto)
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,9 +52,14 @@ const MyTripsPage = () => {
     });
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#ffffff' }}>
-            {/* SIDEBAR FIXA */}
-            <Sidebar activeTab="Minhas Viagens" />
+        <>
+            <CreateTripModal 
+                isOpen={isCreateModalOpen} 
+                onClose={() => setIsCreateModalOpen(false)} 
+            />
+            <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#ffffff' }}>
+                {/* SIDEBAR FIXA */}
+                <Sidebar activeTab="Minhas Viagens" />
 
             <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>
 
@@ -71,6 +78,7 @@ const MyTripsPage = () => {
                     </div>
                     <button
                         className="btn-nav-primary"
+                        onClick={() => setIsCreateModalOpen(true)}
                         style={{
                             backgroundColor: '#0066ff', color: 'white', border: 'none',
                             padding: '0.6rem 1.2rem', borderRadius: '2rem', fontWeight: '600',
@@ -155,6 +163,7 @@ const MyTripsPage = () => {
                 </main>
             </div>
         </div>
+        </>
     );
 };
 

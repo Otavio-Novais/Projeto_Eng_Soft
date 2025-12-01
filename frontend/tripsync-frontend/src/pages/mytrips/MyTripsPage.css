@@ -87,9 +87,9 @@
     margin-top: 72px;
     /* Compensa header */
     padding: 40px 60px;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Dashboard Header */
@@ -151,6 +151,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 24px;
+    justify-content: start;
 }
 
 /* CARD DE VIAGEM */

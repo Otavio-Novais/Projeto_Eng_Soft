@@ -1,103 +1,131 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, ArrowRight } from 'lucide-react';
 
 const TripCard = ({ trip }) => {
   const navigate = useNavigate();
   return (
     <div style={{
       backgroundColor: 'white',
-      borderRadius: '1rem',
+      borderRadius: '16px',
       overflow: 'hidden',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-      border: '1px solid #f3f4f6',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+      border: '1px solid #e5e7eb',
       display: 'flex',
       flexDirection: 'column',
       transition: 'transform 0.2s, box-shadow 0.2s',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      maxWidth: '380px'
     }}
       onClick={() => navigate(`/trip/${trip.id}`)}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.12)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
       }}
     >
       {/* Image Area */}
       <div style={{
-        height: '160px',
+        height: '140px',
         backgroundColor: '#e5e7eb',
         backgroundImage: `url(${trip.image})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         position: 'relative'
-      }}>
-        {/* Overlay Gradient */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '60%',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)'
-        }}></div>
-
-        <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'white', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-            {trip.title}
-          </h3>
-        </div>
-      </div>
+      }}></div>
 
       {/* Content */}
-      <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem', color: '#6b7280', fontSize: '0.9rem' }}>
-          <MapPin size={16} />
-          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{trip.locations}</span>
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {/* Title and Date Row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <h3 style={{ 
+            fontSize: '18px', 
+            fontWeight: '700', 
+            color: '#111827', 
+            margin: 0,
+            lineHeight: '1.3'
+          }}>
+            {trip.title}
+          </h3>
+          <span style={{
+            fontSize: '13px',
+            color: '#3b82f6',
+            fontWeight: '600',
+            whiteSpace: 'nowrap',
+            marginLeft: '12px'
+          }}>
+            {trip.tag}
+          </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', color: '#6b7280', fontSize: '0.9rem' }}>
-          <Calendar size={16} />
-          <span>{trip.tag}</span>
+        {/* Location */}
+        <div style={{ 
+          fontSize: '14px', 
+          color: '#6b7280',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}>
+          {trip.locations}
         </div>
 
-        <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Footer: Avatars and Button */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
           {/* Avatars */}
-          <div style={{ display: 'flex', marginLeft: '0.5rem' }}>
-            {trip.members.map((member, idx) => (
-              <div key={idx} style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                backgroundColor: '#d1d5db',
-                border: '2px solid white',
-                marginLeft: '-0.5rem',
-                backgroundImage: `url(${member})`,
-                backgroundSize: 'cover'
-              }}></div>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {trip.members && trip.members.length > 0 ? (
+              trip.members.slice(0, 4).map((member, idx) => (
+                <div key={idx} style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f3f4f6',
+                  border: '3px solid white',
+                  marginLeft: idx > 0 ? '-12px' : '0',
+                  backgroundImage: member.avatar ? `url(${member.avatar})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  color: '#6b7280',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
+                  position: 'relative',
+                  zIndex: trip.members.length - idx
+                }}>
+                  {!member.avatar && member.name ? member.name.charAt(0).toUpperCase() : ''}
+                </div>
+              ))
+            ) : (
+              <span style={{ fontSize: '13px', color: '#9ca3af' }}>Sem membros</span>
+            )}
           </div>
 
+          {/* Abrir Button */}
           <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/trip/${trip.id}`);
+            }}
             style={{
               backgroundColor: '#eff6ff',
               color: '#2563eb',
               border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
+              transition: 'background-color 0.2s'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dbeafe'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
           >
-            Abrir <ArrowRight size={16} />
+            Abrir
           </button>
         </div>
       </div>
