@@ -10,6 +10,10 @@ urlpatterns = [
     path('api/viagens/criar/', views.TripCreateView.as_view(), name='trip-create'),
     path('api/viagens/', views.listar_viagens_api, name='api_listar_viagens'),
     
+    # Rotas para Sugestões
+    path('viagem/<int:tripId>/sugestoes/', views.ListarCriarSugestoesView.as_view(), name='listar-criar-sugestoes'),
+    path('viagem/<int:tripId>/sugestoes/<int:sugestaoId>/', views.DetalheEditarDeleteSugestaoView.as_view(), name='detalhe-editar-delete-sugestao'),
+    path('viagem/<int:tripId>/sugestoes/<int:sugestaoId>/votar/', views.VotarSugestaoView.as_view(), name='votar-sugestao'),
     # URLs de Membros e Convites
     path('api/viagem/<int:viagem_id>/membros/', views.listar_membros_e_convites, name='api_listar_membros'),
     path('api/viagem/<int:viagem_id>/convites/enviar/', views.enviar_convites, name='api_enviar_convites'),
