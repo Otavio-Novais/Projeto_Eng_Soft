@@ -27,6 +27,45 @@ const tripsApi = {
             console.error('Erro ao listar viagens:', error);
             throw error;
         }
+    },
+
+    // Obter detalhes de uma viagem
+    obterViagem: async (tripId) => {
+        try {
+            const response = await api.get(`/planner/api/viagem/${tripId}/`, {
+                baseURL: API_BASE_URL
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao obter viagem:', error);
+            throw error;
+        }
+    },
+
+    // Obter finanças de uma viagem
+    obterFinancas: async (tripId) => {
+        try {
+            const response = await api.get(`/planner/api/viagem/${tripId}/financas/`, {
+                baseURL: API_BASE_URL
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao obter finanças:', error);
+            throw error;
+        }
+    },
+
+    // Criar nova despesa
+    criarDespesa: async (tripId, dadosDespesa) => {
+        try {
+            const response = await api.post(`/planner/api/viagem/${tripId}/despesa/nova/`, dadosDespesa, {
+                baseURL: API_BASE_URL
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao criar despesa:', error);
+            throw error;
+        }
     }
 };
 

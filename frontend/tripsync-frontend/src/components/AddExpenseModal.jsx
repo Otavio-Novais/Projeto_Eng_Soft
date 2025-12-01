@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, User, FileText, Check, ChevronDown, MapPin } from 'lucide-react';
 import CustomDatePicker from './common/CustomDatePicker';
+import tripsApi from '../services/tripsApi';
 import '../pages/Finance/Finance.css';
 
 const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
@@ -23,10 +24,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
 
     // Fetch Trips para o seletor
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/planner/api/viagens/', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')} ` }
-        })
-            .then(res => res.json())
+        tripsApi.listarViagens()
             .then(data => {
                 setTrips(data);
                 if (!selectedTripId && data.length > 0) {
@@ -40,8 +38,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
     useEffect(() => {
         if (!selectedTripId) return;
         setLoading(true);
-        fetch(`http://127.0.0.1:8000/planner/api/viagem/${selectedTripId}/financas/`)
-            .then(res => res.json())
+        tripsApi.obterFinancas(selectedTripId)
             .then(d => {
                 const users = d.resumo.map(u => ({ id: u.id, nome: u.nome, avatar: u.nome.charAt(0) }));
                 setParticipantes(users);
@@ -89,19 +86,16 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
         }
 
         try {
-            const res = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${selectedTripId}/despesa/nova/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    titulo,
-                    valor_total: total,
-                    pagador_id: pagadorId,
-                    data,
-                    rateios,
-                    status: isDraft ? 'RASCUNHO' : 'CONFIRMADO' // <--- AQUI O SEGRED0
-                })
+            await tripsApi.criarDespesa(selectedTripId, {
+                titulo,
+                valor_total: total,
+                pagador_id: pagadorId,
+                data,
+                rateios,
+                status: isDraft ? 'RASCUNHO' : 'CONFIRMADO'
             });
-            if (res.ok) { onSuccess(); onClose(); }
+            onSuccess();
+            onClose();
         } catch (err) { alert("Erro ao salvar"); }
     };
 
