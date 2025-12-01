@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { House, Map, Calendar, Plus } from 'lucide-react';
+import { Map, Calendar, Plus } from 'lucide-react';
 import './Suggestions.css'; // Importa o CSS para esta página
 import AddSuggestionModal from '../../components/add_suggestion/AddSuggestionModal';
 import suggestionsApi from '../../services/suggestionsApi';
@@ -23,14 +23,11 @@ const SugestaoCard = ({ id, tipo, titulo, descricao, autor_nome, autor_avatar, v
         }
     };
 
-    const [sugestaoSelecionada, setSugestaoSelecionada] = useState(null);
-    const [mostrarModal, setMostrarModal] = useState(false);
-
     async function abrirDetalhes(sugestaoId) {
         try {
             const data = await suggestionsApi.obterSugestao(tripId, sugestaoId);
-            setSugestaoSelecionada(data);
-            setMostrarModal(true);
+            console.log('Detalhes da sugestão:', data);
+            // TODO: Implementar modal de detalhes
         } catch (err) {
             console.error("Erro ao buscar detalhes:", err);
         }
@@ -176,6 +173,7 @@ function SuggestionsPage() {
         } else {
             setCarregando(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tripId]);
 
     const carregarSugestoes = async () => {

@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../services/api';
 
 const TripsContext = createContext();
@@ -69,6 +68,7 @@ export const TripsProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

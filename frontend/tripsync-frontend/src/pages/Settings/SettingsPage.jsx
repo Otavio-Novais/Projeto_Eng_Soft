@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, DollarSign, Globe, Bell, Shield, Trash2, LogOut, Save, Loader, Mail } from 'lucide-react';
+import { ArrowLeft, DollarSign, Globe, Bell, Shield, Trash2, LogOut, Save, Loader } from 'lucide-react';
 import { API_BASE_URL } from '../../services/api';
 import './SettingsPage.css';
 import ChangePasswordModal from '../../components/settings/ChangePasswordModal';

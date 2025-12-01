@@ -75,23 +75,6 @@ const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
     } catch(e) { alert("Erro"); } finally { setLoadingAction(false); }
   };
 
-  const handlePagarTudo = async () => {
-    if(!window.confirm("Isso marcará TODAS como pagas.")) return;
-    setLoadingAction(true);
-    const token = localStorage.getItem('token');
-    for (const t of transacoes) {
-        await fetch(`${API_BASE_URL}/planner/api/viagem/${viagemId}/liquidar/`, {
-            method: 'POST', 
-            headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ devedor_id: t.de.id, credor_id: t.para.id, valor: t.valor })
-        });
-    }
-    setLoadingAction(false); onRefresh();
-  };
-
   const handleExport = () => {
     let csv = "De,Para,Valor\n" + transacoes.map(t => `${t.de.nome},${t.para.nome},${t.valor}`).join("\n");
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -133,7 +116,7 @@ const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
                         transacoesFiltradas.map(t => (
                             <div key={t.id} className="trans-card">
                                 <div className="trans-left">
-                                    <div className="trans-avatar-box"><img src={`https://ui-avatars.com/api/?name=${t.de.nome}&background=random`} className="trans-avatar-img"/></div>
+                                    <div className="trans-avatar-box"><img src={`https://ui-avatars.com/api/?name=${t.de.nome}&background=random`} className="trans-avatar-img" alt={t.de.nome}/></div>
                                     <div className="trans-texts"><h4><b style={{fontWeight:800}}>{t.de.nome}</b> paga <b>R$ {t.valor.toFixed(2)}</b> para <b>{t.para.nome}</b></h4><p>Vencimento imediato</p></div>
                                 </div>
                                 <button onClick={()=>handlePagar(t)} className="btn-blue-action" disabled={loadingAction}><CheckCircle size={16}/> Acertar</button>

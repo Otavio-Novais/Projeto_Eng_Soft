@@ -31,6 +31,7 @@ const MembersPage = () => {
     if (selectedTripId) {
       loadMembersAndInvites();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTripId]);
 
   const loadMembersAndInvites = async () => {
@@ -50,7 +51,9 @@ const MembersPage = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw { response: { status: response.status, data: errorData } };
+        const error = new Error('Request failed');
+        error.response = { status: response.status, data: errorData };
+        throw error;
       }
 
       const data = await response.json();

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     PlusCircle, ArrowRightLeft, Search, Coffee, Home, Plane,
-    Plus, Menu, Eye, CheckCircle, Filter
+    Plus, Menu, Eye, CheckCircle
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
 import AddExpenseModal from '../../components/AddExpenseModal';
@@ -38,7 +38,7 @@ const FinancePage = () => {
         } else if (!tripId && trips.length > 0 && !selectedTripId) {
             setSelectedTripId(trips[0].id);
         }
-    }, [tripId, trips]);
+    }, [tripId, trips, selectedTripId]);
 
     // --- CARREGAR DADOS DA VIAGEM SELECIONADA ---
     const carregarDados = async () => {
@@ -66,6 +66,7 @@ const FinancePage = () => {
 
     useEffect(() => {
         carregarDados();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTripId]);
 
     // Handler para mudança no select

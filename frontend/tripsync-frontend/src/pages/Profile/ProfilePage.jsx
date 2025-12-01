@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Map, Camera, Save, Loader, Mail, Phone, Calendar, Globe, Bell, DollarSign, MapPin } from 'lucide-react';
+import { ArrowLeft, User, Camera, Save, Loader, Phone, Calendar, Globe, Bell, DollarSign, MapPin } from 'lucide-react';
 import CustomDatePicker from '../../components/common/CustomDatePicker';
 import { API_BASE_URL } from '../../services/api';
 import './ProfilePage.css';

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Share2, Settings, Bell, MapPin } from 'lucide-react';
+import { useParams, useLocation } from 'react-router-dom';
+import { Share2, Settings, MapPin } from 'lucide-react';
 
 const DashboardHeader = () => {
-  const navigate = useNavigate();
   const { tripId } = useParams();
   const location = useLocation();
   const [tripData, setTripData] = useState(null);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar';
 import CreateTripModal from '../../components/create_trip/CreateTripModal';
@@ -8,19 +8,13 @@ import { useAuthCheck } from '../../hooks/useAuthCheck';
 import { API_BASE_URL } from '../../services/api';
 
 import {
-    Map,
     Plus,
-    User,
     Calendar,
     Users,
     ArrowRight,
     LayoutGrid,
     Clock,
-    CheckCircle,
-    Wallet,
-    Settings,
-    LogOut,
-    ChevronDown
+    CheckCircle
 } from 'lucide-react';
 import './MyTripsPage.css';
 
@@ -33,10 +27,6 @@ const MyTripsPage = () => {
     const [filtro, setFiltro] = useState('TODAS');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [loadingTripId, setLoadingTripId] = useState(null);
-
-    // Estado para o Menu Suspenso (se ainda for necessário no header interno, mas com sidebar talvez não precise tanto)
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const menuRef = useRef(null);
 
     useEffect(() => {
         const mapped = trips.map(v => ({

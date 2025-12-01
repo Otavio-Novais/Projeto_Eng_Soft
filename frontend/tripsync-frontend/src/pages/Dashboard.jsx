@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Plus, Grid, Clock, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Plus, Grid, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import Sidebar from '../components/layout/Sidebar';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import TripCard from '../components/dashboard/TripCard';

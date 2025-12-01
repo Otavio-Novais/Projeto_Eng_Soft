@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, DollarSign, Calendar, User, FileText, Check, ChevronDown, MapPin } from 'lucide-react';
+import { X, Calendar, User, FileText, Check, ChevronDown, MapPin } from 'lucide-react';
 import CustomDatePicker from './common/CustomDatePicker';
 import '../pages/Finance/Finance.css';
 
@@ -34,7 +34,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
                 }
             })
             .catch(err => console.error("Erro ao carregar viagens:", err));
-    }, []);
+    }, [selectedTripId]);
 
     // Fetch Participantes quando a viagem selecionada muda
     useEffect(() => {
