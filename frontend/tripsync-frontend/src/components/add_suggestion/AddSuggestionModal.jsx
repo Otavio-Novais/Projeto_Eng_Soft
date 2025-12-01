@@ -36,7 +36,7 @@ function AddSuggestionModal({ isOpen, onClose, tripId, onSuggestaoAdicionada }) 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!formData.titulo.trim() || !formData.tipo || !formData.descricao.trim()) {
+        if (!formData.titulo.trim() || !formData.tipo) {
             setErro('Preencha todos os campos obrigatórios');
             return;
         }
@@ -137,7 +137,7 @@ function AddSuggestionModal({ isOpen, onClose, tripId, onSuggestaoAdicionada }) 
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="descricao">Descrição <span className="obrigatorio">*</span></label>
+                        <label htmlFor="descricao">Descrição</label>
                         <textarea 
                             id="descricao" 
                             rows="4" 
@@ -152,7 +152,7 @@ function AddSuggestionModal({ isOpen, onClose, tripId, onSuggestaoAdicionada }) 
                     <div className="adicionar-sugestao-footer">
                         <div className="aviso-obrigatorio">
                             <span className="info-icon">ⓘ</span>
-                            Campos obrigatórios: Título, Categoria e Descrição.
+                            Campos obrigatórios: Título e Categoria.
                         </div>
                         <div className="botoes-acao">
                             <button 

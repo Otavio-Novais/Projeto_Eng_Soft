@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { House, Map } from 'lucide-react';
+import { House, Map, Calendar, Plus } from 'lucide-react';
 import './Suggestions.css'; // Importa o CSS para esta página
 import AddSuggestionModal from '../../components/add_suggestion/AddSuggestionModal';
 import suggestionsApi from '../../services/suggestionsApi';
 import { API_BASE_URL } from '../../services/api';
+import { useTrips } from '../../contexts/TripsContext';
+import Sidebar from '../../components/layout/Sidebar';
 
 // Componente para um card de sugestão individual
-const SugestaoCard = ({ id, tipo, titulo, autor_nome, autor_avatar, votos_count, status, usuario_votou, onVote, tripId }) => {
+const SugestaoCard = ({ id, tipo, titulo, descricao, autor_nome, autor_avatar, votos_count, status, usuario_votou, onVote, tripId }) => {
     const [votandoId, setVotandoId] = useState(null);
-    const [votouAtual, setVotouAtual] = useState(usuario_votou);
-    const [votosAtual, setVotosAtual] = useState(votos_count);
-
 
     const handleVoto = async () => {
         setVotandoId(id);
         try {
             await onVote(id);
-            setVotouAtual(!votouAtual);
-            setVotosAtual(votouAtual ? votosAtual - 1 : votosAtual + 1);
         } catch (error) {
             console.error('Erro ao votar:', error);
         } finally {
@@ -31,20 +28,9 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, autor_avatar, votos_count,
 
     async function abrirDetalhes(sugestaoId) {
         try {
-            const response = await fetch(
-                `/api/trips/${tripId}/sugestoes/${sugestaoId}/`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    }
-                }
-            );
-
-            const data = await response.json();
+            const data = await suggestionsApi.obterSugestao(tripId, sugestaoId);
             setSugestaoSelecionada(data);
             setMostrarModal(true);
-
         } catch (err) {
             console.error("Erro ao buscar detalhes:", err);
         }
@@ -75,6 +61,23 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, autor_avatar, votos_count,
             {/* Título */}
             <h3>{titulo}</h3>
 
+            {/* Descrição */}
+            {descricao && (
+                <p className="sugestao-descricao" style={{
+                    color: '#64748b',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    margin: '0.75rem 0',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical'
+                }}>
+                    {descricao}
+                </p>
+            )}
+
             {/* Autor e Foto */}
             <div className="sugestao-autor-info">
                 <div className="autor-foto" style={{
@@ -104,33 +107,47 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, autor_avatar, votos_count,
                     <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M7 11v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1V5a1 1 0 0 1 1-1h1.24a2 2 0 0 1 1.944 1.341l.942 2.825a.8.8 0 0 0 .614.534l3.818.572a1 1 0 0 1 .742.981v5.747a1 1 0 0 1-.742.981l-3.818.572a.8.8 0 0 0-.614.534l-.942 2.825A2 2 0 0 1 10.24 20H8"></path>
                     </svg>
-                    <span>{votosAtual} a favor</span>
+                    <span>{votos_count} a favor</span>
                 </div>
                 <div className="progresso-e-aprovacao">
                     <div className="barra-progresso">
-                        <div className="progresso-preenchido" style={{ width: `${Math.min(votosAtual * 10, 100)}%` }}></div>
+                        <div className="progresso-preenchido" style={{ width: `${Math.min(votos_count * 10, 100)}%` }}></div>
                     </div>
-                    <span className="aprovacao-info">{Math.min(votosAtual * 10, 100)}% aprovação</span>
+                    <span className="aprovacao-info">{Math.min(votos_count * 10, 100)}% aprovação</span>
                 </div>
             </div>
 
             {/* Botões de Ação */}
             <div className="card-actions">
                 <button
-                    className={`btn-votar ${votouAtual ? 'votado' : ''}`}
+                    className={`btn-votar ${usuario_votou ? 'votado' : ''} ${votandoId === id ? 'voting' : ''}`}
                     onClick={handleVoto}
                     disabled={votandoId === id}
                     style={{
-                        opacity: votandoId === id ? 0.6 : 1,
                         cursor: votandoId === id ? 'not-allowed' : 'pointer',
-                        backgroundColor: votouAtual ? '#28a745' : ''
+                        backgroundColor: usuario_votou ? '#28a745' : ''
                     }}
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M7 10v10l5-4 5 4V10c0-1.657-1.343-3-3-3h-4c-1.657 0-3 1.343-3 3z"></path>
-                        <path d="M7 3h4l-3 4-1-4zM13 3h4l-1 4-3-4z"></path>
-                    </svg>
-                    {votouAtual ? 'Voto dado' : 'Votar'}
+                    {votandoId === id ? (
+                        <svg className="spinner" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10" strokeDasharray="32" strokeDashoffset="0">
+                                <animateTransform
+                                    attributeName="transform"
+                                    type="rotate"
+                                    from="0 12 12"
+                                    to="360 12 12"
+                                    dur="1s"
+                                    repeatCount="indefinite"
+                                />
+                            </circle>
+                        </svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M7 10v10l5-4 5 4V10c0-1.657-1.343-3-3-3h-4c-1.657 0-3 1.343-3 3z"></path>
+                            <path d="M7 3h4l-3 4-1-4zM13 3h4l-1 4-3-4z"></path>
+                        </svg>
+                    )}
+                    {votandoId === id ? 'Votando...' : (usuario_votou ? 'Voto dado' : 'Votar')}
                 </button>
                 <button className="btn-detalhes"
                     onClick={() => abrirDetalhes(id)}
@@ -144,6 +161,7 @@ function SuggestionsPage() {
 
     const navigate = useNavigate();
     const { tripId } = useParams();
+    const { trips, loading: loadingTrips } = useTrips();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [filtroSelecionado, setFiltroSelecionado] = useState('Todas');
@@ -151,22 +169,26 @@ function SuggestionsPage() {
     const [sugestoes, setSugestoes] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
-
     // Buscar sugestões da API quando o componente carregar
     useEffect(() => {
         if (tripId) {
             carregarSugestoes();
+        } else {
+            setCarregando(false);
         }
     }, [tripId]);
 
     const carregarSugestoes = async () => {
         try {
             setCarregando(true);
+            console.log('Carregando sugestões para tripId:', tripId);
             const dados = await suggestionsApi.listarSugestoes(tripId);
+            console.log('Dados recebidos:', dados);
             setSugestoes(dados);
             setErro(null);
         } catch (err) {
             console.error('Erro ao carregar sugestões:', err);
+            console.error('Detalhes do erro:', err.response?.data || err.message);
             setErro('Erro ao carregar sugestões. Tente novamente.');
         } finally {
             setCarregando(false);
@@ -175,11 +197,26 @@ function SuggestionsPage() {
 
     const handleVoto = async (sugestaoId) => {
         try {
-            await suggestionsApi.votarSugestao(tripId, sugestaoId);
-            // Recarregar sugestões para atualizar contagem de votos
-            await carregarSugestoes();
+            console.log('Votando na sugestão:', sugestaoId);
+            const resultado = await suggestionsApi.votarSugestao(tripId, sugestaoId);
+            console.log('Resultado do voto:', resultado);
+            
+            // Atualizar localmente sem recarregar toda a lista
+            setSugestoes(prevSugestoes => 
+                prevSugestoes.map(sugestao => 
+                    sugestao.id === sugestaoId 
+                        ? {
+                            ...sugestao,
+                            usuario_votou: resultado.voted !== undefined ? resultado.voted : resultado.votou,
+                            votos_count: resultado.votes_count
+                          }
+                        : sugestao
+                )
+            );
         } catch (error) {
             console.error('Erro ao votar:', error);
+            console.error('Detalhes:', error.response?.data);
+            console.error('Status:', error.response?.status);
             setErro('Erro ao votar. Tente novamente.');
         }
     };
@@ -204,51 +241,44 @@ function SuggestionsPage() {
     });
 
     return (
-        <div className="sugestoes-page-container">
-            {/* Top Bar - "Tripsync", Dashboard, Tela de Viagem */}
-            <div className="top-bar">
-                {/* 1. Logo Tripsync (Ícone + Título) */}
-                <div className="top-bar-left">
-                    <div className="logo-icon-wrapper">
-                        <Map size={18} color="#007bff" />
-                    </div>
-                    <span className="tripsync-title">Tripsync</span>
-                </div>
+        <>
+            <div style={{
+                display: "flex",
+                minHeight: "100vh",
+                backgroundColor: "#ffffff",
+            }}>
+                {/* SIDEBAR FIXA */}
+                <Sidebar activeTab="Sugestões" />
 
-                {/* 2. Botões de Navegação (Dashboard e Tela de Viagem) */}
-                <div className="top-bar-right">
-                    <button
-                        className="top-bar-btn icon-button-active"
-                        onClick={() => {
-                            navigate('/dashboard');
-                        }}
-                    >
-                        <div className='icon-wrapper'>
-                            <House size={16} color="#007bff" />
+                <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    {/* HEADER SIMPLIFICADO */}
+                    <header style={{
+                        backgroundColor: 'white',
+                        borderBottom: '1px solid #e5e7eb',
+                        padding: '1.5rem 2rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <div className="dash-title">
+                            <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827', margin: 0 }}>Banco de Sugestões</h1>
+                            <p style={{ color: '#6b7280', margin: 0 }}>Reúna ideias do grupo, filtre por categoria e acompanhe a votação.</p>
                         </div>
-                        Dashboard
-                    </button>
-                    <button className="top-bar-btn icon-button-active"
-                        onClick={() => {
-                            if (tripId) navigate(`/trip/${tripId}`);
-                        }}
-                    >
+                        <button
+                            className="btn-nav-primary"
+                            onClick={() => setIsModalOpen(true)}
+                            style={{
+                                backgroundColor: '#0066ff', color: 'white', border: 'none',
+                                padding: '0.6rem 1.2rem', borderRadius: '2rem', fontWeight: '600',
+                                display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer'
+                            }}
+                        >
+                            <Plus size={16} /> Adicionar Sugestão
+                        </button>
+                    </header>
 
-                        <div className='icon-wrapper'>
-                            <Map size={16} color="#007bff" />
-                        </div>
-                        Tela de Viagem
-                    </button>
-                </div>
-            </div>
-
-            {/* Main Content Area */}
-            <div className="sugestoes-content-wrapper">
-
-                <div className="sugestoes-header-section">
-                    <h2>Banco de Sugestões</h2>
-                    <p>Reúna ideias do grupo, filtre por categoria e acompanhe a votação.</p>
-                </div>
+                    {/* Main Content Area */}
+                    <div className="sugestoes-content-wrapper" style={{ padding: '2rem' }}>
 
                 {/* Filter and Search Section */}
                 <div className="sugestoes-filtros">
@@ -318,17 +348,6 @@ function SuggestionsPage() {
                             />
                         </div>
                     </div>
-
-                    {/* Botão ADICIONAR SUGESTÃO */}
-                    <button className="btn-adicionar-sugestao"
-                        onClick={() => setIsModalOpen(true)}>
-                        {/* Ícone de Adicionar (+) - Branco */}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        Adicionar Sugestão
-                    </button>
                 </div>
 
                 {/* Lista de Sugestões */}
@@ -336,37 +355,157 @@ function SuggestionsPage() {
                     <h3>{filtroSelecionado === 'Todas' ? 'Todas as sugestões' : `Sugestões de ${filtroSelecionado}`}</h3>
                 </div>
 
-                {erro && (
+                {!tripId ? (
+                    // Seletor de viagem quando não há tripId
                     <div style={{
-                        padding: '1rem',
-                        backgroundColor: '#fee',
-                        color: '#c33',
-                        borderRadius: '4px',
-                        marginBottom: '1rem'
+                        padding: '2rem',
+                        backgroundColor: '#f8fafc',
+                        borderRadius: '12px',
+                        textAlign: 'center'
                     }}>
-                        {erro}
-                    </div>
-                )}
-
-                {carregando ? (
-                    <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
-                        Carregando sugestões...
-                    </div>
-                ) : sugestoesFiltradas.length === 0 ? (
-                    <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
-                        Nenhuma sugestão encontrada
+                        <h3 style={{ marginBottom: '1rem', color: '#334155' }}>
+                            Selecione uma viagem para ver as sugestões
+                        </h3>
+                        <p style={{ marginBottom: '2rem', color: '#64748b' }}>
+                            Escolha uma das suas viagens abaixo:
+                        </p>
+                        
+                        {loadingTrips ? (
+                            <div style={{ color: '#999' }}>Carregando viagens...</div>
+                        ) : trips.length === 0 ? (
+                            <div>
+                                <p style={{ marginBottom: '1rem', color: '#64748b' }}>
+                                    Você ainda não tem viagens criadas.
+                                </p>
+                                <button 
+                                    onClick={() => navigate('/dashboard')}
+                                    style={{
+                                        padding: '0.75rem 1.5rem',
+                                        backgroundColor: '#007bff',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    Criar Nova Viagem
+                                </button>
+                            </div>
+                        ) : (
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                                gap: '1.5rem',
+                                marginTop: '1.5rem'
+                            }}>
+                                {trips.map(trip => (
+                                    <div
+                                        key={trip.id}
+                                        onClick={() => navigate(`/trip/${trip.id}/suggestions`)}
+                                        style={{
+                                            padding: '2rem',
+                                            backgroundColor: 'white',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e2e8f0',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            textAlign: 'left'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        {trip.imagem && (
+                                            <img 
+                                                src={trip.imagem.startsWith('http') ? trip.imagem : `${API_BASE_URL}${trip.imagem}`}
+                                                alt={trip.nome}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '160px',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                    marginBottom: '1.25rem'
+                                                }}
+                                            />
+                                        )}
+                                        <h4 style={{ 
+                                            margin: '0 0 0.75rem 0', 
+                                            color: '#1e293b',
+                                            fontSize: '18px',
+                                            fontWeight: '600'
+                                        }}>
+                                            {trip.nome || trip.titulo}
+                                        </h4>
+                                        <p style={{ 
+                                            margin: '0 0 0.75rem 0', 
+                                            color: '#64748b',
+                                            fontSize: '15px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            <Map size={16} />
+                                            {trip.destino}
+                                        </p>
+                                        <p style={{ 
+                                            margin: 0, 
+                                            color: '#94a3b8',
+                                            fontSize: '14px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            <Calendar size={16} />
+                                            {new Date(trip.data_inicio).toLocaleDateString('pt-BR')} - {new Date(trip.data_fim).toLocaleDateString('pt-BR')}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ) : (
-                    <div className="sugestoes-grid">
-                        {sugestoesFiltradas.map(sugestao => (
-                            <SugestaoCard
-                                key={sugestao.id}
-                                {...sugestao}
-                                tripId={tripId}
-                                onVote={handleVoto}
-                            />
-                        ))}
-                    </div>
+                    <>
+                        {erro && (
+                            <div style={{
+                                padding: '1.5rem',
+                                backgroundColor: '#fee2e2',
+                                color: '#991b1b',
+                                borderRadius: '8px',
+                                marginBottom: '1rem',
+                                textAlign: 'center'
+                            }}>
+                                {erro}
+                            </div>
+                        )}
+
+                        {carregando ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                                Carregando sugestões...
+                            </div>
+                        ) : sugestoesFiltradas.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                                Nenhuma sugestão encontrada
+                            </div>
+                        ) : (
+                            <div className="sugestoes-grid">
+                                {sugestoesFiltradas.map(sugestao => (
+                                    <SugestaoCard
+                                        key={sugestao.id}
+                                        {...sugestao}
+                                        tripId={tripId}
+                                        onVote={handleVoto}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
@@ -376,7 +515,9 @@ function SuggestionsPage() {
                 tripId={tripId}
                 onSuggestaoAdicionada={handleAdicionar}
             />
-        </div>
+                </div>
+            </div>
+        </>
     );
 }
 

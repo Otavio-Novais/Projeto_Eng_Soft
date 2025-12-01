@@ -45,7 +45,7 @@ const TripDashboard = () => {
       })
         .then(res => res.json())
         .then(data => {
-          const ultimas = Array.isArray(data) ? data.slice(0, 2) : [];
+          const ultimas = Array.isArray(data) ? data : [];
           setRecentSuggestions(ultimas);
         })
         .catch(err => console.error("Erro ao carregar sugestões:", err))
@@ -214,10 +214,16 @@ const TripDashboard = () => {
               <div className="trip-grid-column">
                 <section className="trip-white-container trip-full-height">
                   <div className="trip-card-header-row">
-                    <span className="trip-card-title">Sugestões recentes</span>
+                    <span className="trip-card-title">Sugestões ({recentSuggestions.length})</span>
                   </div>
 
-                  <div className="trip-card-list centered-list">
+                  <div className="trip-card-list" style={{
+                    maxHeight: '400px',
+                    overflowY: 'auto',
+                    paddingRight: '0.5rem',
+                    flex: 1,
+                    justifyContent: 'flex-start'
+                  }}>
                     {recentSuggestions.length > 0 ? (
                       recentSuggestions.map(sugestao => (
                         <div key={sugestao.id} className="trip-item-card">

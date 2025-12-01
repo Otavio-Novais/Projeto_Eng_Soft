@@ -513,17 +513,23 @@ class VotarSugestaoView(APIView):
         if voto:
             # Se já votou, remove o voto (toggle)
             voto.delete()
-            return Response(
-                {'message': 'Voto removido', 'votou': False},
-                status=status.HTTP_200_OK
-            )
+            votou = False
         else:
             # Se não votou, adiciona o voto
             Voto.objects.create(sugestao=sugestao, usuario=request.user)
-            return Response(
-                {'message': 'Voto adicionado', 'votou': True},
-                status=status.HTTP_201_CREATED
-            )
+            votou = True
+        
+        # Retornar o novo total de votos
+        votes_count = sugestao.votos.count()
+        
+        return Response(
+            {
+                'message': 'Voto removido' if not votou else 'Voto adicionado',
+                'voted': votou,
+                'votes_count': votes_count
+            },
+            status=status.HTTP_200_OK
+        )
 # ===== VIEWS PARA MEMBROS E CONVITES =====
 from .models import TripMember, TripInvite
 from .serializers import TripMemberSerializer, TripInviteSerializer
