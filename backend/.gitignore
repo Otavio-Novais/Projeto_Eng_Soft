@@ -1,19 +1,109 @@
-# Arquivos de Cache e Bytecode do Python
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
 *.pyc
 *.pyo
 *.pyd
+*.so
+.Python
 
-# Pasta do Ambiente Virtual
+# Ambiente Virtual
 venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
 
-# Arquivo do Banco de Dados SQLite
+# Django
+*.log
+*.pot
 db.sqlite3
+db.sqlite3-journal
 *.sqlite3
+/media/
+/staticfiles/
+/static/
+local_settings.py
 
-# Arquivos de configuração de IDEs (opcional, mas recomendado)
+# Arquivos de Migração (opcional - descomente se quiser ignorar)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Variáveis de Ambiente e Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Arquivos de Upload/Media (dependendo do projeto)
+avatars/
+trip_covers/
+
+# IDEs e Editores
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.vscode/settings.json
 
-# Arquivos de segredos (boa prática para o futuro)
-.env
+# Testes e Coverage
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+nosetests.xml
+test-results/
+
+# Distribuição / Packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Sistema Operacional
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Arquivos Temporários
+*.bak
+*.tmp
+*.temp
+*.swp
