@@ -273,7 +273,7 @@ class ChangePasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Adicione esta classe no final do arquivo
+
 class DeleteAccountView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -285,3 +285,5 @@ class DeleteAccountView(APIView):
             {"message": "Conta desativada com sucesso."},
             status=status.HTTP_204_NO_CONTENT,
         )
+
+

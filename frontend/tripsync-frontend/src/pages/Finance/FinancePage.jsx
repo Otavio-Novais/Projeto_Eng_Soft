@@ -7,15 +7,19 @@ import {
 import Sidebar from '../../components/layout/Sidebar';
 import AddExpenseModal from '../../components/AddExpenseModal';
 import SettlementModal from '../../components/SettlementModal';
+import { useTrips } from '../../contexts/TripsContext';
+import { useAuthCheck } from '../../hooks/useAuthCheck';
 import { API_BASE_URL } from '../../services/api';
+import SearchableSelect from '../../components/common/SearchableSelect';
 import './Finance.css';
 
 const FinancePage = () => {
+    useAuthCheck(); // Verifica autenticação
     const { tripId } = useParams();
     const navigate = useNavigate();
     const [dados, setDados] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [trips, setTrips] = useState([]);
+    const { trips } = useTrips();
     const [selectedTripId, setSelectedTripId] = useState(tripId || '');
 
     // Modais
@@ -27,33 +31,14 @@ const FinancePage = () => {
     const [filtroRapido, setFiltroRapido] = useState('TODOS');
     const [mostrarTodas, setMostrarTodas] = useState(false);
 
-    // --- CARREGAR VIAGENS (Para o seletor) ---
+    // Atualiza selectedTripId se a URL mudar ou trips carregarem
     useEffect(() => {
-        const fetchTrips = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE_URL}/planner/api/viagens/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setTrips(data);
-                    // Se não tiver tripId na URL e tiver viagens, seleciona a primeira (ou a mais recente)
-                    if (!tripId && data.length > 0) {
-                        setSelectedTripId(data[0].id);
-                    }
-                }
-            } catch (err) {
-                console.error("Erro ao buscar viagens:", err);
-            }
-        };
-        fetchTrips();
-    }, [tripId]);
-
-    // Atualiza selectedTripId se a URL mudar
-    useEffect(() => {
-        if (tripId) setSelectedTripId(tripId);
-    }, [tripId]);
+        if (tripId) {
+            setSelectedTripId(tripId);
+        } else if (!tripId && trips.length > 0 && !selectedTripId) {
+            setSelectedTripId(trips[0].id);
+        }
+    }, [tripId, trips]);
 
     // --- CARREGAR DADOS DA VIAGEM SELECIONADA ---
     const carregarDados = async () => {
@@ -84,13 +69,8 @@ const FinancePage = () => {
     }, [selectedTripId]);
 
     // Handler para mudança no select
-    const handleTripChange = (e) => {
-        const newId = e.target.value;
+    const handleTripChange = (newId) => {
         setSelectedTripId(newId);
-        // Opcional: Atualizar a URL para refletir a viagem selecionada
-        // navigate(`/viagem/${newId}/financas`); 
-        // Mas como temos a rota global /financas, podemos manter nela se o usuário estiver nela.
-        // Se estiver em /viagem/:id/financas, talvez faça sentido mudar a URL.
         if (tripId) {
             navigate(`/viagem/${newId}/financas`);
         }
@@ -99,20 +79,35 @@ const FinancePage = () => {
     // --- WIDGET SUGESTÕES ---
     const sugestoesWidget = useMemo(() => {
         if (!dados || !dados.resumo) return [];
-        let devedores = dados.resumo.filter(u => u.saldo < -0.01).map(u => ({ ...u, saldo: Math.abs(u.saldo) }));
-        let credores = dados.resumo.filter(u => u.saldo > 0.01);
+
+        // Criar cópias profundas para não modificar dados.resumo original
+        let devedores = dados.resumo
+            .filter(u => u.saldo < -0.01)
+            .map(u => ({ id: u.id, nome: u.nome, saldo: Math.abs(u.saldo), avatar: u.avatar }));
+        let credores = dados.resumo
+            .filter(u => u.saldo > 0.01)
+            .map(u => ({ id: u.id, nome: u.nome, saldo: u.saldo, avatar: u.avatar }));
+
         devedores.sort((a, b) => b.saldo - a.saldo);
         credores.sort((a, b) => b.saldo - a.saldo);
+
         let resultado = [];
         let i = 0, j = 0;
         while (i < devedores.length && j < credores.length && resultado.length < 3) {
             let devedor = devedores[i];
             let credor = credores[j];
             let valor = Math.min(devedor.saldo, credor.saldo);
-            resultado.push({ id: `${devedor.id}-${credor.id}`, de: devedor.nome, para: credor.nome, valor: valor });
+            resultado.push({
+                id: `${devedor.id}-${credor.id}`,
+                de: devedor.nome,
+                para: credor.nome,
+                valor: valor,
+                deAvatar: devedor.avatar
+            });
             devedor.saldo -= valor; credor.saldo -= valor;
             if (devedor.saldo < 0.01) i++; if (credor.saldo < 0.01) j++;
         }
+
         return resultado;
     }, [dados]);
 
@@ -133,7 +128,7 @@ const FinancePage = () => {
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#ffffff' }}>
-            <Sidebar activeTab="Finanças" />
+            <Sidebar activeTab="Finanças" tripIdOverride={selectedTripId} />
 
             <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div className="finance-container" style={{ padding: '2rem' }}>
@@ -141,29 +136,12 @@ const FinancePage = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <h1 style={{ margin: 0 }}>Finanças</h1>
                             {/* SELETOR DE VIAGEM */}
-                            <div style={{ position: 'relative' }}>
-                                <select
-                                    value={selectedTripId}
-                                    onChange={handleTripChange}
-                                    style={{
-                                        padding: '0.5rem 2rem 0.5rem 1rem',
-                                        borderRadius: '8px',
-                                        border: '1px solid #e5e7eb',
-                                        backgroundColor: 'white',
-                                        fontSize: '1rem',
-                                        fontWeight: '500',
-                                        color: '#374151',
-                                        cursor: 'pointer',
-                                        appearance: 'none'
-                                    }}
-                                >
-                                    {trips.length === 0 && <option value="">Nenhuma viagem encontrada</option>}
-                                    {trips.map(t => (
-                                        <option key={t.id} value={t.id}>{t.titulo}</option>
-                                    ))}
-                                </select>
-                                <Filter size={16} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
-                            </div>
+                            <SearchableSelect
+                                options={trips.map(t => ({ value: t.id, label: t.titulo }))}
+                                value={Number(selectedTripId)}
+                                onChange={handleTripChange}
+                                placeholder="Selecione uma viagem..."
+                            />
                         </div>
 
                         <div className="header-actions">
@@ -207,7 +185,11 @@ const FinancePage = () => {
                                         {(dados?.resumo || []).map(u => (
                                             <div key={u.id} className="user-card-clean">
                                                 <div className="user-left">
-                                                    <img src={`https://ui-avatars.com/api/?name=${u.nome}&background=random`} className="avatar-img" alt="" />
+                                                    <img
+                                                        src={u.avatar ? u.avatar : `https://ui-avatars.com/api/?name=${u.nome}&background=random`}
+                                                        className="avatar-img"
+                                                        alt=""
+                                                    />
                                                     <div className="user-texts"><h4>{u.nome}</h4><p>Saldo líquido</p></div>
                                                 </div>
                                                 <div className={`money-badge ${u.saldo >= 0 ? 'bg-green' : 'bg-red'}`}>{u.saldo >= 0 ? `+R$ ${Math.abs(u.saldo).toFixed(2)}` : `-R$ ${Math.abs(u.saldo).toFixed(2)}`}</div>
@@ -225,19 +207,36 @@ const FinancePage = () => {
                                     </div>
 
                                     {listaExibida.length === 0 ? <p style={{ textAlign: 'center', color: '#9CA3AF', padding: 20 }}>Nenhuma despesa lançada.</p> :
-                                        listaExibida.map(d => (
-                                            <div key={d.id} className="expense-item-row">
-                                                <div className="icon-circle">
-                                                    {d.titulo.toLowerCase().includes('hospedagem') ? <Home size={20} /> :
-                                                        d.titulo.toLowerCase().includes('transporte') ? <Plane size={20} /> : <Coffee size={20} />}
+                                        listaExibida.map(d => {
+                                            // Encontrar avatar do pagador
+                                            const pagadorInfo = dados?.resumo?.find(u => u.id === d.pagador_id);
+                                            const avatarUrl = pagadorInfo?.avatar
+                                                ? pagadorInfo.avatar
+                                                : (pagadorInfo
+                                                    ? `https://ui-avatars.com/api/?name=${pagadorInfo.nome}&background=random`
+                                                    : `https://ui-avatars.com/api/?name=${d.pagador}&background=random`);
+
+                                            return (
+                                                <div key={d.id} className="expense-item-row">
+                                                    <div className="icon-circle">
+                                                        {d.titulo.toLowerCase().includes('hospedagem') ? <Home size={20} /> :
+                                                            d.titulo.toLowerCase().includes('transporte') ? <Plane size={20} /> : <Coffee size={20} />}
+                                                    </div>
+                                                    <div className="exp-info">
+                                                        <h4>{d.titulo} {d.status === 'RASCUNHO' && <span style={{ fontSize: 10, background: '#F3F4F6', padding: '2px 6px', borderRadius: 4, color: '#6B7280', marginLeft: 6, border: '1px solid #E5E7EB' }}>Rascunho</span>}</h4>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                                                            <img
+                                                                src={avatarUrl}
+                                                                alt={d.pagador}
+                                                                style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }}
+                                                            />
+                                                            <p style={{ margin: 0 }}>Pago por {d.pagador} • {d.data}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="exp-value">R$ {d.valor.toFixed(2)}</div>
                                                 </div>
-                                                <div className="exp-info">
-                                                    <h4>{d.titulo} {d.status === 'RASCUNHO' && <span style={{ fontSize: 10, background: '#F3F4F6', padding: '2px 6px', borderRadius: 4, color: '#6B7280', marginLeft: 6, border: '1px solid #E5E7EB' }}>Rascunho</span>}</h4>
-                                                    <p>Pago por {d.pagador} • {d.data}</p>
-                                                </div>
-                                                <div className="exp-value">R$ {d.valor.toFixed(2)}</div>
-                                            </div>
-                                        ))
+                                            );
+                                        })
                                     }
                                 </section>
                             </div>
@@ -249,7 +248,14 @@ const FinancePage = () => {
                                     {sugestoesWidget.length === 0 ? <p style={{ fontSize: 13, color: '#94A3B8' }}>Tudo quitado!</p> :
                                         sugestoesWidget.map(s => (
                                             <div key={s.id} className="debt-row">
-                                                <div className="debt-text"><img src={`https://ui-avatars.com/api/?name=${s.de}&background=random`} className="debt-avatar" alt="" />{s.de} paga {s.para}</div>
+                                                <div className="debt-text">
+                                                    <img
+                                                        src={s.deAvatar ? s.deAvatar : `https://ui-avatars.com/api/?name=${s.de}&background=random`}
+                                                        className="debt-avatar"
+                                                        alt=""
+                                                    />
+                                                    {s.de} paga {s.para}
+                                                </div>
                                                 <span className="debt-value" style={{ color: '#0066FF' }}>R$ {s.valor.toFixed(2)}</span>
                                             </div>
                                         ))

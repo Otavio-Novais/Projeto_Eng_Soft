@@ -20,7 +20,7 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, votos_count, status, usuar
     const [votandoId, setVotandoId] = useState(null);
     const [votouAtual, setVotouAtual] = useState(usuario_votou);
     const [votosAtual, setVotosAtual] = useState(votos_count);
-    
+
 
     const handleVoto = async () => {
         setVotandoId(id);
@@ -75,7 +75,7 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, votos_count, status, usuar
 
             {/* Título */}
             <h3>{titulo}</h3>
-            
+
             {/* Autor e Foto */}
             <div className="sugestao-autor-info">
                 <div className="autor-foto" style={{
@@ -113,7 +113,7 @@ const SugestaoCard = ({ id, tipo, titulo, autor_nome, votos_count, status, usuar
 
             {/* Botões de Ação */}
             <div className="card-actions">
-                <button 
+                <button
                     className={`btn-votar ${votouAtual ? 'votado' : ''}`}
                     onClick={handleVoto}
                     disabled={votandoId === id}
@@ -213,7 +213,7 @@ function SuggestionsPage() {
                     </div>
                     <span className="tripsync-title">Tripsync</span>
                 </div>
-                
+
                 {/* 2. Botões de Navegação (Dashboard e Tela de Viagem) */}
                 <div className="top-bar-right">
                     <button
@@ -234,7 +234,7 @@ function SuggestionsPage() {
                             if (tripId) navigate(`/trip/${tripId}`);
                         }}
                     >
-                        
+
                         <div className='icon-wrapper'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#007bff' fill="none" style={{ strokeWidth: '2' }}>
                                 <path fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7M16 3h-1a2 2 0 0 0-2 2v1H11V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v1H5a2 2 0 0 0-2 2v2h18V7a2 2 0 0 0-2-2h-1V5a2 2 0 0 0-2-2z"></path>
@@ -256,7 +256,7 @@ function SuggestionsPage() {
                 <div className="sugestoes-filtros">
                     <div className="filtros-botoes">
                         {/* Botão ATIVO - Fundo Azul Escuro */}
-                        <button 
+                        <button
                             className={`filtro-btn ${filtroSelecionado === 'Todas' ? 'ativo' : ''}`}
                             onClick={() => setFiltroSelecionado('Todas')}
                         >
@@ -266,9 +266,9 @@ function SuggestionsPage() {
                             </svg>
                             Todas
                         </button>
-                        
+
                         {/* Botão HOSPEDAGEM */}
-                        <button 
+                        <button
                             className={`filtro-btn ${filtroSelecionado === 'Hospedagem' ? 'ativo' : ''}`}
                             onClick={() => setFiltroSelecionado('Hospedagem')}
                         >
@@ -279,9 +279,9 @@ function SuggestionsPage() {
                             </svg>
                             Hospedagem
                         </button>
-                        
+
                         {/* Botão ATIVIDADE */}
-                        <button 
+                        <button
                             className={`filtro-btn ${filtroSelecionado === 'Atividade' ? 'ativo' : ''}`}
                             onClick={() => setFiltroSelecionado('Atividade')}
                         >
@@ -292,9 +292,9 @@ function SuggestionsPage() {
                             </svg>
                             Atividade
                         </button>
-                        
+
                         {/* Botão COMIDA */}
-                        <button 
+                        <button
                             className={`filtro-btn ${filtroSelecionado === 'Comida' ? 'ativo' : ''}`}
                             onClick={() => setFiltroSelecionado('Comida')}
                         >
@@ -304,26 +304,26 @@ function SuggestionsPage() {
                             </svg>
                             Comida
                         </button>
-                        
+
                         {/* Campo de Busca */}
                         <div className="busca-input-container">
                             {/* Ícone de busca aqui - Azul */}
                             <svg className="busca-icon" xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" stroke='#9ca3af' fill="none" style={{ strokeWidth: '2' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-4.35-4.35M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"></path>
                             </svg>
-                            <input 
-                                type="text" 
-                                placeholder="Buscar sugestões" 
-                                className="busca-input" 
+                            <input
+                                type="text"
+                                placeholder="Buscar sugestões"
+                                className="busca-input"
                                 value={buscaTexto}
                                 onChange={(e) => setBuscaTexto(e.target.value)}
                             />
                         </div>
                     </div>
-                    
+
                     {/* Botão ADICIONAR SUGESTÃO */}
                     <button className="btn-adicionar-sugestao"
-                            onClick={() => setIsModalOpen(true)}>
+                        onClick={() => setIsModalOpen(true)}>
                         {/* Ícone de Adicionar (+) - Branco */}
                         <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -361,8 +361,8 @@ function SuggestionsPage() {
                 ) : (
                     <div className="sugestoes-grid">
                         {sugestoesFiltradas.map(sugestao => (
-                            <SugestaoCard 
-                                key={sugestao.id} 
+                            <SugestaoCard
+                                key={sugestao.id}
                                 {...sugestao}
                                 tripId={tripId}
                                 onVote={handleVoto}
@@ -372,8 +372,8 @@ function SuggestionsPage() {
                 )}
             </div>
 
-            <AddSuggestionModal 
-                isOpen={isModalOpen} 
+            <AddSuggestionModal
+                isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 tripId={tripId}
                 onSuggestaoAdicionada={handleAdicionar}

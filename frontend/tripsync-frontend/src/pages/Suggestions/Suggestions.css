@@ -1,7 +1,9 @@
 /* Geral */
 .sugestoes-page-container {
-    font-family: 'Inter', sans-serif; /* Fonte padrão */
-    background-color: #f0f2f5; /* Cor de fundo da página */
+    font-family: 'Inter', sans-serif;
+    /* Fonte padrão */
+    background-color: #f0f2f5;
+    /* Cor de fundo da página */
     min-height: 100vh;
     padding: 2px;
 }
@@ -27,9 +29,10 @@
 
 /* Wrapper Circular para o Ícone da Logo Tripsync (como na imagem) */
 .logo-icon-wrapper {
-    background-color: #e0f2fe; /* Azul claro */
+    background-color: #e0f2fe;
+    /* Azul claro */
     border-radius: 50%;
-    width: 32px; 
+    width: 32px;
     height: 32px;
     display: flex;
     justify-content: center;
@@ -37,9 +40,9 @@
 }
 
 .top-bar-left svg {
-    width: 18px; 
+    width: 18px;
     height: 18px;
-    color: #007bff; 
+    color: #007bff;
 }
 
 .tripsync-title {
@@ -52,41 +55,51 @@
 .top-bar-right {
     display: flex;
     align-items: center;
-    gap: 10px; /* Espaço entre os botões */
+    gap: 10px;
+    /* Espaço entre os botões */
 }
 
 /* Estilo Base para Todos os Botões de Navegação */
 .top-bar-right .top-bar-btn {
     background-color: transparent;
     border: none;
-    color: #555; /* Cor padrão do texto (não ativo) */
-    padding: 5px 10px; /* Padding interno do botão */
+    color: #555;
+    /* Cor padrão do texto (não ativo) */
+    padding: 5px 10px;
+    /* Padding interno do botão */
     cursor: pointer;
     font-size: 0.9em;
     font-weight: 500;
-    border-radius: 20px; /* Borda arredondada do botão inteiro */
+    border-radius: 20px;
+    /* Borda arredondada do botão inteiro */
     transition: background-color 0.2s ease;
-    
+
     /* Layout para alinhar ícone e texto */
-    display: flex; 
+    display: flex;
     align-items: center;
-    gap: 8px; /* Espaço entre o ícone e o texto */
+    gap: 8px;
+    /* Espaço entre o ícone e o texto */
 }
 
 /* Estilo para Botões Ativos/Selecionados */
 .top-bar-btn.icon-button-active {
-    background-color: #e6f3ff; /* Fundo azul claro do botão inteiro */
-    color: #007bff; /* Texto azul */
-    font-weight: 600; 
+    background-color: #e6f3ff;
+    /* Fundo azul claro do botão inteiro */
+    color: #007bff;
+    /* Texto azul */
+    font-weight: 600;
 }
 
 /* Wrapper Circular do Ícone nos Botões de Navegação */
 .top-bar-btn .icon-wrapper {
-    background-color: #e0f2fe; /* Cor de fundo azul claro */
-    border-radius: 50%; /* Torna o fundo circular */
-    width: 28px; /* Tamanho do círculo */
+    background-color: #e0f2fe;
+    /* Cor de fundo azul claro */
+    border-radius: 50%;
+    /* Torna o fundo circular */
+    width: 28px;
+    /* Tamanho do círculo */
     height: 28px;
-    
+
     /* Centraliza o ícone SVG dentro do círculo */
     display: flex;
     justify-content: center;
@@ -94,7 +107,7 @@
 }
 
 .top-bar-btn .icon-wrapper svg {
-    width: 16px; 
+    width: 16px;
     height: 16px;
     color: #007bff;
 }
@@ -105,8 +118,10 @@
     padding: 30px;
     border-radius: 0px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    max-width: 1200px; /* Largura máxima para o conteúdo principal */
-    margin: 0 auto; /* Centraliza */
+    max-width: 1200px;
+    /* Largura máxima para o conteúdo principal */
+    margin: 0 auto;
+    /* Centraliza */
 }
 
 .sugestoes-header-section h2 {
@@ -127,28 +142,32 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    flex-wrap: wrap; 
-    gap: 15px; 
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .filtros-botoes {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    align-items: center; /* Garante que todos os filtros e busca estejam alinhados */
+    align-items: center;
+    /* Garante que todos os filtros e busca estejam alinhados */
 }
 
 /* Estilo Base para Botões de Filtro (Hospedagem, Atividade, Comida) */
 .filtro-btn {
-    background-color: #e6f3ff; /* Fundo azul muito claro (similar ao Banani) */
-    color: #007bff; /* Cor do texto azul */
+    background-color: #e6f3ff;
+    /* Fundo azul muito claro (similar ao Banani) */
+    color: #007bff;
+    /* Cor do texto azul */
     border: none;
     padding: 8px 15px;
-    border-radius: 20px; /* Borda arredondada (pill shape) */
+    border-radius: 20px;
+    /* Borda arredondada (pill shape) */
     cursor: pointer;
     font-size: 0.9em;
     font-weight: 500;
-    
+
     /* Layout para ícone e texto */
     display: flex;
     align-items: center;
@@ -156,15 +175,18 @@
 }
 
 .filtro-btn:not(.ativo):hover {
-    background-color: #d1e7ff; /* Um pouco mais escuro no hover */
+    background-color: #d1e7ff;
+    /* Um pouco mais escuro no hover */
 }
 
 /* Botão ATIVO (Todas) - Fundo Azul Principal */
 .filtro-btn.ativo {
-    background-color: #007bff; /* Azul primário */
-    color: white; /* Texto branco */
+    background-color: #007bff;
+    /* Azul primário */
+    color: white;
+    /* Texto branco */
     font-weight: 600;
-    
+
     /* O ícone dentro deste botão deve ser branco, já configurado no JSX */
 }
 
@@ -174,24 +196,28 @@
     display: flex;
     align-items: center;
     /* Ajusta a margem para alinhamento com os botões */
-    margin-left: 10px; 
+    margin-left: 10px;
 }
 
 .busca-icon {
     position: absolute;
     left: 12px;
-    color: #9ca3af; /* Cor cinza sutil */
+    color: #9ca3af;
+    /* Cor cinza sutil */
     width: 16px;
     height: 16px;
 }
 
 .busca-input {
-    padding: 10px 10px 10px 35px; /* Aumenta padding vertical e ajusta para o ícone */
+    padding: 10px 10px 10px 35px;
+    /* Aumenta padding vertical e ajusta para o ícone */
     border: 1px solid #ddd;
     border-radius: 20px;
     font-size: 0.9em;
-    width: 250px; /* Aumentei um pouco a largura para melhor visualização */
-    outline: none; /* Remove o outline padrão */
+    width: 250px;
+    /* Aumentei um pouco a largura para melhor visualização */
+    outline: none;
+    /* Remove o outline padrão */
     transition: border-color 0.2s;
 }
 
@@ -201,23 +227,27 @@
 
 /* --- Botão Adicionar Sugestão --- */
 .btn-adicionar-sugestao {
-    background-color: #007bff; /* Azul primário */
+    background-color: #007bff;
+    /* Azul primário */
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 8px; /* Cantos levemente menos arredondados que os filtros */
+    border-radius: 8px;
+    /* Cantos levemente menos arredondados que os filtros */
     cursor: pointer;
     font-weight: bold;
     font-size: 0.95em;
     display: flex;
     align-items: center;
     gap: 5px;
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); /* Sombra para destaque */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+    /* Sombra para destaque */
     transition: background-color 0.2s;
 }
 
 .btn-adicionar-sugestao:hover {
-    background-color: #0056b3; /* Azul mais escuro no hover */
+    background-color: #0056b3;
+    /* Azul mais escuro no hover */
 }
 
 /* Restante do CSS não relacionado à barra de navegação/filtros */
@@ -226,14 +256,14 @@
     color: #333;
     margin-bottom: 25px;
     /* Linha cinza clara que o design tem: */
-    border-bottom: 1px solid #e5e7eb; 
+    border-bottom: 1px solid #e5e7eb;
     padding-bottom: 10px;
 }
 
 /* Grid de Sugestões */
 .sugestoes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 25px;
 }
 
@@ -242,10 +272,13 @@
 /* ================================================= */
 .sugestao-card {
     background-color: #fff;
-    border: 1px solid #f3f4f6; /* Borda bem sutil */
-    border-radius: 12px; /* Cantos bem arredondados */
+    border: 1px solid #f3f4f6;
+    /* Borda bem sutil */
+    border-radius: 12px;
+    /* Cantos bem arredondados */
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra mais suave */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    /* Sombra mais suave */
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -263,19 +296,23 @@
     gap: 10px;
 }
 
-.sugestao-tag, .sugestao-status {
+.sugestao-tag,
+.sugestao-status {
     padding: 4px 10px;
-    border-radius: 15px; /* Pill shape */
+    border-radius: 15px;
+    /* Pill shape */
     font-size: 0.75em;
     font-weight: 600;
     color: white;
-    white-space: nowrap; /* Não quebrar a linha */
+    white-space: nowrap;
+    /* Não quebrar a linha */
 }
 
 /* Título */
 .sugestao-card h3 {
     font-size: 1.15em;
-    color: #1f2937; /* Cor de texto mais escura */
+    color: #1f2937;
+    /* Cor de texto mais escura */
     margin-top: 0;
     margin-bottom: 15px;
     line-height: 1.3;
@@ -294,13 +331,16 @@
     height: 24px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #fff; /* Borda branca para destacar */
-    box-shadow: 0 0 0 1px #e5e7eb; /* Anel cinza claro */
+    border: 2px solid #fff;
+    /* Borda branca para destacar */
+    box-shadow: 0 0 0 1px #e5e7eb;
+    /* Anel cinza claro */
 }
 
 .sugestao-autor {
     font-size: 0.85em;
-    color: #6b7280; /* Cinza sutil */
+    color: #6b7280;
+    /* Cinza sutil */
     margin: 0;
 }
 
@@ -308,15 +348,50 @@
 /* --- Tags e Status Cores --- */
 
 /* Cores das Tags (Tipos) - Ajustadas para o visual Banani (fundo mais claro, texto mais escuro) */
-.tag-atividade { background-color: #e5f1ff; color: #1e40af; } /* Azul */
-.tag-hospedagem { background-color: #e5f1ff; color: #1e40af;  } /* Laranja */
-.tag-comida { background-color: #e5f1ff; color: #1e40af;  } /* Verde */
+.tag-atividade {
+    background-color: #e5f1ff;
+    color: #1e40af;
+}
+
+/* Azul */
+.tag-hospedagem {
+    background-color: #e5f1ff;
+    color: #1e40af;
+}
+
+/* Laranja */
+.tag-comida {
+    background-color: #e5f1ff;
+    color: #1e40af;
+}
+
+/* Verde */
 
 /* Cores dos Status */
-.status-em-votação { background-color: #10b981; color: white; } /* Verde - Ativo */
-.status-em-discussão { background-color: #f59e0b; color: white; } /* Amarelo/Laranja - Alerta */
-.status-concluída { background-color: #6b7280; color: white; } /* Cinza - Concluído */
-.status-reprovada { background-color: #ef4444; color: white; } /* Vermelho - Reprovado */
+.status-em-votação {
+    background-color: #10b981;
+    color: white;
+}
+
+/* Verde - Ativo */
+.status-em-discussão {
+    background-color: #f59e0b;
+    color: white;
+}
+
+/* Amarelo/Laranja - Alerta */
+.status-concluída {
+    background-color: #6b7280;
+    color: white;
+}
+
+/* Cinza - Concluído */
+.status-reprovada {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* Vermelho - Reprovado */
 
 
 /* --- Barra de Progresso e Votos --- */
@@ -324,7 +399,8 @@
 .sugestao-progresso-container {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Espaço entre votos e barra */
+    gap: 8px;
+    /* Espaço entre votos e barra */
     margin-bottom: 20px;
 }
 
@@ -334,13 +410,15 @@
     gap: 5px;
     font-size: 0.9em;
     font-weight: 600;
-    color: #1f2937; /* Cor do texto de voto */
+    color: #1f2937;
+    /* Cor do texto de voto */
 }
 
 .votos-info svg {
     width: 18px;
     height: 18px;
-    stroke: #007bff; /* Ícone do polegar azul */
+    stroke: #007bff;
+    /* Ícone do polegar azul */
 }
 
 .progresso-e-aprovacao {
@@ -350,9 +428,10 @@
 }
 
 .barra-progresso {
-    flex-grow: 1; 
+    flex-grow: 1;
     height: 10px;
-    background-color: #f3f4f6; /* Fundo cinza bem claro */
+    background-color: #f3f4f6;
+    /* Fundo cinza bem claro */
     border-radius: 5px;
     overflow: hidden;
 }
@@ -360,16 +439,19 @@
 .progresso-preenchido {
     height: 100%;
     /* O banani usa um gradiente de azul para laranja/amarelo. Usaremos uma cor sólida para simplificar ou um gradiente simples. */
-    background-color: orange; /* Azul forte */
+    background-color: orange;
+    /* Azul forte */
     border-radius: 5px;
     transition: width 0.5s ease-in-out;
 }
 
 .aprovacao-info {
     font-size: 0.9em;
-    color: #3b82f6; /* Cor de aprovação azul */
+    color: #3b82f6;
+    /* Cor de aprovação azul */
     font-weight: 600;
-    width: 100px; /* Largura fixa para manter alinhamento */
+    width: 100px;
+    /* Largura fixa para manter alinhamento */
     text-align: right;
 }
 
@@ -378,7 +460,8 @@
 .card-actions {
     display: flex;
     gap: 10px;
-    border-top: 1px solid #f3f4f6; /* Linha divisória sutil */
+    border-top: 1px solid #f3f4f6;
+    /* Linha divisória sutil */
     padding-top: 15px;
 }
 
@@ -392,7 +475,8 @@
 }
 
 .btn-votar {
-    background-color: #007bff; /* Azul principal */
+    background-color: #007bff;
+    /* Azul principal */
     color: white;
     border: none;
     display: flex;
@@ -405,8 +489,10 @@
 }
 
 .btn-detalhes {
-    background-color: #f3f4f6; /* Cinza claro */
-    color: #374151; /* Texto cinza escuro */
+    background-color: #f3f4f6;
+    /* Cinza claro */
+    color: #374151;
+    /* Texto cinza escuro */
     border: none;
 }
 
@@ -421,19 +507,25 @@
         flex-direction: column;
         align-items: stretch;
     }
-    .filtros-botoes, .busca-input-container {
+
+    .filtros-botoes,
+    .busca-input-container {
         width: 100%;
     }
+
     .btn-adicionar-sugestao {
         width: 100%;
         justify-content: center;
     }
+
     .sugestoes-grid {
-        grid-template-columns: 1fr; 
+        grid-template-columns: 1fr;
     }
+
     .busca-input {
         width: 100%;
     }
+
     .aprovacao-info {
         width: auto;
         text-align: left;

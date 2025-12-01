@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, DollarSign, Globe, Bell, Shield, Trash2, LogOut, Save, Loader, Mail } from 'lucide-react';
 import { API_BASE_URL } from '../../services/api';
 import './SettingsPage.css';
+import ChangePasswordModal from '../../components/settings/ChangePasswordModal';
 
 const SettingsPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     // State for settings
     const [settings, setSettings] = useState({
         email_notifications: true,
@@ -189,7 +190,7 @@ const SettingsPage = () => {
                         <section className="settings-section">
                             <h3><Shield size={18} /> Segurança</h3>
 
-                            <div className="action-row" onClick={() => alert("Funcionalidade em desenvolvimento.")}>
+                            <div className="action-row" onClick={() => setIsPasswordModalOpen(true)}>
                                 <div className="action-icon"><Shield size={18} /></div>
                                 <div className="action-info">
                                     <span className="action-label">Alterar Senha</span>
@@ -218,8 +219,12 @@ const SettingsPage = () => {
                         </section>
                     </div>
                 </div>
-            </div>
-        </div>
+                <ChangePasswordModal
+                    isOpen={isPasswordModalOpen}
+                    onClose={() => setIsPasswordModalOpen(false)}
+                />
+            </div >
+        </div >
     );
 };
 
