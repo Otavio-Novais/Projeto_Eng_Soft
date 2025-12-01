@@ -164,18 +164,6 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div className="form-group" style={{ marginTop: '1rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: '#4b5563' }}>
-              <input
-                type="checkbox"
-                checked={isDraft}
-                onChange={(e) => setIsDraft(e.target.checked)}
-                style={{ width: '16px', height: '16px' }}
-              />
-              Salvar como Rascunho (não visível para outros até ativar)
-            </label>
-          </div>
-
           <div className="modal-footer">
             <button type="button" className="btn-cancel" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-continue" disabled={isLoading}>
