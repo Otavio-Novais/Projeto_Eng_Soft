@@ -202,7 +202,9 @@ const MembersPage = () => {
 
   return (
     <div className="members-page-layout">
+
       <Sidebar activeTab="Membros" tripIdOverride={selectedTripId} />
+
 
       <main className="members-main-content">
         {/* Header */}

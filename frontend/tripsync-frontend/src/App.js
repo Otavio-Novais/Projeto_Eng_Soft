@@ -124,6 +124,7 @@ function App() {
                 }
               />
 
+
               {/* Placeholders para os links da Sidebar não quebrarem a tela */}
               <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
 
@@ -144,8 +145,6 @@ function App() {
                   </PrivateRoute>
                 }
               />
-
-
 
               {/* explicit landing route to avoid duplicate '/' routes */}
               <Route path="/landing" element={<LandingPage />} />

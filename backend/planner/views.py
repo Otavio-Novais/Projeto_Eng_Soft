@@ -73,6 +73,7 @@ class TripDetailView(APIView):
             ),
             pk=trip_id
         )
+
         # Security check: User must be a participant
         if request.user not in trip.participantes.all():
              return Response({"error": "Você não tem permissão para visualizar esta viagem."}, status=status.HTTP_403_FORBIDDEN)
@@ -198,6 +199,7 @@ def dashboard_api(request, viagem_id):
             'nome': p.full_name or p.email.split('@')[0],
             'saldo': saldo_calculado,
             'avatar': avatar_url
+
         })
 
     # 2. Calcular Totais do USUÁRIO LOGADO (Para os cards do topo)
@@ -339,7 +341,6 @@ def listar_viagens_api(request):
         if v.data_inicio and v.data_inicio < hoje:
             status = 'CONCLUIDA'
             status_display = 'Concluída'
-
 
         # Busca participantes com avatares (já carregados via prefetch_related)
         participantes_list = list(v.participantes.all()[:5])  # Converte para lista para evitar re-query

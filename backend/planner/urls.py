@@ -3,12 +3,10 @@ from . import views
 
 urlpatterns = [
 
-    # --- VIAGENS E DETALHES ---
     path('viagem/<int:trip_id>/', views.TripDetailView.as_view(), name='trip-detail'),
     path('viagem/<int:viagem_id>/financas/', views.dashboard_api, name='api_financas'),
     path('viagem/<int:viagem_id>/despesa/nova/', views.criar_despesa_api, name='api_nova_despesa'),
     path('viagem/<int:viagem_id>/liquidar/', views.liquidar_divida_api, name='api_liquidar'),
-
     path('viagens/criar/', views.TripCreateView.as_view(), name='trip-create'),
     path('viagens/', views.listar_viagens_api, name='api_listar_viagens'),
     

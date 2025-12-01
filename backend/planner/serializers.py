@@ -31,6 +31,7 @@ class TripDashboardSerializer(serializers.ModelSerializer):
         model = Viagem
 
         fields = ['id', 'title', 'start_date', 'end_date', 'participants', 'expenses', 'imagem', 'status']
+
     def get_participants(self, obj):
         """Retorna participantes do TripMember ou fallback para participantes ManyToMany"""
         from .models import TripMember

@@ -9,6 +9,7 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
   const navigate = useNavigate();
   const { refreshTrips } = useTrips();
 
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -56,6 +57,7 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
     }
 
     try {
+
       const response = await axios.post(
         'http://127.0.0.1:8000/planner/api/viagens/criar/',
         dataToSend,
@@ -65,6 +67,18 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
           }
         }
       );
+
+      console.log("Viagem criada:", response.data);
+
+      // Atualiza o contexto de viagens
+      await refreshTrips();
+
+      // Fecha o modal
+      onClose();
+
+      // Se houver uma função de atualização (ex: recarregar lista na sidebar), chama ela
+      if (onSuccess) onSuccess();
+
 
       console.log("Viagem criada:", response.data);
 

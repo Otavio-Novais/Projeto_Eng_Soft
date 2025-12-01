@@ -4,7 +4,9 @@ import Sidebar from '../../components/layout/Sidebar';
 import CreateTripModal from '../../components/create_trip/CreateTripModal';
 import { useTrips } from '../../contexts/TripsContext';
 import { useAuthCheck } from '../../hooks/useAuthCheck';
+
 import { API_BASE_URL } from '../../services/api';
+
 import {
     Map,
     Plus,
@@ -75,6 +77,7 @@ const MyTripsPage = () => {
                 <Sidebar activeTab="Minhas Viagens" />
 
                 <div style={{ marginLeft: '250px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+
 
                     {/* HEADER SIMPLIFICADO (Já que temos sidebar) */}
                     <header style={{
@@ -191,6 +194,7 @@ const MyTripsPage = () => {
                                         <div className="card-footer" style={{ padding: '1rem 1.25rem', borderTop: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <span style={{ color: '#0066ff', fontSize: '0.875rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                                 Abrir <ArrowRight size={14} />
+
                                             </span>
                                         </div>
                                     </div>
@@ -205,6 +209,7 @@ const MyTripsPage = () => {
                     to { transform: rotate(360deg); }
                 }
             `}</style>
+
         </>
     );
 };

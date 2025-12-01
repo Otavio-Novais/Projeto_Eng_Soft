@@ -35,6 +35,13 @@ class Viagem(models.Model):
             models.Index(fields=['data_inicio']),  # Índice para filtros de data
         ]
 
+    class Meta:
+        ordering = ['-id']  # Ordenação padrão para evitar order_by em queries
+        indexes = [
+            models.Index(fields=['-id']),  # Índice para listar viagens mais recentes
+            models.Index(fields=['data_inicio']),  # Índice para filtros de data
+        ]
+
     def __str__(self):
         return f"{self.nome} - {self.destino}"
 

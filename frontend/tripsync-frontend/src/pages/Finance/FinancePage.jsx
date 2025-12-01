@@ -80,6 +80,7 @@ const FinancePage = () => {
     const sugestoesWidget = useMemo(() => {
         if (!dados || !dados.resumo) return [];
 
+
         // Criar cópias profundas para não modificar dados.resumo original
         let devedores = dados.resumo
             .filter(u => u.saldo < -0.01)
@@ -90,6 +91,7 @@ const FinancePage = () => {
 
         devedores.sort((a, b) => b.saldo - a.saldo);
         credores.sort((a, b) => b.saldo - a.saldo);
+
 
         let resultado = [];
         let i = 0, j = 0;

@@ -7,11 +7,13 @@ import TripCard from '../components/dashboard/TripCard';
 import CreateTripModal from '../components/create_trip/CreateTripModal';
 import { useTrips } from '../contexts/TripsContext';
 import { useAuthCheck } from '../hooks/useAuthCheck';
+
 import { API_BASE_URL } from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
   useAuthCheck();
+
   const { trips: contextTrips, loading: contextLoading } = useTrips();
   const [mappedTrips, setMappedTrips] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,6 +67,7 @@ const Dashboard = () => {
     }
   }, [contextTrips]);
 
+
   const recentTripsForCarousel = mappedTrips.slice(0, 3);
 
   const nextTrip = () => {
@@ -81,9 +84,11 @@ const Dashboard = () => {
       <div className="dashboard-content">
         <DashboardHeader />
         <div className="dashboard-main">
+
           {contextLoading ? (
             <div className="hero-loading"></div>
           ) : mappedTrips.length === 0 ? (
+
             <div className="welcome-banner">
               <div>
                 <h2 className="welcome-title">Bem-vindo ao Tripsync! 🌍</h2>
@@ -153,6 +158,7 @@ const Dashboard = () => {
                   </button>
                 </>
               )}
+
               <div id="trips-carousel-bottom" className="trips-carousel" style={{ display: 'flex', gap: '1.5rem', overflowX: 'auto', scrollBehavior: 'smooth', paddingBottom: '0.5rem', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 <style>{`#trips-carousel-bottom::-webkit-scrollbar { display: none; }`}</style>
                 {mappedTrips.map((trip) => (
@@ -168,6 +174,4 @@ const Dashboard = () => {
       <CreateTripModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
-};
-
-export default Dashboard;
+};export default Dashboard;

@@ -16,12 +16,13 @@ const Sidebar = ({ activeTab = 'Início', tripIdOverride }) => {
 
   // Menu Items Definition
   const menuItems = [
+
     { id: 'roteiro', label: 'Roteiro', icon: <Map size={18} />, path: null, disabled: true }, // Desativado conforme solicitado
     { id: 'sugestoes', label: 'Sugestões', icon: <Sparkles size={18} />, path: effectiveTripId ? `/trip/${effectiveTripId}/suggestions` : '/suggestions' },
     { id: 'financas', label: 'Finanças', icon: <CreditCard size={18} />, path: effectiveTripId ? `/viagem/${effectiveTripId}/financas` : '/financas' },
     { id: 'membros', label: 'Membros', icon: <Users size={18} />, path: effectiveTripId ? `/viagem/${effectiveTripId}/membros` : '/members' },
-  ];
 
+  ]
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
