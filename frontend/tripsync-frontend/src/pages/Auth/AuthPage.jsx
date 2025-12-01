@@ -47,14 +47,18 @@ const AuthPage = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
+      console.log('Tentando autenticar com Google...');
       const response = await api.post('/auth/google/', {
         token: credentialResponse.credential
       });
+      console.log('Resposta do Google:', response.data);
       localStorage.setItem('token', response.data.access);
       localStorage.setItem('refreshToken', response.data.refresh);
       navigate('/dashboard');
     } catch (error) {
-      setLoginError("Falha na autenticação com Google.");
+      console.error('Erro Google OAuth:', error);
+      console.error('Resposta do erro:', error.response);
+      setLoginError("Falha na autenticação com Google: " + (error.response?.data?.error || error.message));
     }
   };
 

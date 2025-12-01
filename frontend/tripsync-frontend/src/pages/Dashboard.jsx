@@ -30,14 +30,36 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const mappedTrips = data.map(t => ({
-          id: t.id,
-          title: t.titulo,
-          tag: t.data_inicio ? new Date(t.data_inicio).toLocaleDateString() : 'Data a definir',
-          locations: t.destino || 'Destino não definido',
-          image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-          members: Array(t.participantes_count || 0).fill('')
-        }));
+        console.log("Dados recebidos da API:", data);
+        const mappedTrips = data.map(t => {
+          console.log("Processando viagem:", t);
+          let dateTag = 'Data a definir';
+          if (t.data_inicio && t.data_fim) {
+            // Remove a parte do horário se vier com ele
+            const startDateStr = t.data_inicio.split('T')[0];
+            const endDateStr = t.data_fim.split('T')[0];
+            const startDate = new Date(startDateStr + 'T12:00:00');
+            const endDate = new Date(endDateStr + 'T12:00:00');
+            const startDay = startDate.getDate();
+            const endDay = endDate.getDate();
+            const month = startDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+            dateTag = `${startDay}–${endDay} ${month}`;
+            console.log("Data formatada:", dateTag);
+          } else if (t.data_inicio) {
+            const startDateStr = t.data_inicio.split('T')[0];
+            const startDate = new Date(startDateStr + 'T12:00:00');
+            dateTag = startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+          }
+          
+          return {
+            id: t.id,
+            title: t.titulo,
+            tag: dateTag,
+            locations: t.destino || 'Destino não definido',
+            image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            members: t.participantes || []
+          };
+        });
         setTrips(mappedTrips.reverse());
       }
     } catch (error) {

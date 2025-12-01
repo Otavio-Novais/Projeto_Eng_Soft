@@ -1,0 +1,396 @@
+/* Layout Principal */
+.members-page-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.members-main-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 250px;
+  overflow-y: auto;
+}
+
+/* Header */
+.members-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.members-header-titles {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.members-header-titles h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.members-date-tag {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.members-admin-badge {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid #ffeaa7;
+}
+
+/* Content Body */
+.members-content-body {
+  max-width: 1400px;
+}
+
+.members-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Grid Layout */
+.members-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.members-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Card Styles */
+.members-white-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.members-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+}
+
+.members-hint {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.8rem;
+}
+
+/* Member List */
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  transition: background-color 0.2s;
+}
+
+.member-item:hover {
+  background-color: #e9ecef;
+}
+
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.member-info strong {
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+
+.member-info small {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.member-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.members-btn-icon {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.members-btn-icon:hover {
+  background-color: #dee2e6;
+}
+
+.members-btn-remove:hover {
+  background-color: #fee;
+}
+
+.member-creator-badge {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Email Input */
+.members-email-input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 1rem;
+}
+
+.members-email-input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.members-email-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* Buttons */
+.members-btn-primary {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.members-btn-primary:hover:not(:disabled) {
+  background-color: #1976d2;
+}
+
+.members-btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.members-warning {
+  color: #d32f2f;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.members-footer-text {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Link Container */
+.members-link-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.members-link-input {
+  flex: 1;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background-color: #f8f9fa;
+}
+
+.members-btn-copy {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.members-btn-copy:hover {
+  background-color: #e0e0e0;
+}
+
+/* Invites List */
+.invites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.invite-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #fff9e6;
+  border-radius: 10px;
+  border: 1px solid #ffe082;
+}
+
+.invite-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.invite-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.invite-info strong {
+  font-size: 0.95rem;
+  color: #1a1a1a;
+}
+
+.invite-info small {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.invite-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.members-btn-text {
+  background: none;
+  border: none;
+  color: #2196f3;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.members-btn-text:hover {
+  background-color: #e3f2fd;
+}
+
+.members-btn-cancel {
+  color: #d32f2f;
+}
+
+.members-btn-cancel:hover {
+  background-color: #ffebee;
+}
+
+/* Empty States */
+.members-empty {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 0.9rem;
+}
+
+/* Loading */
+.members-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .members-main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .members-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .members-header-titles {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .members-link-container {
+    flex-direction: column;
+  }
+  
+  .member-item {
+    flex-wrap: wrap;
+  }
+  
+  .member-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

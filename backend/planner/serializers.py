@@ -59,3 +59,47 @@ class TripSerializer(serializers.ModelSerializer):
                 })
 
         return data
+
+
+# Serializers para Members e Invites
+from .models import TripMember, TripInvite
+
+class TripMemberSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    user_name = serializers.CharField(source='user.full_name', read_only=True)
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    user_avatar = serializers.SerializerMethodField()
+    is_creator = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = TripMember
+        fields = ['id', 'user_id', 'user_name', 'user_email', 'user_avatar', 'role', 'status', 'joined_at', 'is_creator']
+    
+    def get_user_avatar(self, obj):
+        if obj.user.avatar:
+            return obj.user.avatar.url
+        return None
+    
+    def get_is_creator(self, obj):
+        # Verifica se é o criador da viagem (primeiro admin)
+        return obj.role == 'ADMIN' and obj == obj.viagem.members.filter(role='ADMIN').order_by('joined_at').first()
+
+
+class TripInviteSerializer(serializers.ModelSerializer):
+    invited_by_name = serializers.CharField(source='invited_by.full_name', read_only=True)
+    days_ago = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = TripInvite
+        fields = ['id', 'email', 'status', 'invited_by_name', 'created_at', 'expires_at', 'days_ago', 'token']
+        read_only_fields = ['token', 'created_at', 'expires_at']
+    
+    def get_days_ago(self, obj):
+        delta = timezone.now() - obj.created_at
+        days = delta.days
+        if days == 0:
+            return "agora"
+        elif days == 1:
+            return "há 1 dia"
+        else:
+            return f"há {days} dias"

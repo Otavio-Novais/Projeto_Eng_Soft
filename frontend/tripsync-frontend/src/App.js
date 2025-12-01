@@ -15,6 +15,7 @@ import MyTripsPage from './pages/mytrips/MyTripsPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import SettingsPage from './pages/Settings/SettingsPage.jsx';
 import FinancePage from './pages/Finance/FinancePage.jsx';
+import MembersPage from './pages/Members/MembersPage.jsx';
 
 
 import { SettingsProvider } from './contexts/SettingsContext';
@@ -90,7 +91,14 @@ function App() {
             {/* Placeholders para os links da Sidebar não quebrarem a tela */}
             {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
             <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
-            <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
+            <Route 
+              path="/viagem/:tripId/membros" 
+              element={
+                <PrivateRoute>
+                  <MembersPage />
+                </PrivateRoute>
+              } 
+            />
             <Route path="/" element={<LandingPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/trip/:tripId" element={<TripDashboard />} />
