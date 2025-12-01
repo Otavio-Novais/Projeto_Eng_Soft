@@ -14,7 +14,7 @@ const Sidebar = ({ activeTab = 'Início' }) => {
   // Menu Items Definition
   const menuItems = [
     { id: 'roteiro', label: 'Roteiro', icon: <Map size={18} />, path: tripId ? `/trip/${tripId}/planner` : null },
-    { id: 'sugestoes', label: 'Sugestões', icon: <Sparkles size={18} />, path: tripId ? `/trip/${tripId}/suggestions` : null },
+    { id: 'sugestoes', label: 'Sugestões', icon: <Sparkles size={18} />, path: tripId ? `/trip/${tripId}/suggestions` : '/suggestions' },
     { id: 'financas', label: 'Finanças', icon: <CreditCard size={18} />, path: tripId ? `/viagem/${tripId}/financas` : '/financas' },
     { id: 'membros', label: 'Membros', icon: <Users size={18} />, path: tripId ? `/trip/${tripId}/members` : null },
   ];

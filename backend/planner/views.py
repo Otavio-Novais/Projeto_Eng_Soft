@@ -8,8 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .serializers import TripDashboardSerializer
-from .serializers import TripSerializer
+from .serializers import TripDashboardSerializer, TripSerializer, SugestaoSerializer, VotoSerializer
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -19,7 +18,7 @@ from django.utils import timezone
 from django.db import transaction, models
 from django.db.models import Sum
 import json
-from .models import Viagem, Despesa, Rateio
+from .models import Viagem, Despesa, Rateio, Sugestao, Voto
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from django.views.decorators.http import require_http_methods
@@ -244,3 +243,150 @@ def listar_viagens_api(request):
         })
     
     return Response(data)
+
+
+# ===== VIEWS PARA SUGESTÕES =====
+
+class ListarCriarSugestoesView(APIView):
+    """
+    GET: Listar todas as sugestões de uma viagem
+    POST: Criar nova sugestão
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, tripId):
+        viagem = get_object_or_404(Viagem, pk=tripId)
+        
+        # Verificar se o usuário é participante da viagem
+        if request.user not in viagem.participantes.all():
+            return Response(
+                {'error': 'Você não é participante desta viagem'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        sugestoes = Sugestao.objects.filter(viagem=viagem)
+        serializer = SugestaoSerializer(
+            sugestoes, many=True, context={'request': request}
+        )
+        return Response(serializer.data)
+
+    def post(self, request, tripId):
+        viagem = get_object_or_404(Viagem, pk=tripId)
+        
+        # Verificar se o usuário é participante da viagem
+        if request.user not in viagem.participantes.all():
+            return Response(
+                {'error': 'Você não é participante desta viagem'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        data = request.data.copy()
+        data['viagem'] = viagem.id
+
+        serializer = SugestaoSerializer(data=data, context={'request': request})
+
+        if serializer.is_valid():
+            # SALVA manualmente autor e viagem (isso resolve o erro)
+            sugestao = serializer.save(
+                autor=request.user,
+                viagem=viagem
+            )
+            return Response(SugestaoSerializer(sugestao).data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class DetalheEditarDeleteSugestaoView(APIView):
+    """
+    GET: Detalhe de uma sugestão
+    PATCH: Editar sugestão (apenas autor)
+    DELETE: Deletar sugestão (apenas autor)
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, tripId, sugestaoId):
+        viagem = get_object_or_404(Viagem, pk=tripId)
+        sugestao = get_object_or_404(Sugestao, pk=sugestaoId, viagem=viagem)
+        
+        # Verificar se o usuário é participante da viagem
+        if request.user not in viagem.participantes.all():
+            return Response(
+                {'error': 'Você não é participante desta viagem'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer = SugestaoSerializer(sugestao, context={'request': request})
+        return Response(serializer.data)
+
+    def patch(self, request, tripId, sugestaoId):
+        viagem = get_object_or_404(Viagem, pk=tripId)
+        sugestao = get_object_or_404(Sugestao, pk=sugestaoId, viagem=viagem)
+        
+        # Verificar se o usuário é o autor
+        if sugestao.autor != request.user:
+            return Response(
+                {'error': 'Apenas o autor pode editar esta sugestão'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer = SugestaoSerializer(
+            sugestao, data=request.data, partial=True, context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, tripId, sugestaoId):
+        viagem = get_object_or_404(Viagem, pk=tripId)
+        sugestao = get_object_or_404(Sugestao, pk=sugestaoId, viagem=viagem)
+        
+        # Verificar se o usuário é o autor
+        if sugestao.autor != request.user:
+            return Response(
+                {'error': 'Apenas o autor pode deletar esta sugestão'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        sugestao.delete()
+        return Response(
+            {'message': 'Sugestão deletada com sucesso'},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+
+class VotarSugestaoView(APIView):
+    """
+    POST: Votar em uma sugestão (adiciona ou remove voto)
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, tripId, sugestaoId):
+        viagem = get_object_or_404(Viagem, pk=tripId)
+        sugestao = get_object_or_404(Sugestao, pk=sugestaoId, viagem=viagem)
+        
+        # Verificar se o usuário é participante da viagem
+        if request.user not in viagem.participantes.all():
+            return Response(
+                {'error': 'Você não é participante desta viagem'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Verificar se o voto já existe
+        voto = Voto.objects.filter(sugestao=sugestao, usuario=request.user).first()
+        
+        if voto:
+            # Se já votou, remove o voto (toggle)
+            voto.delete()
+            return Response(
+                {'message': 'Voto removido', 'votou': False},
+                status=status.HTTP_200_OK
+            )
+        else:
+            # Se não votou, adiciona o voto
+            Voto.objects.create(sugestao=sugestao, usuario=request.user)
+            return Response(
+                {'message': 'Voto adicionado', 'votou': True},
+                status=status.HTTP_201_CREATED
+            )

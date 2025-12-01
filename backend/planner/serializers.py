@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Viagem, Despesa, Rateio
+from .models import Viagem, Despesa, Rateio, Sugestao, Voto
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -59,3 +59,37 @@ class TripSerializer(serializers.ModelSerializer):
                 })
 
         return data
+
+
+class VotoSerializer(serializers.ModelSerializer):
+    usuario_nome = serializers.ReadOnlyField(source='usuario.first_name')
+    
+    class Meta:
+        model = Voto
+        fields = ['id', 'usuario', 'usuario_nome', 'criado_em']
+        read_only_fields = ['id', 'criado_em']
+
+
+class SugestaoSerializer(serializers.ModelSerializer):
+    autor_nome = serializers.ReadOnlyField(source='autor.first_name')
+    autor_email = serializers.ReadOnlyField(source='autor.email')
+    votos_count = serializers.SerializerMethodField()
+    usuario_votou = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Sugestao
+        fields = [
+            'id', 'titulo', 'tipo', 'autor', 'autor_nome', 'autor_email',
+            'descricao', 'status', 'votos_count', 'usuario_votou',
+            'criado_em', 'atualizado_em'
+        ]
+        read_only_fields = ['id', 'autor', 'criado_em', 'atualizado_em']
+    
+    def get_votos_count(self, obj):
+        return obj.votos.count()
+    
+    def get_usuario_votou(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.votos.filter(usuario=request.user).exists()
+        return False

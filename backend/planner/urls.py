@@ -10,4 +10,9 @@ urlpatterns = [
     path('api/viagem/<int:viagem_id>/liquidar/', views.liquidar_divida_api, name='api_liquidar'),
     path('api/viagens/criar/', views.TripCreateView.as_view(), name='trip-create'),
     path('api/viagens/', views.listar_viagens_api, name='api_listar_viagens'),
+    
+    # Rotas para Sugestões
+    path('viagem/<int:tripId>/sugestoes/', views.ListarCriarSugestoesView.as_view(), name='listar-criar-sugestoes'),
+    path('viagem/<int:tripId>/sugestoes/<int:sugestaoId>/', views.DetalheEditarDeleteSugestaoView.as_view(), name='detalhe-editar-delete-sugestao'),
+    path('viagem/<int:tripId>/sugestoes/<int:sugestaoId>/votar/', views.VotarSugestaoView.as_view(), name='votar-sugestao'),
 ]

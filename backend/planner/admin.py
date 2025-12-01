@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Viagem, Despesa, Rateio
+from .models import Viagem, Despesa, Rateio, Sugestao, Voto
 
 
 @admin.register(Viagem)
@@ -31,3 +31,21 @@ class RateioAdmin(admin.ModelAdmin):
     list_display = ("despesa", "participante", "valor_devido")
     list_filter = ("despesa__viagem",)
     search_fields = ("despesa__titulo", "participante__username")
+
+
+@admin.register(Sugestao)
+class SugestaoAdmin(admin.ModelAdmin):
+    list_display = ("titulo", "tipo", "viagem", "autor", "status", "criado_em")
+    list_filter = ("tipo", "status", "viagem", "criado_em")
+    search_fields = ("titulo", "descricao", "viagem__titulo", "autor__username")
+    date_hierarchy = "criado_em"
+    readonly_fields = ("criado_em", "atualizado_em")
+
+
+@admin.register(Voto)
+class VotoAdmin(admin.ModelAdmin):
+    list_display = ("sugestao", "usuario", "criado_em")
+    list_filter = ("sugestao__viagem", "criado_em")
+    search_fields = ("sugestao__titulo", "usuario__username")
+    date_hierarchy = "criado_em"
+    readonly_fields = ("criado_em",)

@@ -68,3 +68,56 @@ class Rateio(models.Model):
 
     class Meta:
         unique_together = ("despesa", "participante")
+
+
+class Sugestao(models.Model):
+    TIPOS_CHOICES = [
+        ('Hospedagem', 'Hospedagem'),
+        ('Atividade', 'Atividade'),
+        ('Comida', 'Comida'),
+    ]
+    STATUS_CHOICES = [
+        ('Em votação', 'Em votação'),
+        ('Em discussão', 'Em discussão'),
+        ('Concluída', 'Concluída'),
+        ('Reprovada', 'Reprovada'),
+    ]
+
+    viagem = models.ForeignKey(
+        Viagem, on_delete=models.CASCADE, related_name="sugestoes"
+    )
+    titulo = models.CharField(max_length=200)
+    tipo = models.CharField(max_length=20, choices=TIPOS_CHOICES)
+    autor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="sugestoes_criadas"
+    )
+    descricao = models.TextField(blank=True, null=True)
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='Em votação'
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.titulo} - {self.tipo}"
+
+    class Meta:
+        ordering = ['-criado_em']
+
+
+class Voto(models.Model):
+    sugestao = models.ForeignKey(
+        Sugestao, on_delete=models.CASCADE, related_name="votos"
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="votos"
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario.email} votou em {self.sugestao.titulo}"
+
+    class Meta:
+        unique_together = ("sugestao", "usuario")
