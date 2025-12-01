@@ -18,7 +18,16 @@ jobs:
         env:
           HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
         run: |
-          git remote add heroku-backend https://heroku:${{secrets.HEROKU_API_KEY}}@git.heroku.com/tripsyncheroku.git || true
+          cat > ~/.netrc <<EOF
+          machine api.heroku.com
+            login ${{secrets.HEROKU_EMAIL}}
+            password ${{secrets.HEROKU_API_KEY}}
+          machine git.heroku.com
+            login ${{secrets.HEROKU_EMAIL}}
+            password ${{secrets.HEROKU_API_KEY}}
+          EOF
+          chmod 600 ~/.netrc
+          git remote add heroku-backend https://git.heroku.com/tripsyncheroku.git || true
           git push heroku-backend `git subtree split --prefix backend main`:refs/heads/main --force
 
   deploy-frontend:
@@ -32,5 +41,14 @@ jobs:
         env:
           HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
         run: |
-          git remote add heroku-frontend https://heroku:${{secrets.HEROKU_API_KEY}}@git.heroku.com/tripsyncheroku-frontend.git || true
+          cat > ~/.netrc <<EOF
+          machine api.heroku.com
+            login ${{secrets.HEROKU_EMAIL}}
+            password ${{secrets.HEROKU_API_KEY}}
+          machine git.heroku.com
+            login ${{secrets.HEROKU_EMAIL}}
+            password ${{secrets.HEROKU_API_KEY}}
+          EOF
+          chmod 600 ~/.netrc
+          git remote add heroku-frontend https://git.heroku.com/tripsyncheroku-frontend.git || true
           git push heroku-frontend `git subtree split --prefix frontend/tripsync-frontend main`:refs/heads/main --force
