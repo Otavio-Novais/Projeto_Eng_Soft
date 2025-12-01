@@ -15,6 +15,7 @@ import MyTripsPage from './pages/mytrips/MyTripsPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
 import SettingsPage from './pages/Settings/SettingsPage.jsx';
 import FinancePage from './pages/Finance/FinancePage.jsx';
+import SuggestionsPage from './pages/Suggestions/SuggestionsPage.jsx';
 import MembersPage from './pages/Members/MembersPage.jsx';
 
 
@@ -88,9 +89,38 @@ function App() {
               }
             />
 
+            <Route
+              path="/viagem/:tripId/sugestoes"
+              element={
+                <PrivateRoute>
+                  <SuggestionsPage />
+                </PrivateRoute>
+              }
+            />
+              {/* Routes compatible with Sidebar paths (English/short) */}
+              <Route
+                path="/suggestions"
+                element={
+                  <PrivateRoute>
+                    <SuggestionsPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/trip/:tripId/suggestions"
+                element={
+                  <PrivateRoute>
+                    <SuggestionsPage />
+                  </PrivateRoute>
+                }
+              />
+
             {/* Placeholders para os links da Sidebar não quebrarem a tela */}
             {/* Você pode substituir pelo componente real quando criar (Ex: <RoteiroPage />) */}
             <Route path="/viagem/:tripId/roteiro" element={<PrivateRoute><div><h1>Roteiro (Em breve)</h1></div></PrivateRoute>} />
+            <Route path="/viagem/:tripId/membros" element={<PrivateRoute><div><h1>Membros (Em breve)</h1></div></PrivateRoute>} />
+            {/* explicit landing route to avoid duplicate '/' routes */}
+            <Route path="/landing" element={<LandingPage />} />
             <Route 
               path="/viagem/:tripId/membros" 
               element={
