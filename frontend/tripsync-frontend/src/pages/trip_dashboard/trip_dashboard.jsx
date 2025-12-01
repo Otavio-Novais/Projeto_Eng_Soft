@@ -7,60 +7,57 @@ import "./trip_dashboard.css";
 const TripDashboard = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
+  
+  // Estados para dados
   const [tripData, setTripData] = useState(null);
+  const [recentSuggestions, setRecentSuggestions] = useState([]);
+  
+  // Estados de controle
   const [loading, setLoading] = useState(true);
 
+  // 1. Busca Dados Gerais da Viagem
   useEffect(() => {
     if (tripId) {
       fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
         .then(res => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
           return res.json();
         })
         .then(data => {
-          console.log("Dados da viagem carregados:", data);
           setTripData(data);
-          setLoading(false);
         })
         .catch(err => {
           console.error("Erro ao carregar viagem:", err);
-          setTripData(null);
           setLoading(false);
         });
     }
   }, [tripId]);
 
-  // MOCK DATA for sections not yet integrated
-  const mockActivities = [
-    {
-      id: 1,
-      title: "Chegada em Paris",
-      time: "15:00",
-      local: "Hotel République",
-    },
-    {
-      id: 2,
-      title: "Museu do Louvre",
-      time: "Tarde",
-      local: "Ingressos pendentes",
-    },
-  ];
-  
-  const mockExpenses = [
-    { id: 1, title: "Reserva Airbnb", amount: "2.400", payer: "Carla" },
-    { id: 2, title: "Passes de trem", amount: "620", payer: "Bruno" },
-  ];
+  // 2. Busca Sugestões Recentes
+  useEffect(() => {
+    if (tripId) {
+      fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/sugestoes/`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          const ultimas = Array.isArray(data) ? data.slice(0, 2) : [];
+          setRecentSuggestions(ultimas);
+        })
+        .catch(err => console.error("Erro ao carregar sugestões:", err))
+        .finally(() => setLoading(false));
+    }
+  }, [tripId]);
 
+  // --- RENDERIZAÇÃO DE CARREGAMENTO/ERRO ---
   if (loading) {
     return (
       <div className="trip-dashboard-layout">
         <Sidebar activeTab="" />
         <main className="trip-main-content">
-          <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando viagem...</div>
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Carregando painel...</div>
         </main>
       </div>
     );
@@ -77,9 +74,10 @@ const TripDashboard = () => {
     );
   }
 
+  // --- CÁLCULOS E FORMATAÇÃO ---
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    const date = new Date(dateString + 'T00:00:00');
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
   };
 
@@ -87,9 +85,12 @@ const TripDashboard = () => {
     ? `${formatDate(tripData.start_date)} – ${formatDate(tripData.end_date)}`
     : 'Datas não definidas';
 
+  const totalBudget = tripData.expenses 
+    ? tripData.expenses.reduce((acc, curr) => acc + parseFloat(curr.amount), 0) 
+    : 0;
+
   return (
     <div className="trip-dashboard-layout">
-      {/* Sidebar - Passamos 'Roteiro' ou null para não marcar nada se preferir */}
       <Sidebar activeTab="" />
 
       <main className="trip-main-content">
@@ -114,14 +115,14 @@ const TripDashboard = () => {
                   <small>Participantes</small>
                 </div>
                 <h3>{tripData.participants?.length || 0} confirmados</h3>
-                <span className="trip-sub-text">Ver todos</span>
+                <span className="trip-sub-text">Ver todos abaixo</span>
               </div>
               <div className="trip-stat-card">
                 <div className="trip-stat-header">
-                  <small>Orçamento</small>
+                  <small>Total Gasto</small>
                 </div>
-                <h3>R$ {tripData.budget || '0,00'}</h3>
-                <span className="trip-sub-text">Total estimado</span>
+                <h3>R$ {totalBudget.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
+                <span className="trip-sub-text">Soma das despesas</span>
               </div>
               <div className="trip-stat-card">
                 <div className="trip-stat-header">
@@ -133,10 +134,10 @@ const TripDashboard = () => {
             </div>
           </section>
 
-          {/* GRID PRINCIPAL (Sugestões vs Roteiro/Finanças) */}
+          {/* GRID PRINCIPAL */}
           <div className="trip-content-grid">
             
-            {/* Coluna Esquerda: Sugestões */}
+            {/* Coluna Esquerda: Sugestões (INTEGRADO) */}
             <div className="trip-grid-column">
               <section className="trip-white-container trip-full-height">
                 <div className="trip-card-header-row">
@@ -144,27 +145,36 @@ const TripDashboard = () => {
                 </div>
 
                 <div className="trip-card-list centered-list">
-                  <div className="trip-item-card">
-                    <div className="trip-item-info">
-                      <strong>Passeio de barco no Sena</strong>
-                      <small>Adicionado por Ana • Paris</small>
+                  {recentSuggestions.length > 0 ? (
+                    recentSuggestions.map(sugestao => (
+                      <div key={sugestao.id} className="trip-item-card">
+                        <div className="trip-item-info">
+                          <strong>{sugestao.titulo}</strong>
+                          <small>Sugerido por {sugestao.autor_nome}</small>
+                        </div>
+                        <button 
+                          className="trip-btn-text"
+                          onClick={() => navigate(`/trip/${tripId}/suggestions`)}
+                        >
+                          Abrir
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: 'center', color: '#9ca3af' }}>
+                      Nenhuma sugestão ainda.
                     </div>
-                    <button className="trip-btn-text">Abrir</button>
-                  </div>
-                  <div className="trip-item-card">
-                    <div className="trip-item-info">
-                      <strong>Tour de bicicleta em Amsterdã</strong>
-                      <small>Adicionado por Bruno • Amsterdã</small>
-                    </div>
-                    <button className="trip-btn-text">Abrir</button>
-                  </div>
+                  )}
                 </div>
 
                 <div className="trip-footer-row mt-auto">
                   <span className="trip-footer-hint">
                     Centralize novas ideias aqui.
                   </span>
-                  <button className="trip-btn-primary">
+                  <button 
+                    className="trip-btn-primary"
+                    onClick={() => navigate(`/trip/${tripId}/suggestions`)}
+                  >
                     + Adicionar sugestão
                   </button>
                 </div>
@@ -173,53 +183,62 @@ const TripDashboard = () => {
 
             {/* Coluna Direita: Roteiro e Finanças */}
             <div className="trip-grid-column">
-              {/* Próximos no Roteiro */}
+              
+              {/* Próximos no Roteiro (AJUSTADO: Sem mock data) */}
               <section className="trip-white-container">
                 <span className="trip-card-title">Próximos no roteiro</span>
-                <div className="trip-card-list">
-                  {mockActivities.map((act) => (
-                    <div key={act.id} className="trip-item-card">
-                      <div className="trip-item-icon blue-bg">📅</div>
-                      <div className="trip-item-info">
-                        <strong>{act.title}</strong>
-                        <small>
-                          {act.time} • {act.local}
-                        </small>
-                      </div>
-                      <button className="trip-btn-text">Ver dia</button>
+                
+                {/* Aqui removemos o mockActivities.map e colocamos o estado vazio */}
+                <div className="trip-card-list" style={{ justifyContent: 'center', alignItems: 'center', minHeight: '100px' }}>
+                    <div style={{ textAlign: 'center', color: '#9ca3af', width: '100%' }}>
+                      Nenhuma atividade próxima.
                     </div>
-                  ))}
                 </div>
+
               </section>
 
-              {/* Resumo Financeiro */}
+              {/* Resumo Financeiro (INTEGRADO) */}
               <section className="trip-white-container">
                 <span className="trip-card-title">Resumo financeiro</span>
                 <div className="trip-finance-controls">
-                  <span className="trip-badge-blue">Saldo: R$ 1.250</span>
-                  <span className="trip-badge-outline">Despesas: 7</span>
+                  <span className="trip-badge-blue">Total: R$ {totalBudget.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span className="trip-badge-outline">Itens: {tripData.expenses?.length || 0}</span>
                 </div>
 
                 <div className="trip-card-list">
-                  {mockExpenses.map((exp) => (
-                    <div key={exp.id} className="trip-item-card">
-                      <div className="trip-item-icon blue-bg">💳</div>
-                      <div className="trip-item-info">
-                        <strong>{exp.title}</strong>
-                        <small>
-                          Pago por {exp.payer} • R$ {exp.amount}
-                        </small>
+                  {tripData.expenses && tripData.expenses.length > 0 ? (
+                    tripData.expenses.slice(0, 3).map((exp) => (
+                      <div key={exp.id} className="trip-item-card">
+                        <div className="trip-item-icon blue-bg">💳</div>
+                        <div className="trip-item-info">
+                          <strong>{exp.title}</strong>
+                          <small>
+                            Pago por {exp.payer_name} • R$ {parseFloat(exp.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </small>
+                        </div>
+                        <button 
+                          className="trip-btn-text"
+                          onClick={() => navigate(`/viagem/${tripId}/financas`)}
+                        >
+                          Detalhes
+                        </button>
                       </div>
-                      <button className="trip-btn-text">Detalhes</button>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: 'center', color: '#9ca3af', padding: '1rem' }}>
+                      Nenhuma despesa registrada.
                     </div>
-                  ))}
+                  )}
                 </div>
 
                 <div className="trip-footer-row">
                   <span className="trip-footer-hint">
                     Acompanhe as dívidas.
                   </span>
-                  <button className="trip-btn-primary small">
+                  <button 
+                    className="trip-btn-primary small"
+                    onClick={() => navigate(`/viagem/${tripId}/financas`)}
+                  >
                     + Despesa
                   </button>
                 </div>
@@ -228,58 +247,37 @@ const TripDashboard = () => {
           </div>
           {/* FIM DO GRID */}
 
-          {/* MEMBROS - Fora do Grid para ocupar largura total */}
+          {/* MEMBROS (AJUSTADO: Avatares consistentes) */}
           <section className="trip-white-container trip-members-section">
             <span className="trip-card-title">Membros</span>
             <div className="trip-member-list">
-              <div className="trip-member-row">
-                <div
-                  className="trip-avatar"
-                  style={{
-                    backgroundImage:
-                      "url(https://ui-avatars.com/api/?name=Ana&background=random)",
-                  }}
-                ></div>
-                <div className="trip-item-info">
-                  <strong>Ana</strong>
-                  <small>Admin</small>
-                </div>
-                <span className="trip-status-badge">Confirmada</span>
-              </div>
-              <div className="trip-member-row">
-                <div
-                  className="trip-avatar"
-                  style={{
-                    backgroundImage:
-                      "url(https://ui-avatars.com/api/?name=Bruno&background=random)",
-                  }}
-                ></div>
-                <div className="trip-item-info">
-                  <strong>Bruno</strong>
-                  <small>Membro</small>
-                </div>
-                <span className="trip-status-badge">Confirmado</span>
-              </div>
-              <div className="trip-member-row">
-                <div
-                  className="trip-avatar"
-                  style={{
-                    backgroundImage:
-                      "url(https://ui-avatars.com/api/?name=Carla&background=random)",
-                  }}
-                ></div>
-                <div className="trip-item-info">
-                  <strong>Carla</strong>
-                  <small>Membro</small>
-                </div>
-                <span className="trip-status-badge">Confirmada</span>
-              </div>
+              {tripData.participants && tripData.participants.length > 0 ? (
+                tripData.participants.map((member) => (
+                  <div key={member.id} className="trip-member-row">
+                    <div
+                      className="trip-avatar"
+                      style={{
+                        // AJUSTE AQUI: Removemos 'background=random' e usamos 'member.email' como fallback para gerar as iniciais
+                        backgroundImage: `url(https://ui-avatars.com/api/?name=${member.first_name || member.email}&background=0D8ABC&color=fff&bold=true)`,
+                      }}
+                    ></div>
+                    <div className="trip-item-info">
+                      {/* Mostra nome ou email se não tiver nome */}
+                      <strong>{member.first_name || member.email}</strong>
+                      <small>Participante</small>
+                    </div>
+                    <span className="trip-status-badge">Confirmado</span>
+                  </div>
+                ))
+              ) : (
+                <div>Nenhum membro encontrado.</div>
+              )}
             </div>
             <div className="trip-footer-row">
               <span className="trip-footer-hint">Gerencie o grupo.</span>
               <button 
                 className="trip-btn-soft"
-                onClick={() => navigate(`/viagem/${tripId || '1'}/membros`)}
+                onClick={() => navigate(`/viagem/${tripId}/membros`)}
               >
                 👤 Abrir Membros
               </button>
