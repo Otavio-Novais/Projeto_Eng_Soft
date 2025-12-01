@@ -225,7 +225,6 @@ def listar_viagens_api(request):
     hoje = date.today()
 
     for v in viagens:
-        # Lógica simples: Se a data já passou, está concluída. Se é futura ou sem data, é planejamento.
         status = 'PLANEJAMENTO'
         status_display = 'Em Planejamento'
         
@@ -233,9 +232,9 @@ def listar_viagens_api(request):
             status = 'CONCLUIDA'
             status_display = 'Concluída'
 
-        # Busca participantes com avatares
+        # Busca participantes
         participantes_data = []
-        for p in v.participantes.all()[:5]:  # Limita a 5 participantes
+        for p in v.participantes.all()[:5]:
             avatar_url = None
             if p.avatar:
                 avatar_url = request.build_absolute_uri(p.avatar.url)
@@ -245,6 +244,12 @@ def listar_viagens_api(request):
                 'avatar': avatar_url
             })
         
+        # --- CORREÇÃO DA IMAGEM AQUI ---
+        imagem_url = None
+        if v.imagem:
+            # request.build_absolute_uri cria a URL completa (http://localhost:8000/media/...)
+            imagem_url = v.imagem.url 
+
         data.append({
             'id': v.id,
             'titulo': v.titulo,
@@ -254,8 +259,9 @@ def listar_viagens_api(request):
             'data_fim': v.data_fim.isoformat() if v.data_fim else None,
             'participantes_count': v.participantes.count(),
             'participantes': participantes_data,
-            'status': status,          # Usado para filtrar no código (FUTURAS/PASSADAS)
-            'status_display': status_display # Usado para escrever na tela
+            'status': status,
+            'status_display': status_display,
+            'imagem': imagem_url  # <--- ADICIONE ESTA LINHA
         })
     
     return Response(data)

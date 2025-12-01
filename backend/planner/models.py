@@ -14,6 +14,7 @@ class Viagem(models.Model):
     destino = models.CharField(max_length=200)
     data_inicio = models.DateField()
     data_fim = models.DateField()
+    imagem = models.ImageField(upload_to='trip_covers/', null=True, blank=True)
     participantes = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="viagens"
     )

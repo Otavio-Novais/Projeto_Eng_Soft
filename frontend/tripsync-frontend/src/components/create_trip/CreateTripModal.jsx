@@ -7,89 +7,79 @@ import { useNavigate } from 'react-router-dom';
 const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
   const navigate = useNavigate();
   
-  // Estado para guardar os dados do formulário
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     startDate: '',
     endDate: ''
   });
-
+  
+  // Novo estado para guardar o arquivo da imagem
+  const [selectedImage, setSelectedImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Se o modal não estiver aberto, não renderiza nada
   if (!isOpen) return null;
 
-  // Atualiza o estado conforme o usuário digita
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Lógica de envio 
+  // Função para capturar o arquivo
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Pegando o token salvo no login
     const token = localStorage.getItem('token');
-
     if (!token) {
-        alert("Você precisa estar logado para criar uma viagem.");
+        alert("Você precisa estar logado.");
         setIsLoading(false);
         return;
     }
 
-    // Mapeando para o formato que o Serializer do Django espera (snake_case)
-    const payload = {
-        title: formData.title,
-        description: formData.description || "", 
-        start_date: formData.startDate, 
-        end_date: formData.endDate      
-    };
+    // --- Usar FormData ---
+    const dataToSend = new FormData();
+    dataToSend.append('title', formData.title);
+    dataToSend.append('description', formData.description || "");
+    dataToSend.append('start_date', formData.startDate);
+    dataToSend.append('end_date', formData.endDate);
+    
+    // Se o usuário escolheu imagem, anexa ao envio
+    if (selectedImage) {
+        dataToSend.append('imagem', selectedImage);
+    }
 
     try {
-        // ATENÇÃO: Verifique se o prefixo da URL do seu app é 'planner' mesmo
         const response = await axios.post(
             'http://127.0.0.1:8000/planner/api/viagens/criar/', 
-            payload,
+            dataToSend, // Envia o FormData em vez do objeto JSON
             {
                 headers: {
-                    'Authorization': `Bearer ${token}`, // Header obrigatório para o Django saber quem é request.user
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${token}`,
+                    // O axios define automaticamente o Content-Type como multipart/form-data
                 }
             }
         );
         
         console.log("Viagem criada:", response.data);
-        
-        // Fecha o modal
         onClose();
-        
-        // Se houver uma função de atualização (ex: recarregar lista na sidebar), chama ela
         if (onSuccess) onSuccess();
-
-        // Limpa o formulário
+        
+        // Limpa tudo
         setFormData({ title: '', description: '', startDate: '', endDate: '' });
+        setSelectedImage(null);
 
-        // REDIRECIONAMENTO: Leva o usuário para a Dashboard da nova viagem
         navigate(`/trip/${response.data.id}`);
 
     } catch (error) {
-        console.error("Erro ao criar viagem:", error.response?.data || error);
-        
-        // Tratamento de erro mais amigável
-        let errorMessage = "Erro ao criar viagem.";
-        if (error.response?.data) {
-            // Se o Django mandou erros específicos (ex: data final antes da inicial)
-            const djangoErrors = error.response.data;
-            if (djangoErrors.end_date) errorMessage = djangoErrors.end_date[0];
-            else if (djangoErrors.start_date) errorMessage = djangoErrors.start_date[0];
-        }
-        alert(errorMessage);
+        console.error("Erro:", error);
+        alert("Erro ao criar viagem.");
     } finally {
         setIsLoading(false);
     }
@@ -97,84 +87,65 @@ const CreateTripModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <div className="modal-overlay" onClick={(e) => {
-      // Fecha se clicar no fundo escuro (fora do modal)
       if (e.target.className === 'modal-overlay') onClose();
     }}>
       <div className="modal-container">
-        
         <div className="modal-header">
           <h2>Nova Viagem</h2>
         </div>
         
-        <span className="modal-subtitle">
-          Preencha as informações básicas para começar o planejamento.
-        </span>
-
         <form onSubmit={handleSubmit}>
           
-          {/* Título */}
+          {/* CAMPO DE UPLOAD DE IMAGEM */}
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <label>Capa da Viagem (Opcional)</label>
+            <div style={{ border: '1px dashed #ccc', padding: '1rem', borderRadius: '8px', textAlign: 'center' }}>
+                <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageChange}
+                    id="trip-image-upload"
+                    style={{ display: 'none' }} 
+                />
+                <label htmlFor="trip-image-upload" style={{ cursor: 'pointer', color: '#2563eb', fontWeight: '600' }}>
+                    {selectedImage ? `📷 ${selectedImage.name}` : "📁 Clique para escolher uma imagem"}
+                </label>
+            </div>
+          </div>
+
           <div className="form-group">
             <label>Título da Viagem</label>
-            <input 
-              type="text" 
-              name="title"
-              className="form-input" 
-              placeholder="Ex: Fim de Semana em Paraty"
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="title" className="form-input" 
+              value={formData.title} onChange={handleChange} required />
           </div>
 
-          {/* Descrição */}
           <div className="form-group">
-            <label>Descrição (opcional)</label>
-            <textarea 
-              name="description"
-              className="form-textarea" 
-              placeholder="Conte um pouco sobre a viagem..."
-              value={formData.description}
-              onChange={handleChange}
-            />
+            <label>Descrição</label>
+            <textarea name="description" className="form-textarea" 
+              value={formData.description} onChange={handleChange} />
           </div>
 
-          {/* Datas de início e fim*/}
           <div className="form-row">
             <div className="form-col">
               <div className="form-group">
-                <label>Data de Início</label>
-                <input 
-                  type="date" 
-                  name="startDate"
-                  className="form-input"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  required
-                />
+                <label>Início</label>
+                <input type="date" name="startDate" className="form-input"
+                  value={formData.startDate} onChange={handleChange} required />
               </div>
             </div>
             <div className="form-col">
               <div className="form-group">
-                <label>Data de Fim</label>
-                <input 
-                  type="date" 
-                  name="endDate"
-                  className="form-input"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                  required
-                />
+                <label>Fim</label>
+                <input type="date" name="endDate" className="form-input"
+                  value={formData.endDate} onChange={handleChange} required />
               </div>
             </div>
           </div>
 
-          {/* Botões inferiores */}
           <div className="modal-footer">
-            <button type="button" className="btn-cancel" onClick={onClose} disabled={isLoading}>
-              ✕ Cancelar
-            </button>
+            <button type="button" className="btn-cancel" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn-continue" disabled={isLoading}>
-              {isLoading ? 'Criando...' : 'Salvar e Continuar ➝'}
+              {isLoading ? 'Salvando...' : 'Salvar e Continuar ➝'}
             </button>
           </div>
 

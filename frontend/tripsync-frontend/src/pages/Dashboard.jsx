@@ -71,7 +71,9 @@ const Dashboard = () => {
             tag: dateTag,
             locations: t.destino || 'Destino não definido',
             destino: t.destino,
-            image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            image: t.imagem 
+                ? `${API_BASE_URL}${t.imagem}` 
+                : 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
             members: t.participantes || [],
             participantes: t.participantes || [],
             data_inicio: t.data_inicio,

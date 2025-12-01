@@ -29,7 +29,7 @@ class TripDashboardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Viagem
-        fields = ['id', 'title', 'start_date', 'end_date', 'participants', 'expenses']
+        fields = ['id', 'title', 'start_date', 'end_date', 'participants', 'expenses', 'imagem']
 
 class TripSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='titulo')
@@ -39,7 +39,7 @@ class TripSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Viagem
-        fields = ['id', 'title', 'description', 'start_date', 'end_date']
+        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'imagem']
 
     def validate(self, data):
         start_date = data.get('data_inicio')
