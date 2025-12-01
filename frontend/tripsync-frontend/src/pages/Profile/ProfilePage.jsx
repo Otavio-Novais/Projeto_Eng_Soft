@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Map, Camera, Save, Loader, Mail, Phone, Calendar, Globe, Bell, DollarSign, MapPin } from 'lucide-react';
 import CustomDatePicker from '../../components/common/CustomDatePicker';
+import { API_BASE_URL } from '../../services/api';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
@@ -35,7 +36,7 @@ const ProfilePage = () => {
       }
 
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/auth/profile/', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -57,7 +58,7 @@ const ProfilePage = () => {
           if (data.avatar) {
             const avatarUrl = data.avatar.startsWith('http')
               ? data.avatar
-              : `http://127.0.0.1:8000${data.avatar}`;
+              : `${API_BASE_URL}${data.avatar}`;
             setAvatarPreview(avatarUrl);
           }
         } else if (response.status === 401) {
@@ -106,7 +107,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/auth/profile/', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` },
         body: dataToSend

@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // <--- Voltamos com o axios
 import './ForgotPasswordPage.css';
 import { Map } from 'lucide-react';
+import { API_BASE_URL } from '../../services/api';
 // Configuração da API
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: `${API_BASE_URL}/api`,
 });
 
 const ForgotPasswordPage = () => {

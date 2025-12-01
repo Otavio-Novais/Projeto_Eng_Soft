@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
+import { API_BASE_URL } from '../../services/api';
 import "./trip_dashboard.css";
 
 const TripDashboard = () => {
@@ -11,7 +12,7 @@ const TripDashboard = () => {
 
   useEffect(() => {
     if (tripId) {
-      fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/`, {
+      fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
         .then(res => {

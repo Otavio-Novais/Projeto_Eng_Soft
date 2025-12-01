@@ -7,6 +7,7 @@ import {
 import Sidebar from '../../components/layout/Sidebar';
 import AddExpenseModal from '../../components/AddExpenseModal';
 import SettlementModal from '../../components/SettlementModal';
+import { API_BASE_URL } from '../../services/api';
 import './Finance.css';
 
 const FinancePage = () => {
@@ -31,7 +32,7 @@ const FinancePage = () => {
         const fetchTrips = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+                const res = await fetch(`${API_BASE_URL}/planner/api/viagens/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -60,7 +61,7 @@ const FinancePage = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${selectedTripId}/financas/`, {
+            const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${selectedTripId}/financas/`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`

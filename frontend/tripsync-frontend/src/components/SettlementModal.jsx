@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Download, Share2, CheckCircle, RefreshCw, Shuffle } from 'lucide-react';
+import { API_BASE_URL } from '../services/api';
 
 const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
   const [transacoes, setTransacoes] = useState([]);
@@ -37,7 +38,7 @@ const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
     if(!window.confirm(`Confirmar acerto de R$ ${transacao.valor.toFixed(2)}?`)) return;
     setLoadingAction(true);
     try {
-        await fetch(`http://127.0.0.1:8000/planner/api/viagem/${viagemId}/liquidar/`, {
+        await fetch(`${API_BASE_URL}/planner/api/viagem/${viagemId}/liquidar/`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ devedor_id: transacao.de.id, credor_id: transacao.para.id, valor: transacao.valor })
         });
@@ -49,7 +50,7 @@ const SettlementModal = ({ viagemId, dados, onClose, onRefresh }) => {
     if(!window.confirm("Isso marcará TODAS como pagas.")) return;
     setLoadingAction(true);
     for (const t of transacoes) {
-        await fetch(`http://127.0.0.1:8000/planner/api/viagem/${viagemId}/liquidar/`, {
+        await fetch(`${API_BASE_URL}/planner/api/viagem/${viagemId}/liquidar/`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ devedor_id: t.de.id, credor_id: t.para.id, valor: t.valor })
         });

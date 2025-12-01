@@ -5,6 +5,7 @@ import Sidebar from '../components/layout/Sidebar';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import TripCard from '../components/dashboard/TripCard';
 import CreateTripModal from '../components/create_trip/CreateTripModal';
+import { API_BASE_URL } from '../services/api';
 import './Dashboard.css'; // Import responsive styles
 
 const Dashboard = () => {
@@ -16,7 +17,7 @@ const Dashboard = () => {
 
   const fetchTrips = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+      const response = await fetch(`${API_BASE_URL}/planner/api/viagens/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

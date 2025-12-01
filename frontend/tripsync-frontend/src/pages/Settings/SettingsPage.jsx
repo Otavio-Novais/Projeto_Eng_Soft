@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, DollarSign, Globe, Bell, Shield, Trash2, LogOut, Save, Loader, Mail } from 'lucide-react';
+import { API_BASE_URL } from '../../services/api';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
@@ -25,7 +26,7 @@ const SettingsPage = () => {
             }
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/auth/profile/', {
+                const response = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -68,7 +69,7 @@ const SettingsPage = () => {
         dataToSend.append('language', settings.language);
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/auth/profile/', {
+            const response = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
                 method: 'PATCH',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: dataToSend

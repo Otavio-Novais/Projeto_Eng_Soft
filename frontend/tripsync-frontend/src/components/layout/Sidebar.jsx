@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { House, Map, Sparkles, CreditCard, Users, Plus, User, Settings, LogOut } from 'lucide-react';
 import CreateTripModal from '../create_trip/CreateTripModal';
+import { API_BASE_URL } from '../../services/api';
 import './Sidebar.css';
 
 const Sidebar = ({ activeTab = 'Início' }) => {
@@ -21,7 +22,7 @@ const Sidebar = ({ activeTab = 'Início' }) => {
 
   // Fetch recent trips
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+    fetch(`${API_BASE_URL}/planner/api/viagens/`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
       .then(res => {

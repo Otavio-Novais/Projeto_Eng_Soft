@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// URL base da API - usa variável de ambiente ou localhost como fallback
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: `${API_BASE_URL}/api`,
 });
 
 // Interceptor para adicionar token nas requisições

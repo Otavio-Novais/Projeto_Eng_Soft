@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar';
+import { API_BASE_URL } from '../../services/api';
 import './MembersPage.css';
 
 const MembersPage = () => {
@@ -28,7 +29,7 @@ const MembersPage = () => {
       console.log('Carregando membros para viagem:', tripId);
       console.log('Token presente:', !!token);
       
-      const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/membros/`, {
+      const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/membros/`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -77,7 +78,7 @@ const MembersPage = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/convites/enviar/`, {
+      const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/convites/enviar/`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -103,7 +104,7 @@ const MembersPage = () => {
   const handleResendInvite = async (inviteId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/convites/${inviteId}/reenviar/`, {
+      const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/convites/${inviteId}/reenviar/`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -122,7 +123,7 @@ const MembersPage = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/convites/${inviteId}/cancelar/`, {
+      const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/convites/${inviteId}/cancelar/`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -143,7 +144,7 @@ const MembersPage = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/membros/${memberId}/toggle-admin/`, {
+      const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/membros/${memberId}/toggle-admin/`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -162,7 +163,7 @@ const MembersPage = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${tripId}/membros/${memberId}/remover/`, {
+      const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${tripId}/membros/${memberId}/remover/`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`,

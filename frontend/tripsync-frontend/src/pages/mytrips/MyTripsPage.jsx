@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar'; // Importando Sidebar
 import CreateTripModal from '../../components/create_trip/CreateTripModal';
+import { API_BASE_URL } from '../../services/api';
 import {
     Map, Plus, User, Calendar, Users, ArrowRight, LayoutGrid, Clock, CheckCircle, Wallet,
     Settings, LogOut, ChevronDown
@@ -20,7 +21,7 @@ const MyTripsPage = () => {
     const menuRef = useRef(null);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/planner/api/viagens/', {
+        fetch(`${API_BASE_URL}/planner/api/viagens/`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         })
             .then(res => res.json())
