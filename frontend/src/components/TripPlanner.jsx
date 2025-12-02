@@ -71,7 +71,7 @@ export default function TripPlanner() {
     } catch (error) {
       console.error("Erro ao salvar movimento:", error);
       setItems(originalItems); // Reverte se der erro
-      alert("Erro ao mover o card. Tente novamente.");
+      alert(`Erro ao mover o card: ${error.message || 'Tente novamente.'}`);
     }
   };
 
