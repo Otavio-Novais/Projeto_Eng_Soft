@@ -82,6 +82,22 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
+# Configuração do JWT - Aumenta o tempo de vida dos tokens
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=12),  # Token de acesso válido por 12 horas
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),   # Token de refresh válido por 7 dias
+    'ROTATE_REFRESH_TOKENS': True,                  # Gera novo refresh token ao renovar
+    'BLACKLIST_AFTER_ROTATION': False,              # Não bloqueia o token antigo
+    'UPDATE_LAST_LOGIN': True,                       # Atualiza o último login
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+}
+
 ROOT_URLCONF = 'tripsync_project.urls'
 
 TEMPLATES = [

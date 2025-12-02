@@ -55,7 +55,9 @@ const AuthPage = () => {
       });
       console.log('Resposta do Google:', response.data);
       localStorage.setItem('token', response.data.access);
-      localStorage.setItem('refreshToken', response.data.refresh);
+      if (response.data.refresh) {
+        localStorage.setItem('refreshToken', response.data.refresh);
+      }
       await refreshTrips();
       navigate('/dashboard');
     } catch (error) {
@@ -105,6 +107,9 @@ const AuthPage = () => {
         // CORREÇÃO: Enviar 'email' pois o backend espera exatamente isso
         const response = await api.post('/auth/login/', { email, password });
         localStorage.setItem('token', response.data.access);
+        if (response.data.refresh) {
+          localStorage.setItem('refreshToken', response.data.refresh);
+        }
         await refreshTrips();
         navigate('/dashboard');
       } else {
