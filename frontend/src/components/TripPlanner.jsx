@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { tripService } from './services/api';
 
@@ -19,7 +19,7 @@ const generateDateRange = (startDate, endDate) => {
   const current = new Date(startDate + 'T00:00:00');
   const end = new Date(endDate + 'T00:00:00');
   
-  while (current <= end) {
+  while (current.getTime() <= end.getTime()) {
     dates.push(current.toISOString().split('T')[0]);
     current.setDate(current.getDate() + 1);
   }
@@ -61,12 +61,8 @@ export default function TripPlanner({ tripId = 1 }) {
     return { bank: { id: 'bank', title: 'Banco de Sugestões', date: null } };
   }, [tripDetails]);
 
-  // Load trip details and items when tripId changes
-  useEffect(() => {
-    loadData();
-  }, [tripId]);
-
-  const loadData = async () => {
+  // Load trip details and items
+  const loadData = useCallback(async () => {
     try {
       // Fetch trip details and items in parallel
       const [tripData, itemsData] = await Promise.all([
@@ -80,7 +76,12 @@ export default function TripPlanner({ tripId = 1 }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tripId]);
+
+  // Load data when tripId changes
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Filtra os itens para cada coluna visual
   // Se scheduled_date for null, vai pro Banco. Se tiver data, vai pro Dia certo.
