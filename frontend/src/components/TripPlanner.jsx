@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { tripService } from './services/api'; //
+import api from '../api';
+
+// Define tripService functions using the api client
+const tripService = {
+  getItems: async (tripId) => {
+    const response = await api.get(`trips/${tripId}/items/`);
+    return response.data;
+  },
+  moveCard: async (itemId, scheduledDate, startTime) => {
+    const response = await api.patch(`trip-items/${itemId}/`, {
+      scheduled_date: scheduledDate,
+      start_time: startTime,
+    });
+    return response.data;
+  },
+};
 
 // Configuração das colunas (Datas reais do seu projeto)
 const COLUMNS_CONFIG = {
