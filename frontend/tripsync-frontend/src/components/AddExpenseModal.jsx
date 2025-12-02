@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, User, FileText, Check, ChevronDown, MapPin, Loader2 } from 'lucide-react';
 import CustomDatePicker from './common/CustomDatePicker';
-import { API_BASE_URL } from '../services/api';
+import tripsApi from '../services/tripsApi';
 import '../pages/Finance/Finance.css';
 
 const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
@@ -25,26 +25,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
 
     // Fetch Trips para o seletor
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        
-        if (!token) {
-            console.error("Token não encontrado");
-            return;
-        }
-
-        fetch(`${API_BASE_URL}/planner/api/viagens/`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
-                if (res.status === 401) {
-                    throw new Error('Sessão expirada');
-                }
-                if (!res.ok) throw new Error('Falha ao carregar viagens');
-                return res.json();
-            })
+        tripsApi.listarViagens()
             .then(data => {
                 setTrips(data);
                 if (!selectedTripId && data.length > 0) {
@@ -62,91 +43,19 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
     // Fetch Participantes quando a viagem selecionada muda
     useEffect(() => {
         if (!selectedTripId) return;
-        
-        let isMounted = true; // Para prevenir updates em componente desmontado
-        
-        const carregarParticipantes = async () => {
-            setLoading(true);
-            setError(null);
-            const token = localStorage.getItem('token');
-            
-            if (!token) {
-                console.error("Token não encontrado. Usuário precisa fazer login novamente.");
-                if (isMounted) {
-                    setError("Sessão expirada");
-                    setLoading(false);
-                }
-                return;
-            }
-
-            console.log('🔄 Carregando participantes da viagem:', selectedTripId);
-            console.log('🔑 Token:', token.substring(0, 20) + '...');
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${selectedTripId}/financas/`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                console.log('📡 Response status:', response.status);
-
-                if (!isMounted) return; // Componente foi desmontado
-
-                if (response.status === 401) {
-                    // Token expirado - limpa o localStorage e pede novo login
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    setError('Sua sessão expirou. Redirecionando para login...');
-                    setLoading(false);
-                    
-                    // Redireciona para login após 2 segundos
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 2000);
-                    return;
-                }
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('❌ Erro na resposta:', errorText);
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('✅ Dados recebidos:', data);
-
-                if (data.resumo && Array.isArray(data.resumo)) {
-                    const users = data.resumo.map(u => ({ 
-                        id: u.id, 
-                        nome: u.nome, 
-                        avatar: u.avatar || `https://ui-avatars.com/api/?name=${u.nome}&background=random`
-                    }));
-                    setParticipantes(users);
-                    setSelecionados(users.map(u => u.id));
-                    if (users.length > 0) setPagadorId(users[0].id);
-                } else {
-                    console.error("❌ Formato de resposta inválido:", data);
-                    setError("Formato de resposta inválido");
-                }
-            } catch (err) {
-                console.error("❌ Erro ao carregar participantes:", err);
-                if (isMounted) {
-                    setError(err.message);
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        carregarParticipantes();
-
-        return () => {
-            isMounted = false; // Cleanup: marca que o componente foi desmontado
-        };
+        setLoading(true);
+        tripsApi.obterFinancas(selectedTripId)
+            .then(d => {
+                const users = d.resumo.map(u => ({ id: u.id, nome: u.nome, avatar: u.nome.charAt(0) }));
+                setParticipantes(users);
+                setSelecionados(users.map(u => u.id));
+                if (users.length > 0) setPagadorId(users[0].id);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error("Erro ao carregar participantes:", err);
+                setLoading(false);
+            });
     }, [selectedTripId]);
 
     // Handlers
@@ -183,45 +92,17 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            
-            if (!token) {
-                alert("Sessão expirada. Por favor, faça login novamente.");
-                return;
-            }
-
-            const res = await fetch(`${API_BASE_URL}/planner/api/viagem/${selectedTripId}/despesa/nova/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    titulo,
-                    valor_total: total,
-                    pagador_id: pagadorId,
-                    data,
-                    rateios,
-                    status: isDraft ? 'RASCUNHO' : 'CONFIRMADO'
-                })
+            await tripsApi.criarDespesa(selectedTripId, {
+                titulo,
+                valor_total: total,
+                pagador_id: pagadorId,
+                data,
+                rateios,
+                status: isDraft ? 'RASCUNHO' : 'CONFIRMADO'
             });
-            
-            if (res.status === 401) {
-                alert("Sua sessão expirou. Por favor, faça login novamente.");
-                return;
-            }
-            
-            if (res.ok) { 
-                onSuccess(); 
-                onClose(); 
-            } else {
-                const errorData = await res.json();
-                alert(`Erro ao salvar: ${errorData.detail || 'Erro desconhecido'}`);
-            }
-        } catch (err) { 
-            console.error("Erro ao salvar despesa:", err);
-            alert("Erro ao salvar despesa. Verifique sua conexão."); 
-        }
+            onSuccess();
+            onClose();
+        } catch (err) { alert("Erro ao salvar"); }
     };
 
     // Cálculos visuais
