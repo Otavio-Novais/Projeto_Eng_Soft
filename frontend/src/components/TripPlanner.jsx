@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { tripService } from './services/api'; //
 
@@ -31,12 +31,16 @@ export default function TripPlanner() {
     }
   };
 
-  // 2. Filtra os itens para cada coluna visual
+  // 2. Filtra os itens para cada coluna visual (memoizado para performance)
   // Se scheduled_date for null, vai pro Banco. Se tiver data, vai pro Dia certo.
-  const getItemsForColumn = (colId) => {
-    const targetDate = COLUMNS_CONFIG[colId].date;
-    return items.filter(item => item.scheduled_date === targetDate);
-  };
+  const itemsByColumn = useMemo(() => {
+    const result = {};
+    Object.keys(COLUMNS_CONFIG).forEach(colId => {
+      const targetDate = COLUMNS_CONFIG[colId].date;
+      result[colId] = items.filter(item => item.scheduled_date === targetDate);
+    });
+    return result;
+  }, [items]);
 
   // 3. Lógica do Drag & Drop
   const onDragEnd = async (result) => {
@@ -102,7 +106,7 @@ export default function TripPlanner() {
                   }`}
                   style={{ minHeight: '300px' }} // Garante área para soltar mesmo vazia
                 >
-                  {getItemsForColumn(col.id).map((item, index) => (
+                  {itemsByColumn[col.id].map((item, index) => (
                     <Draggable key={item.id} draggableId={item.id.toString()} index={index}>
                       {(provided) => (
                         <div
