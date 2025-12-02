@@ -1,44 +1,96 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { tripService } from './services/api'; //
+import { tripService } from './services/api';
 
-// Configuração das colunas (Datas reais do seu projeto)
-const COLUMNS_CONFIG = {
-  bank: { id: 'bank', title: 'Banco de Sugestões', date: null },
-  day1: { id: 'day1', title: 'Dia 1 • Sáb 12 Jul', date: '2025-07-12' }, //
-  day2: { id: 'day2', title: 'Dia 2 • Dom 13 Jul', date: '2025-07-13' },
-  day3: { id: 'day3', title: 'Dia 3 • Seg 14 Jul', date: '2025-07-14' },
+// Helper function to format date for column title
+const formatDateTitle = (date, dayNumber) => {
+  const dateObj = new Date(date + 'T00:00:00'); // Ensure consistent parsing
+  const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const weekday = weekdays[dateObj.getDay()];
+  const day = dateObj.getDate();
+  const month = months[dateObj.getMonth()];
+  return `Dia ${dayNumber} • ${weekday} ${day} ${month}`;
 };
 
-const TRIP_ID = 1; // ID fixo para teste, depois virá da URL
+// Helper function to generate dates between start and end (inclusive)
+const generateDateRange = (startDate, endDate) => {
+  const dates = [];
+  const current = new Date(startDate + 'T00:00:00');
+  const end = new Date(endDate + 'T00:00:00');
+  
+  while (current.getTime() <= end.getTime()) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+};
 
-export default function TripPlanner() {
+// Generate columns config dynamically based on trip dates
+const generateColumnsConfig = (startDate, endDate) => {
+  const columns = {
+    bank: { id: 'bank', title: 'Banco de Sugestões', date: null },
+  };
+
+  if (startDate && endDate) {
+    const dates = generateDateRange(startDate, endDate);
+    dates.forEach((date, index) => {
+      const dayKey = `day${index + 1}`;
+      columns[dayKey] = {
+        id: dayKey,
+        title: formatDateTitle(date, index + 1),
+        date: date,
+      };
+    });
+  }
+
+  return columns;
+};
+
+export default function TripPlanner({ tripId = 1 }) {
   const [items, setItems] = useState([]);
+  const [tripDetails, setTripDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-  // 1. Carrega dados reais do Django ao iniciar
-  useEffect(() => {
-    loadData();
-  }, [TRIP_ID]);
 
-  const loadData = async () => {
+  // Generate columns config based on trip dates
+  const columnsConfig = useMemo(() => {
+    if (tripDetails?.start_date && tripDetails?.end_date) {
+      return generateColumnsConfig(tripDetails.start_date, tripDetails.end_date);
+    }
+    // Fallback to just the bank if no dates available
+    return { bank: { id: 'bank', title: 'Banco de Sugestões', date: null } };
+  }, [tripDetails]);
+
+  // Load trip details and items
+  const loadData = useCallback(async () => {
     try {
-      const data = await tripService.getItems(TRIP_ID); //
-      setItems(data);
+      // Fetch trip details and items in parallel
+      const [tripData, itemsData] = await Promise.all([
+        tripService.getTripDetails(tripId),
+        tripService.getItems(tripId),
+      ]);
+      setTripDetails(tripData);
+      setItems(itemsData);
     } catch (error) {
       console.error("Erro ao carregar roteiro:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [tripId]);
 
-  // 2. Filtra os itens para cada coluna visual
+  // Load data when tripId changes
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Filtra os itens para cada coluna visual
   // Se scheduled_date for null, vai pro Banco. Se tiver data, vai pro Dia certo.
   const getItemsForColumn = (colId) => {
-    const targetDate = COLUMNS_CONFIG[colId].date;
+    const targetDate = columnsConfig[colId]?.date;
     return items.filter(item => item.scheduled_date === targetDate);
   };
 
-  // 3. Lógica do Drag & Drop
+  // Lógica do Drag & Drop
   const onDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
 
@@ -47,7 +99,7 @@ export default function TripPlanner() {
 
     // Descobre a nova data baseada na coluna onde soltou
     const destColumnId = destination.droppableId;
-    const newDate = COLUMNS_CONFIG[destColumnId].date;
+    const newDate = columnsConfig[destColumnId]?.date;
     
     // Atualização Otimista (Muda na tela antes da API responder)
     const originalItems = [...items];
@@ -81,8 +133,8 @@ export default function TripPlanner() {
     <div className="flex gap-4 p-4 overflow-x-auto min-h-screen bg-gray-50">
       <DragDropContext onDragEnd={onDragEnd}>
         
-        {/* Renderiza as colunas baseado na CONFIG */}
-        {Object.values(COLUMNS_CONFIG).map((col) => (
+        {/* Renderiza as colunas baseado na CONFIG dinâmica */}
+        {Object.values(columnsConfig).map((col) => (
           <div key={col.id} className="min-w-[320px] bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
             
             {/* Cabeçalho da Coluna */}
