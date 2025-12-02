@@ -169,6 +169,11 @@ User = get_user_model()
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dashboard_api(request, viagem_id):
+    # Log para debug
+    print(f"🔍 Dashboard API chamada - Viagem ID: {viagem_id}")
+    print(f"👤 Usuário: {request.user}")
+    print(f"🔑 Auth: {request.META.get('HTTP_AUTHORIZATION', 'Nenhum header de autorização')}")
+    
     # Otimiza query com prefetch de relacionamentos
     viagem = get_object_or_404(
         Viagem.objects.prefetch_related(

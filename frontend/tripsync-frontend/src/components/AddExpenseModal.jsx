@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, User, FileText, Check, ChevronDown, MapPin } from 'lucide-react';
+import { X, Calendar, User, FileText, Check, ChevronDown, MapPin, Loader2 } from 'lucide-react';
 import CustomDatePicker from './common/CustomDatePicker';
+import { API_BASE_URL } from '../services/api';
 import '../pages/Finance/Finance.css';
 
 const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
@@ -8,6 +9,7 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
     const [participantes, setParticipantes] = useState([]);
     const [trips, setTrips] = useState([]);
     const [selectedTripId, setSelectedTripId] = useState(viagemId || '');
+    const [error, setError] = useState(null);
 
     // States do Formulário
     const [titulo, setTitulo] = useState('');
@@ -23,36 +25,128 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
 
     // Fetch Trips para o seletor
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/planner/api/viagens/', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')} ` }
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            console.error("Token não encontrado");
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/planner/api/viagens/`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         })
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 401) {
+                    throw new Error('Sessão expirada');
+                }
+                if (!res.ok) throw new Error('Falha ao carregar viagens');
+                return res.json();
+            })
             .then(data => {
                 setTrips(data);
                 if (!selectedTripId && data.length > 0) {
                     setSelectedTripId(data[0].id);
                 }
             })
-            .catch(err => console.error("Erro ao carregar viagens:", err));
+            .catch(err => {
+                console.error("Erro ao carregar viagens:", err);
+                if (err.message.includes('Sessão expirada')) {
+                    alert("Sua sessão expirou. Por favor, faça login novamente.");
+                }
+            });
     }, [selectedTripId]);
 
     // Fetch Participantes quando a viagem selecionada muda
     useEffect(() => {
         if (!selectedTripId) return;
-        setLoading(true);
-        fetch(`http://127.0.0.1:8000/planner/api/viagem/${selectedTripId}/financas/`)
-            .then(res => res.json())
-            .then(d => {
-                const users = d.resumo.map(u => ({ id: u.id, nome: u.nome, avatar: u.nome.charAt(0) }));
-                setParticipantes(users);
-                setSelecionados(users.map(u => u.id));
-                if (users.length > 0) setPagadorId(users[0].id);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Erro ao carregar participantes:", err);
-                setLoading(false);
-            });
+        
+        let isMounted = true; // Para prevenir updates em componente desmontado
+        
+        const carregarParticipantes = async () => {
+            setLoading(true);
+            setError(null);
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                console.error("Token não encontrado. Usuário precisa fazer login novamente.");
+                if (isMounted) {
+                    setError("Sessão expirada");
+                    setLoading(false);
+                }
+                return;
+            }
+
+            console.log('🔄 Carregando participantes da viagem:', selectedTripId);
+            console.log('🔑 Token:', token.substring(0, 20) + '...');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/planner/api/viagem/${selectedTripId}/financas/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('📡 Response status:', response.status);
+
+                if (!isMounted) return; // Componente foi desmontado
+
+                if (response.status === 401) {
+                    // Token expirado - limpa o localStorage e pede novo login
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    setError('Sua sessão expirou. Redirecionando para login...');
+                    setLoading(false);
+                    
+                    // Redireciona para login após 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ Erro na resposta:', errorText);
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('✅ Dados recebidos:', data);
+
+                if (data.resumo && Array.isArray(data.resumo)) {
+                    const users = data.resumo.map(u => ({ 
+                        id: u.id, 
+                        nome: u.nome, 
+                        avatar: u.avatar || `https://ui-avatars.com/api/?name=${u.nome}&background=random`
+                    }));
+                    setParticipantes(users);
+                    setSelecionados(users.map(u => u.id));
+                    if (users.length > 0) setPagadorId(users[0].id);
+                } else {
+                    console.error("❌ Formato de resposta inválido:", data);
+                    setError("Formato de resposta inválido");
+                }
+            } catch (err) {
+                console.error("❌ Erro ao carregar participantes:", err);
+                if (isMounted) {
+                    setError(err.message);
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        carregarParticipantes();
+
+        return () => {
+            isMounted = false; // Cleanup: marca que o componente foi desmontado
+        };
     }, [selectedTripId]);
 
     // Handlers
@@ -89,20 +183,45 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
         }
 
         try {
-            const res = await fetch(`http://127.0.0.1:8000/planner/api/viagem/${selectedTripId}/despesa/nova/`, {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                alert("Sessão expirada. Por favor, faça login novamente.");
+                return;
+            }
+
+            const res = await fetch(`${API_BASE_URL}/planner/api/viagem/${selectedTripId}/despesa/nova/`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     titulo,
                     valor_total: total,
                     pagador_id: pagadorId,
                     data,
                     rateios,
-                    status: isDraft ? 'RASCUNHO' : 'CONFIRMADO' // <--- AQUI O SEGRED0
+                    status: isDraft ? 'RASCUNHO' : 'CONFIRMADO'
                 })
             });
-            if (res.ok) { onSuccess(); onClose(); }
-        } catch (err) { alert("Erro ao salvar"); }
+            
+            if (res.status === 401) {
+                alert("Sua sessão expirou. Por favor, faça login novamente.");
+                return;
+            }
+            
+            if (res.ok) { 
+                onSuccess(); 
+                onClose(); 
+            } else {
+                const errorData = await res.json();
+                alert(`Erro ao salvar: ${errorData.detail || 'Erro desconhecido'}`);
+            }
+        } catch (err) { 
+            console.error("Erro ao salvar despesa:", err);
+            alert("Erro ao salvar despesa. Verifique sua conexão."); 
+        }
     };
 
     // Cálculos visuais
@@ -113,8 +232,6 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
         : modoDivisao === 'PERCENTUAL'
             ? Object.values(valoresManuais).reduce((a, b) => a + (parseFloat(b) || 0), 0)
             : 0;
-
-    if (loading && !participantes.length) return null;
 
     return (
         <div className="modal-overlay">
@@ -128,9 +245,58 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
                     </button>
                 </div>
 
-                {/* FORMULÁRIO */}
-                <form onSubmit={handleSubmit} className="expense-form-container">
-                    <div className="expense-scroll-body">
+                {/* LOADING STATE */}
+                {loading && !participantes.length ? (
+                    <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        padding: '4rem 2rem',
+                        gap: '1rem'
+                    }}>
+                        <Loader2 size={40} className="animate-spin" style={{ color: '#0066FF' }} />
+                        <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>
+                            Carregando dados da viagem...
+                        </p>
+                    </div>
+                ) : error ? (
+                    /* ERROR STATE */
+                    <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        padding: '4rem 2rem',
+                        gap: '1rem'
+                    }}>
+                        <div style={{ 
+                            width: '60px', 
+                            height: '60px', 
+                            borderRadius: '50%', 
+                            background: '#FEF2F2', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            fontSize: '30px'
+                        }}>
+                            ⚠️
+                        </div>
+                        <p style={{ color: '#EF4444', fontSize: '14px', margin: 0, fontWeight: 600 }}>
+                            {error}
+                        </p>
+                        <button 
+                            onClick={() => window.location.reload()} 
+                            className="btn-primary"
+                            style={{ marginTop: '1rem' }}
+                        >
+                            Tentar Novamente
+                        </button>
+                    </div>
+                ) : (
+                    /* FORMULÁRIO */
+                    <form onSubmit={handleSubmit} className="expense-form-container">
+                        <div className="expense-scroll-body">
 
                         {/* SELETOR DE VIAGEM */}
                         <div style={{ marginBottom: 20 }}>
@@ -256,24 +422,24 @@ const AddExpenseModal = ({ viagemId, onClose, onSuccess }) => {
                         </div>
                     </div>
 
-                    {/* Footer Buttons */}
-                    <div className="modal-footer">
-                        <button type="button" onClick={onClose} className="btn-close-ghost">Cancelar</button>
-                        <div style={{ display: 'flex', gap: 12 }}>
-                            {/* Botão Rascunho */}
-                            <button type="button" onClick={(e) => handleSubmit(e, true)} className="btn-close-ghost" style={{ color: '#0066FF', background: '#EFF6FF' }}>
-                                <FileText size={16} /> Salvar Rascunho
-                            </button>
-                            {/* Botão Lançar */}
-                            <button type="submit" onClick={(e) => handleSubmit(e, false)} className="btn-big-blue">
-                                <Check size={18} style={{ marginRight: 6 }} /> Lançar Despesa
-                            </button>
+                        {/* Footer Buttons */}
+                        <div className="modal-footer">
+                            <button type="button" onClick={onClose} className="btn-close-ghost">Cancelar</button>
+                            <div style={{ display: 'flex', gap: 12 }}>
+                                {/* Botão Rascunho */}
+                                <button type="button" onClick={(e) => handleSubmit(e, true)} className="btn-close-ghost" style={{ color: '#0066FF', background: '#EFF6FF' }}>
+                                    <FileText size={16} /> Salvar Rascunho
+                                </button>
+                                {/* Botão Lançar */}
+                                <button type="submit" onClick={(e) => handleSubmit(e, false)} className="btn-big-blue">
+                                    <Check size={18} style={{ marginRight: 6 }} /> Lançar Despesa
+                                </button>
+                            </div>
                         </div>
-                    </div>
-
-                </form >
-            </div >
-        </div >
+                    </form>
+                )}
+            </div>
+        </div>
     );
 };
 
