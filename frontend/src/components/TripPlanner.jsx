@@ -18,7 +18,7 @@ export default function TripPlanner() {
   // 1. Carrega dados reais do Django ao iniciar
   useEffect(() => {
     loadData();
-  }, []);
+  }, [TRIP_ID]);
 
   const loadData = async () => {
     try {
