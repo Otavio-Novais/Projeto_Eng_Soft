@@ -10,11 +10,11 @@ const COLUMNS_CONFIG = {
   day3: { id: 'day3', title: 'Dia 3 • Seg 14 Jul', date: '2025-07-14' },
 };
 
+const TRIP_ID = 1; // ID fixo para teste, depois virá da URL
+
 export default function TripPlanner() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const TRIP_ID = 1; // ID fixo para teste, depois virá da URL
-
   // 1. Carrega dados reais do Django ao iniciar
   useEffect(() => {
     loadData();
